@@ -40,13 +40,13 @@ MU_TEST(test_standardize_whitespace_dash) {
 *******************************************************************************/
 MU_TEST(test_duplicating_string) {
 	char* res = duplicate(foostring);
-	mu_assert_string_eq(res, foostring);
+	mu_assert_string_eq(foostring, res);
 	free(res);
 }
 
 MU_TEST(test_duplicating_partial) {
 	char* res = duplicate(foostring + 30);
-	mu_assert_string_eq(res, "over the lazy\tdog. \n\r\t");
+	mu_assert_string_eq("over the lazy\tdog. \n\r\t", res);
 	free(res);
 }
 
@@ -58,7 +58,80 @@ MU_TEST(test_trim_both) {
 	standardize_whitespace(foostring, ' ');
 	size_t res = trim(foostring);
 	mu_assert_string_eq("The quick brown fox jumped over the lazy dog.", foostring);
-	mu_assert_int_eq(res, 7);
+	mu_assert_int_eq(7, res);
+}
+
+MU_TEST(test_trim_trailing) {
+	char test[] = "This is a test.  \n";
+	size_t res = trim(test);
+	mu_assert_string_eq("This is a test.", test);
+	mu_assert_int_eq(3, res);
+}
+
+MU_TEST(test_trim_leading) {
+	char test[] = " \n\r This is a test.";
+	size_t res = trim(test);
+	mu_assert_string_eq("This is a test.", test);
+	mu_assert_int_eq(4, res);
+}
+
+
+/*******************************************************************************
+*	Test sn_printf
+*******************************************************************************/
+MU_TEST(test_sn_printf) {
+	char* res = sn_printf("This is an int: %d", 15);
+	mu_assert_string_eq("This is an int: 15", res);
+	free(res);
+
+	char* res_d = sn_printf("This is a double: %.2f", 3.141592);
+	mu_assert_string_eq("This is a double: 3.14", res_d);
+	free(res_d);
+
+	char* res1 = sn_printf("%s\t%s", "temp", "something");
+	mu_assert_string_eq("temp\tsomething", res1);
+	free(res1);
+}
+
+
+/*******************************************************************************
+*	Test remove unwanted characters
+*******************************************************************************/
+MU_TEST(test_remove_unwanted_chars_single) {
+	trim(standardize_whitespace(foostring, ' '));
+	mu_assert_string_eq("The quick brwn fx jumped ver the lazy dg.", remove_unwanted_chars(foostring, "o"));
+}
+
+MU_TEST(test_remove_unwanted_chars_mult) {
+	trim(standardize_whitespace(foostring, ' '));
+	mu_assert_string_eq("Th quick brwn fx jump vr th laz g", remove_unwanted_chars(foostring, "oedy."));
+}
+
+
+/*******************************************************************************
+*	Test replace unwanted characters
+*******************************************************************************/
+MU_TEST(test_replace_unwanted_chars_single) {
+	trim(standardize_whitespace(foostring, ' '));
+	mu_assert_string_eq("The quick brawn fax jumped aver the lazy dag.", replace_unwanted_chars(foostring, "o", 'a'));
+}
+
+MU_TEST(test_replace_unwanted_chars_multi) {
+	trim(standardize_whitespace(foostring, ' '));
+	mu_assert_string_eq("Tha quick brawn fax jumpaa avar tha laza aag.", replace_unwanted_chars(foostring, "oedy", 'a'));
+}
+
+/*******************************************************************************
+*	Test to upper case and to lower case
+*******************************************************************************/
+MU_TEST(test_to_upper) {
+	char test[] = "This is a test!";
+	mu_assert_string_eq("THIS IS A TEST!", s_toupper(test));
+}
+
+MU_TEST(test_to_lower) {
+	char test[] = "ThiS Is A Test!";
+	mu_assert_string_eq("this is a test!", s_tolower(test));
 }
 
 
@@ -77,8 +150,34 @@ MU_TEST_SUITE(test_suite) {
 	MU_RUN_TEST(test_duplicating_string);
 	MU_RUN_TEST(test_duplicating_partial);
 
-	/* */
+	/* trim */
 	MU_RUN_TEST(test_trim_both);
+	MU_RUN_TEST(test_trim_trailing);
+	MU_RUN_TEST(test_trim_leading);
+
+	/* sn_printf */
+	MU_RUN_TEST(test_sn_printf);
+
+	/* remove unwanted chars */
+	MU_RUN_TEST(test_remove_unwanted_chars_single);
+	MU_RUN_TEST(test_remove_unwanted_chars_mult);
+
+	/* replace unwanted chars */
+	MU_RUN_TEST(test_replace_unwanted_chars_single);
+	MU_RUN_TEST(test_replace_unwanted_chars_multi);
+
+	/* to upper & lower case */
+	MU_RUN_TEST(test_to_upper);
+	MU_RUN_TEST(test_to_lower);
+
+	/* find & find reverse */
+
+	/* append */
+
+	/* concat */
+
+	/* compare & compare case insensitive */
+
 }
 
 
@@ -89,53 +188,3 @@ int main(int argc, char *argv[]) {
 	MU_REPORT();
 	return 0;
 }
-
-// 	char test[50] = " This is a \t\ttest   \n\n\t\r";
-// 	printf("(%s)\n", test);
-// 	int ret = trim(test);
-// 	printf("(%s)\n", test);
-// 	printf("num chars removed: %d\n", ret);
-//
-// 	standardize_whitespace(test, '_');
-// 	printf("(%s)\n", test);
-//
-// 	remove_unwanted_chars(test, "Ti");
-// 	printf("(%s)\n", test);
-//
-// 	char* val = sn_printf("This is the string: (%s)", "%sss");
-// 	printf("%s\n", val);
-//
-// 	append(val, "this is a test");
-// 	printf("%s\n", val);
-//
-// 	s_toupper(val);
-// 	printf("%s\n", val);
-// 	s_tolower(val);
-// 	printf("%s\n", val);
-// 	replace_unwanted_chars(val, "hs", '-');
-// 	printf("%s\n", val);
-// 	free(val);
-//
-// 	char* tmp = duplicate(test);
-// 	printf("%s\n", tmp);
-// 	printf("%d\n", find(tmp, 's'));
-// 	printf("%d\n", find_reverse(tmp, 's'));
-//
-// 	printf("case sensitive (true) %d\n", s_cmp("this", "this"));
-//
-// 	printf("case sensitive (false) %d\n", s_cmp("this", "This"));
-//
-// 	printf("case insensitive (true) %d\n", s_cmp_alt("this", "This", 0));
-//
-// 	printf("case insensitive (fase) %d\n", s_cmp_alt("athis2", "This1", 0));
-//
-//
-// 	char blah[175] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-//
-// 	printf("%s\n", extract_substring(blah, 0, 175));  // whole thing
-// 	printf("%s\n", extract_substring(blah, 5, 10));
-// 	printf("%s\n", extract_substring(blah, 1, 26));
-// 	if(extract_substring(blah, 53, 10) == NULL)
-// 		printf("SUCCESS: Handled null correctly\n");
-// 	return 0;
-// }
