@@ -6,7 +6,7 @@
 #include "stringlib.h"
 
 
-char* duplicate(char* s) {
+char* s_duplicate(char* s) {
     size_t len = strlen(s);  // ensure room for NULL terminated
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
@@ -17,7 +17,7 @@ char* duplicate(char* s) {
 }
 
 
-size_t trim(char* s) {
+size_t s_trim(char* s) {
     size_t res = 0, i = 0, j = 0, length = strlen(s);
 
     // remove trailing spaces
@@ -39,7 +39,7 @@ size_t trim(char* s) {
 }
 
 
-char* standardize_whitespace(char* s, const char c) {
+char* s_standardize_whitespace(char* s, const char c) {
     size_t i = 0;
     while (s[i] != '\0') {
         if (isspace(s[i]))
@@ -50,7 +50,7 @@ char* standardize_whitespace(char* s, const char c) {
 }
 
 
-char* sn_printf(char* fmt, ...) {
+char* s_snprintf(char* fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
@@ -69,7 +69,7 @@ char* sn_printf(char* fmt, ...) {
     return buf;
 }
 
-char* remove_unwanted_chars(char* s, const char* unwanted) {
+char* s_remove_unwanted_chars(char* s, const char* unwanted) {
     size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
         int changes = 0;
@@ -93,7 +93,7 @@ char* remove_unwanted_chars(char* s, const char* unwanted) {
 }
 
 
-char* replace_unwanted_chars(char* s, const char* unwanted, const char c) {
+char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
     size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
         for (size_t q = 0; q < unwanted_len; q++) {
@@ -124,7 +124,7 @@ char* s_tolower(char* s) {
 }
 
 
-int find(char* s, char c) {
+int s_find(char* s, char c) {
     char* loc = strchr(s, c);
     if (loc == NULL)
         return -1;
@@ -132,7 +132,7 @@ int find(char* s, char c) {
 }
 
 
-int find_reverse(char* s, char c) {
+int s_find_reverse(char* s, char c) {
     char* loc = strrchr(s, c);
     if (loc == NULL)
         return -1;
@@ -140,7 +140,7 @@ int find_reverse(char* s, char c) {
 }
 
 
-char* append(char* s1, char* s2) {
+char* s_append(char* s1, char* s2) {
     size_t len =  strlen(s2);
     char* res = realloc(s1, strlen(s1) + len + 1);
     strncat(res, s2, len);
@@ -152,8 +152,8 @@ char* append(char* s1, char* s2) {
 
 
 char* s_concat(char* s1, char* s2) {
-    char* ret = duplicate(s1);
-    return append(ret, s2);
+    char* ret = s_duplicate(s1);
+    return s_append(ret, s2);
 }
 
 
@@ -167,8 +167,8 @@ int s_cmp_alt(char* s1, char* s2, int casesensitive) {
         return strcmp(s1, s2);
     }
 
-    char* t1 = duplicate(s1);
-    char* t2 = duplicate(s2);
+    char* t1 = s_duplicate(s1);
+    char* t2 = s_duplicate(s2);
     int res = strcmp(s_tolower(t1), s_tolower(t2));
 
     free(t1);
@@ -177,13 +177,29 @@ int s_cmp_alt(char* s1, char* s2, int casesensitive) {
 }
 
 
-char* extract_substring(char* s, size_t start, size_t length) {
+char* s_extract_substring(char* s, size_t start, size_t length) {
     size_t len = strlen(s);
-    if (start > len)
+    if (start >= len)
         return NULL;
     if (start + length > len)
-        return duplicate(s + start);
+        return s_duplicate(s + start);
 
     char* ret = calloc(length + 1, sizeof(char));
     return strncpy(ret, s + start, length);
+}
+
+
+char* s_extract_substring_str(char* s, char* sub, size_t length) {
+    char* loc = strstr(s, sub);
+    if (loc == NULL)
+        return NULL;
+    int start = loc - s;
+    return s_extract_substring(s, start, length);
+}
+
+char* s_extract_substring_c(char* s, char c, size_t length) {
+    int start = s_find(s, c);
+    if (start == -1)
+        return NULL;
+    return s_extract_substring(s, start, length);
 }
