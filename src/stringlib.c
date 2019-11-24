@@ -7,8 +7,8 @@
 
 
 char* duplicate(char* s) {
-    size_t len = strlen(s) + 1;  // ensure room for NULL terminated
-    char* buf = malloc(len * sizeof(char));
+    size_t len = strlen(s);  // ensure room for NULL terminated
+    char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
     strncpy(buf, s, len);
@@ -142,8 +142,11 @@ int find_reverse(char* s, char c) {
 
 char* append(char* s1, char* s2) {
     size_t len =  strlen(s2);
-    s1 = realloc(s1, strlen(s1) + len + 1);
-    strncat(s1, s2, len);
+    char* res = realloc(s1, strlen(s1) + len + 1);
+    strncat(res, s2, len);
+    // set s1 pointer to the res pointer
+    s1 = res;
+    res = NULL;
     return s1;
 }
 
@@ -155,7 +158,7 @@ char* s_concat(char* s1, char* s2) {
 
 
 int s_cmp(char* s1, char* s2) {
-    return s_cmp_alt(s1, s2, 1);  // we want it case sensitive
+    return s_cmp_alt(s1, s2, CASE_SENSITIVE);  // we want it case sensitive
 }
 
 

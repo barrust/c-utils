@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define CASE_SENSITIVE 1
+#define CASE_INSENSITIVE 0
 
 /*  Duplicate a string into a newly allocated memory location that is
     guaranteed to be NULL terminated;

@@ -161,7 +161,8 @@ MU_TEST(test_find_reverse) {
 *******************************************************************************/
 MU_TEST(test_append) {
     char* test = duplicate("This is a test");
-    mu_assert_string_eq("This is a test of the system!", append(test, " of the system!"));
+    test = append(test, " of the system!");
+    mu_assert_string_eq("This is a test of the system!", test);
     free(test);
 }
 
@@ -183,6 +184,26 @@ MU_TEST(test_concat) {
     free(test);
     free(t2);
     free(res);
+}
+
+
+/*******************************************************************************
+*   Test the compare functions
+*******************************************************************************/
+MU_TEST(test_cmp_basic) {
+    char* test = duplicate("This is a test");
+    mu_assert(s_cmp(test, "This is a test") == 0, "s_cmp failed!");
+    mu_assert(s_cmp(test, "THIS IS A TEST") != 0, "s_cmp failed!");
+    free(test);
+}
+
+MU_TEST(test_cmp_case_sensitivity) {
+    char* test = duplicate("This is a test");
+    mu_assert(s_cmp_alt(test, "This is a test", CASE_SENSITIVE) == 0, "s_cmp_alt failed for case sensitive!");  // case sensitive
+    mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE) != 0, "s_cmp_alt failed for case sensitive!");  // case sensitive
+    mu_assert(s_cmp_alt(test, "This is a test", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");  // case insensitive
+    mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");  // case insensitive
+    free(test);
 }
 
 
@@ -232,6 +253,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_concat);
 
     /* compare & compare case insensitive */
+    MU_RUN_TEST(test_cmp_basic);
+
+    MU_RUN_TEST(test_cmp_case_sensitivity);
 
 }
 
