@@ -141,9 +141,9 @@ int find_reverse(char* s, char c) {
 
 
 char* append(char* s1, char* s2) {
-    size_t len = strlen(s1) ;
-    s1 = realloc(s1, len + strlen(s2) + 1);
-    strncat(s1, s2, strlen(s2));
+    size_t len =  strlen(s2);
+    s1 = realloc(s1, strlen(s1) + len + 1);
+    strncat(s1, s2, len);
     return s1;
 }
 
