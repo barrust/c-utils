@@ -52,6 +52,14 @@ MU_TEST(test_duplicating_partial) {
 
 
 /*******************************************************************************
+*   Test reverse
+*******************************************************************************/
+MU_TEST(test_reverse) {
+    char s[] = "this is a test";
+    mu_assert_string_eq("tset a si siht", s_reverse(s));
+}
+
+/*******************************************************************************
 *   Test s_trim
 *******************************************************************************/
 MU_TEST(test_s_trim_both) {
@@ -161,6 +169,20 @@ MU_TEST(test_s_find_str) {
     mu_assert_int_eq(27, s_find_str(test, "m!"));
     mu_assert_int_eq(-1, s_find_str(test, "system."));
     mu_assert_int_eq(28, s_find_str(test, "!"));
+}
+
+MU_TEST(test_s_strrstr) {
+    char test[] = "This is a test of the test system!";
+    mu_assert_string_eq("test system!", s_strrstr(test, "test"));  // should pick up the second one!
+    mu_assert_string_eq("is a test of the test system!", s_strrstr(test, "is"));  // should pick up the second one!
+    mu_assert_string_eq(NULL, s_strrstr(test, "foo"));  // should pick up the second one!
+}
+
+MU_TEST(test_s_find_reverse_str) {
+    char test[] = "This is a test of the test system!";
+    mu_assert_int_eq(22, s_find_reverse_str(test, "test"));  // should pick up the second one!
+    mu_assert_int_eq(5, s_find_reverse_str(test, "is"));  // should pick up the second one!
+    mu_assert_int_eq(-1, s_find_reverse_str(test, "foo"));  // should pick up the second one!
 }
 
 
@@ -277,6 +299,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_duplicating_string);
     MU_RUN_TEST(test_duplicating_partial);
 
+    /* s_reverse */
+    MU_RUN_TEST(test_reverse);
+
     /* s_trim */
     MU_RUN_TEST(test_s_trim_both);
     MU_RUN_TEST(test_s_trim_trailing);
@@ -301,6 +326,8 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_s_find);
     MU_RUN_TEST(test_s_find_reverse);
     MU_RUN_TEST(test_s_find_str);
+    MU_RUN_TEST(test_s_strrstr);
+    MU_RUN_TEST(test_s_find_reverse_str);
 
     /* append */
     MU_RUN_TEST(test_append);

@@ -6,7 +6,7 @@
 #include "stringlib.h"
 
 
-char* s_duplicate(char* s) {
+char* s_duplicate(const char* s) {
     size_t len = strlen(s);  // ensure room for NULL terminated
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
@@ -14,6 +14,20 @@ char* s_duplicate(char* s) {
     strncpy(buf, s, len);
     buf[len] = '\0';
     return buf;
+}
+
+
+char* s_reverse(char* s) {
+    int j = strlen(s) - 1;
+    int i = 0;
+    while (i < j) {
+        char tmp = s[i];
+        s[i] = s[j];
+        s[j] = tmp;
+        ++i;
+        --j;
+    }
+    return s;
 }
 
 
@@ -50,7 +64,7 @@ char* s_standardize_whitespace(char* s, const char c) {
 }
 
 
-char* s_snprintf(char* fmt, ...) {
+char* s_snprintf(const char* fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
@@ -124,7 +138,7 @@ char* s_tolower(char* s) {
 }
 
 
-int s_find(char* s, char c) {
+int s_find(const char* s, const char c) {
     char* loc = strchr(s, c);
     if (loc == NULL)
         return -1;
@@ -132,7 +146,7 @@ int s_find(char* s, char c) {
 }
 
 
-int s_find_reverse(char* s, char c) {
+int s_find_reverse(const char* s, const char c) {
     char* loc = strrchr(s, c);
     if (loc == NULL)
         return -1;
@@ -140,7 +154,7 @@ int s_find_reverse(char* s, char c) {
 }
 
 
-int s_find_str(char* s, char* sub) {
+int s_find_str(const char* s, const char* sub) {
     char* loc = strstr(s, sub);
     if (loc == NULL)
         return -1;
@@ -148,7 +162,28 @@ int s_find_str(char* s, char* sub) {
 }
 
 
-char* s_append(char* s1, char* s2) {
+char* s_strrstr(const char* s, const char* sub) {
+    int len = strlen(sub);
+    char* res = NULL;
+    char* loc = strstr(s, sub);
+
+    while (loc != NULL) {
+        res = loc;
+        loc = strstr(loc + len, sub);
+    }
+    return res;
+}
+
+
+int s_find_reverse_str(const char* s, const char* sub) {
+    char* loc = s_strrstr(s, sub);
+    if (loc == NULL)
+        return -1;
+    return loc - s;
+}
+
+
+char* s_append(char* s1, const char* s2) {
     size_t len =  strlen(s2);
     char* res = realloc(s1, strlen(s1) + len + 1);
     strncat(res, s2, len);
@@ -159,18 +194,18 @@ char* s_append(char* s1, char* s2) {
 }
 
 
-char* s_concat(char* s1, char* s2) {
+char* s_concat(const char* s1, const char* s2) {
     char* ret = s_duplicate(s1);
     return s_append(ret, s2);
 }
 
 
-int s_cmp(char* s1, char* s2) {
+int s_cmp(const char* s1, const char* s2) {
     return s_cmp_alt(s1, s2, CASE_SENSITIVE);  // we want it case sensitive
 }
 
 
-int s_cmp_alt(char* s1, char* s2, int casesensitive) {
+int s_cmp_alt(const char* s1, const char* s2, int casesensitive) {
     if (casesensitive) {
         return strcmp(s1, s2);
     }
@@ -185,7 +220,7 @@ int s_cmp_alt(char* s1, char* s2, int casesensitive) {
 }
 
 
-char* s_extract_substring(char* s, size_t start, size_t length) {
+char* s_extract_substring(const char* s, size_t start, size_t length) {
     size_t len = strlen(s);
     if (start >= len)
         return NULL;
@@ -197,7 +232,7 @@ char* s_extract_substring(char* s, size_t start, size_t length) {
 }
 
 
-char* s_extract_substring_str(char* s, char* sub, size_t length) {
+char* s_extract_substring_str(const char* s, const char* sub, size_t length) {
     int start = s_find_str(s, sub);
     if (start == -1)
         return NULL;
@@ -205,7 +240,7 @@ char* s_extract_substring_str(char* s, char* sub, size_t length) {
 }
 
 
-char* s_extract_substring_c(char* s, char c, size_t length) {
+char* s_extract_substring_c(const char* s, const char c, size_t length) {
     int start = s_find(s, c);
     if (start == -1)
         return NULL;
