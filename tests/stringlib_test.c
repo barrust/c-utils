@@ -155,6 +155,14 @@ MU_TEST(test_s_find_reverse) {
     mu_assert_int_eq(28, s_find_reverse(test, '!'));
 }
 
+MU_TEST(test_s_find_str) {
+    char test[] = "This is a test of the system!";
+    mu_assert_int_eq(10, s_find_str(test, "test"));
+    mu_assert_int_eq(27, s_find_str(test, "m!"));
+    mu_assert_int_eq(-1, s_find_str(test, "system."));
+    mu_assert_int_eq(28, s_find_str(test, "!"));
+}
+
 
 /*******************************************************************************
 *   Test append
@@ -292,6 +300,7 @@ MU_TEST_SUITE(test_suite) {
     /* s_find & s_find reverse */
     MU_RUN_TEST(test_s_find);
     MU_RUN_TEST(test_s_find_reverse);
+    MU_RUN_TEST(test_s_find_str);
 
     /* append */
     MU_RUN_TEST(test_append);

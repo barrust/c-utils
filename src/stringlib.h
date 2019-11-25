@@ -44,6 +44,9 @@ int s_find(char* s, char c);
 /*  Find and return the last index of char `c` in s; if not found, returns -1 */
 int s_find_reverse(char* s, char c);
 
+/*  Find and return the index of the substring `sub` in s; if not found, returns -1 */
+int s_find_str(char* s, char* sub);
+
 /*  Allocate a new memory location and concat both s1 and s2 into it;
     NOTE: It is up to the caller to free the resulting memory! */
 char* s_concat(char* s1, char* s2);
@@ -58,14 +61,19 @@ int s_cmp(char* s1, char* s2);
 /*  Perform an optionally case sensitive or case insensitive string compare */
 int s_cmp_alt(char* s1, char* s2, int casesensitive);
 
-/* Extract a substring, starting at the fist position of string sub */
+/*  Extract a substring, starting at the fist position of string sub */
 char* s_extract_substring_str(char* s, char* sub, size_t length);
 
-/* Extract a substring, starting at the first position of char c */
+/*  Extract a substring, starting at the first position of char c */
 char* s_extract_substring_c(char* s, char c, size_t length);
 
 /*  Extract a substring of size lenght starting at start */
 char* s_extract_substring(char* s, size_t start, size_t length);
 
+
+// NOTE: FUTURE WORK
+char* s_reverse(char* s);
+int s_find_reverse_str(char* s, char* sub);  // strrstr may not always exist!
+char* s_strrstr(char* s, char* sub);  // This is because strrstr may not always exist!
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */

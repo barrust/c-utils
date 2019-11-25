@@ -140,6 +140,14 @@ int s_find_reverse(char* s, char c) {
 }
 
 
+int s_find_str(char* s, char* sub) {
+    char* loc = strstr(s, sub);
+    if (loc == NULL)
+        return -1;
+    return loc - s;
+}
+
+
 char* s_append(char* s1, char* s2) {
     size_t len =  strlen(s2);
     char* res = realloc(s1, strlen(s1) + len + 1);
@@ -190,12 +198,12 @@ char* s_extract_substring(char* s, size_t start, size_t length) {
 
 
 char* s_extract_substring_str(char* s, char* sub, size_t length) {
-    char* loc = strstr(s, sub);
-    if (loc == NULL)
+    int start = s_find_str(s, sub);
+    if (start == -1)
         return NULL;
-    int start = loc - s;
     return s_extract_substring(s, start, length);
 }
+
 
 char* s_extract_substring_c(char* s, char c, size_t length) {
     int start = s_find(s, c);
