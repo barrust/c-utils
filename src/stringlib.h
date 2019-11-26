@@ -82,6 +82,7 @@ char* s_extract_substring(const char* s, size_t start, size_t length);
 
 
 // NOTE: FUTURE WORK
-
+// char** s_split_string_str(const char* s, const char* sub);
+// char** s_split_string_c(const char* s, const char c);
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */
