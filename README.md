@@ -2,6 +2,31 @@
 
 This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but write as needed, usually differently each time and without unit tests.
 
+If there are other commonly used code that should be added, please add a feature request!
+
+##### Table of Contents:
+* [stringlib](#stringlib)
+* [timing-c](#timing-c)
+
+##### External Libraries
+* [set](https://github.com/barrust/set)
+* [hashmap](https://github.com/barrust/hashmap)
+
+
+##### Unit tests
+
+Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully tested. If not, please submit an issue with a ***minimal code example*** that encapsulates the error.
+
+A great issue would provide the following:
+> s_remove_unwanted_chars does shows duplicate entries after removal.
+> ``` c
+> char* test[] = "This is a test";
+// expect "Ths s a es"
+// get "Ths s a esest"
+// Notice the extra `est`; likely due to not erasing
+> s_remove_unwanted_chars(test, "ti");  
+> ```
+
 
 ## stringlib
 
