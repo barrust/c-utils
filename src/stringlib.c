@@ -6,6 +6,14 @@
 #include "stringlib.h"
 
 
+
+void s_free_array_of_strings(char** a, int num) {
+    for (int i = 0; i < num; i++)
+        free(a[i]);
+    free(a);
+}
+
+
 char* s_duplicate(const char* s) {
     size_t len = strlen(s);  // ensure room for NULL terminated
     char* buf = malloc((len + 1) * sizeof(char));
@@ -175,11 +183,32 @@ char* s_strrstr(const char* s, const char* sub) {
 }
 
 
-int s_find_reverse_str(const char* s, const char* sub) {
+int s_find_str_reverse(const char* s, const char* sub) {
     char* loc = s_strrstr(s, sub);
     if (loc == NULL)
         return -1;
     return loc - s;
+}
+
+
+int s_find_any(const char* s, const char* s2) {
+    char* loc = strpbrk(s, s2);
+    if (loc == NULL)
+        return -1;
+    return loc - s;
+}
+
+int s_find_any_reverse(const char* s, const char* s2) {
+    char* res = NULL;
+    char* loc = strpbrk(s, s2);
+    if (loc == NULL)  // quick exit
+        return -1;
+
+    while (loc != NULL) {
+        res = loc; // it matches a single element...
+        loc = strpbrk(loc + 1, s2);
+    }
+    return res - s;
 }
 
 
@@ -245,4 +274,92 @@ char* s_extract_substring_c(const char* s, const char c, size_t length) {
     if (start == -1)
         return NULL;
     return s_extract_substring(s, start, length);
+}
+
+
+char** s_split_string_c(const char* s, const char c, int* num) {
+    char** results = malloc(strlen(s) * sizeof(char*));
+
+    const char* loc = s;
+    int cnt = 0;
+    int len = s_find(loc, c);
+
+    while (len != -1) {
+        if (len == 0) {
+            len = s_find(++loc, c);
+            continue;
+        }
+        results[cnt++] = s_extract_substring(loc, 0, len);
+        loc += len + 1;
+        len = s_find(loc, c);
+    }
+    if (loc[0] != '\0')
+        results[cnt++] = s_duplicate(loc);
+    *num = cnt;
+
+    char** v = realloc(results, cnt * sizeof(char*));
+    return v;
+}
+
+
+char** s_split_string_str(const char* s, const char* sub, int* num) {
+    char** results = malloc(strlen(s) * sizeof(char*));
+
+    int sub_len = strlen(sub);
+
+    const char* loc = s;
+    int cnt = 0;
+    int len = s_find_str(loc, sub);
+
+    while (len != -1) {
+        if (len == 0) {
+            loc += sub_len;
+            len = s_find_str(loc, sub);
+            continue;
+        }
+        results[cnt++] = s_extract_substring(loc, 0, len);
+        loc += len + sub_len;
+        len = s_find_str(loc, sub);
+    }
+    if (loc[0] != '\0')
+        results[cnt++] = s_duplicate(loc);
+    *num = cnt;
+
+    char** v = realloc(results, cnt * sizeof(char*));
+    return v;
+}
+
+
+char** s_split_string_any(const char* s, const char* s2, int* num) {
+    char** results = malloc(strlen(s) * sizeof(char*));
+
+    const char* find;
+    if (s2 == NULL)
+        find = " \n\r\f\v\t";
+    else
+        find = s2;
+
+    const char* loc = s;
+    int cnt = 0;
+    int len = s_find_any(loc, find);
+
+    while (len != -1) {
+        if (len == 0) {
+            len = s_find_any(++loc, find);
+            continue;
+        }
+        results[cnt++] = s_extract_substring(loc, 0, len);
+        loc += len + 1;
+        len = s_find_any(loc, find);
+    }
+    if (loc[0] != '\0')
+        results[cnt++] = s_duplicate(loc);
+    *num = cnt;
+
+    char** v = realloc(results, cnt * sizeof(char*));
+    return v;
+}
+
+char** s_split_lines(const char* s, int* num) {
+    return s_split_string_any(s, "\n\r\f", num);
 }

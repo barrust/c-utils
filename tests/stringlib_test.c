@@ -180,9 +180,19 @@ MU_TEST(test_s_strrstr) {
 
 MU_TEST(test_s_find_reverse_str) {
     char test[] = "This is a test of the test system!";
-    mu_assert_int_eq(22, s_find_reverse_str(test, "test"));  // should pick up the second one!
-    mu_assert_int_eq(5, s_find_reverse_str(test, "is"));  // should pick up the second one!
-    mu_assert_int_eq(-1, s_find_reverse_str(test, "foo"));  // should pick up the second one!
+    mu_assert_int_eq(22, s_find_str_reverse(test, "test"));  // should pick up the second one!
+    mu_assert_int_eq(5, s_find_str_reverse(test, "is"));  // should pick up the second one!
+    mu_assert_int_eq(-1, s_find_str_reverse(test, "foo"));  // should pick up the second one!
+}
+
+MU_TEST(test_s_find_any) {
+    mu_assert_int_eq(2, s_find_any(foostring, "\n\t\r"));
+    mu_assert_int_eq(21, s_find_any(foostring, "jx!"));
+}
+
+MU_TEST(test_s_find_any_reverse) {
+    mu_assert_int_eq(51, s_find_any_reverse(foostring, "\n\t\r"));
+    mu_assert_int_eq(23, s_find_any_reverse(foostring, "jx!"));
 }
 
 
@@ -270,6 +280,10 @@ MU_TEST(test_extract_substring_str) {
     char* r2 = s_extract_substring_str(test, "qiuck", 15);
     mu_assert_string_eq(NULL, r2);
     free(r2);
+
+    char* r3 = s_extract_substring_str(test, "lazy", 15);
+    mu_assert_string_eq("lazy dog.", r3);
+    free(r3);
 }
 
 MU_TEST(test_extract_substring_c) {
@@ -283,6 +297,118 @@ MU_TEST(test_extract_substring_c) {
     mu_assert_string_eq(NULL, r2);
     free(r2);
 }
+
+
+/*******************************************************************************
+*   Test split line functions
+*******************************************************************************/
+MU_TEST(test_split_string_c) {
+    char test[] = "The quick brown fox jumped over the lazy dog.";
+    int num = 0;
+    char** res = s_split_string_c(test, ' ', &num);
+
+    mu_assert_int_eq(9, num);
+    mu_assert_string_eq("The", res[0]);
+    mu_assert_string_eq("quick", res[1]);
+    mu_assert_string_eq("brown", res[2]);
+    mu_assert_string_eq("fox", res[3]);
+    mu_assert_string_eq("jumped", res[4]);
+    mu_assert_string_eq("over", res[5]);
+    mu_assert_string_eq("the", res[6]);
+    mu_assert_string_eq("lazy", res[7]);
+    mu_assert_string_eq("dog.", res[8]);
+
+    s_free_array_of_strings(res, num);
+
+    res = s_split_string_c(test, '!', &num);
+    mu_assert_int_eq(1, num);
+    mu_assert_string_eq("The quick brown fox jumped over the lazy dog.", res[0]);
+
+    s_free_array_of_strings(res, num);
+
+    char test2[] = "This  is  a  test.";
+    res = s_split_string_c(test2, ' ', &num);
+    mu_assert_int_eq(4, num);
+    mu_assert_string_eq("This", res[0]);
+    mu_assert_string_eq("is", res[1]);
+    mu_assert_string_eq("a", res[2]);
+    mu_assert_string_eq("test.", res[3]);
+
+    s_free_array_of_strings(res, num);
+}
+
+MU_TEST(test_split_string_str) {
+    char test[] = "This is a test.";
+    int num = 0;
+    char** res = s_split_string_str(test, "is", &num);
+
+    mu_assert_int_eq(3, num);
+    mu_assert_string_eq("Th", res[0]);
+    mu_assert_string_eq(" ", res[1]);
+    mu_assert_string_eq(" a test.", res[2]);
+
+    s_free_array_of_strings(res, num);
+
+    char test2[] = "This  is  a  test.";
+    res = s_split_string_str(test2, "is ", &num);
+    mu_assert_int_eq(3, num);
+    mu_assert_string_eq("Th", res[0]);
+    mu_assert_string_eq(" ", res[1]);
+    mu_assert_string_eq(" a  test.", res[2]);
+
+    s_free_array_of_strings(res, num);
+
+    res = s_split_string_c(test, '!', &num);
+    mu_assert_int_eq(1, num);
+    mu_assert_string_eq("This is a test.", res[0]);
+    s_free_array_of_strings(res, num);
+}
+
+MU_TEST(test_split_string_any) {
+    char test[] = "The quick brown fox jumped over the lazy dog.";
+    int num = 0;
+    char** res = s_split_string_any(test, "qbfz", &num);
+    mu_assert_int_eq(5, num);
+    mu_assert_string_eq("The ", res[0]);
+    mu_assert_string_eq("uick ", res[1]);
+    mu_assert_string_eq("rown ", res[2]);
+    mu_assert_string_eq("ox jumped over the la", res[3]);
+    mu_assert_string_eq("y dog.", res[4]);
+    s_free_array_of_strings(res, num);
+
+    res = s_split_string_any(foostring, NULL, &num);
+    mu_assert_int_eq(9, num);
+    mu_assert_string_eq("The", res[0]);
+    mu_assert_string_eq("quick", res[1]);
+    mu_assert_string_eq("brown", res[2]);
+    mu_assert_string_eq("fox", res[3]);
+    mu_assert_string_eq("jumped", res[4]);
+    mu_assert_string_eq("over", res[5]);
+    mu_assert_string_eq("the", res[6]);
+    mu_assert_string_eq("lazy", res[7]);
+    mu_assert_string_eq("dog.", res[8]);
+    s_free_array_of_strings(res, num);
+
+    res = s_split_string_any(foostring, "!?", &num);
+    mu_assert_int_eq(1, num);
+    mu_assert_string_eq(foostring, res[0]);
+    s_free_array_of_strings(res, num);
+}
+
+MU_TEST(test_s_split_lines) {
+    char test[] = "Two roads diverged in a yellow wood,\n\rAnd sorry I could not travel both\f\n\rAnd be one traveler, long I stood\nAnd looked down one as far as I could\rTo where it bent in the undergrowth;";
+    int num = 0;
+    char** res = s_split_lines(test, &num);
+
+    mu_assert_int_eq(5, num);
+    mu_assert_string_eq("Two roads diverged in a yellow wood,", res[0]);
+    mu_assert_string_eq("And sorry I could not travel both", res[1]);
+    mu_assert_string_eq("And be one traveler, long I stood", res[2]);
+    mu_assert_string_eq("And looked down one as far as I could", res[3]);
+    mu_assert_string_eq("To where it bent in the undergrowth;", res[4]);
+    s_free_array_of_strings(res, num);
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -328,6 +454,8 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_s_find_str);
     MU_RUN_TEST(test_s_strrstr);
     MU_RUN_TEST(test_s_find_reverse_str);
+    MU_RUN_TEST(test_s_find_any);
+    MU_RUN_TEST(test_s_find_any_reverse);
 
     /* append */
     MU_RUN_TEST(test_append);
@@ -344,6 +472,12 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_extract_substring_bad_start);
     MU_RUN_TEST(test_extract_substring_str);
     MU_RUN_TEST(test_extract_substring_c);
+
+    /* split string */
+    MU_RUN_TEST(test_split_string_c);
+    MU_RUN_TEST(test_split_string_str);
+    MU_RUN_TEST(test_split_string_any);
+    MU_RUN_TEST(test_s_split_lines);
 }
 
 

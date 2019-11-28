@@ -8,6 +8,9 @@
 #define CASE_SENSITIVE 1
 #define CASE_INSENSITIVE 0
 
+
+void s_free_array_of_strings(char** a, int num);
+
 /*  Duplicate a string into a newly allocated memory location that is
     guaranteed to be NULL terminated;
     NOTE: It is up to the caller to free the resulting memory! */
@@ -55,7 +58,13 @@ char* s_strrstr(const char* s, const char* sub);
 int s_find_str(const char* s, const char* sub);
 
 /*  Find and return the last index of the substring `sub` in s; return -1 if not found */
-int s_find_reverse_str(const char* s, const char* sub);
+int s_find_str_reverse(const char* s, const char* sub);
+
+/*  Find and return the index of any of the characters in s2; retirm -1 of not found */
+int s_find_any(const char* s, const char* s2);
+
+/*  Find and return the last index of any of the characters in s2; retirm -1 of not found */
+int s_find_any_reverse(const char* s, const char* s2);
 
 /*  Allocate a new memory location and concat both s1 and s2 into it;
     NOTE: It is up to the caller to free the resulting memory! */
@@ -80,9 +89,19 @@ char* s_extract_substring_c(const char* s, const char c, size_t length);
 /*  Extract a substring of size lenght starting at start */
 char* s_extract_substring(const char* s, size_t start, size_t length);
 
+/*  Split the provided string by the delimiter `c`; does not keep empty strings */
+char** s_split_string_c(const char* s, const char c, int* num);
+
+/*  Split the provided string by the delimiter `sub`; does not keep empty strings */
+char** s_split_string_str(const char* s, const char* sub, int* num);
+
+/*  Split the provided string by any of the delimeters in s2; does not keep any empty strings */
+char** s_split_string_any(const char* s, const char* s2, int* num);
+
+char** s_split_lines(const char* s, int* num);
 
 // NOTE: FUTURE WORK
-// char** s_split_string_str(const char* s, const char* sub);
-// char** s_split_string_c(const char* s, const char c);
+
+// char* s_single_space(char* s);
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */
