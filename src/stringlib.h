@@ -1,12 +1,31 @@
-
+/*******************************************************************************
+***
+***	 Author: Tyler Barrus
+***	 email:  barrust@gmail.com
+***
+***	 Version: 0.1.0
+***	 Purpose: Single source of common string functions in C
+***
+***	 License: MIT 2019
+***
+***	 URL: https://github.com/barrust/c-utils
+***
+***	 Usage:
+***     char* str = s_duplicate("This \t is a \n test!  ");
+***     s_single_space(str); // "This is a test!"
+***     int pos = s_find_any(str, "!a"); // 8
+***     s_reverse(str); // "!tset a si sihT"
+***
+*******************************************************************************/
 #ifndef BARRUST_STRING_LIBRARY_H__
 #define BARRUST_STRING_LIBRARY_H__
 
 #include <stdio.h>
-#include <stdbool.h>
 
 #define CASE_SENSITIVE 1
 #define CASE_INSENSITIVE 0
+
+#define STRLIB_VERSION "0.1.0"
 
 
 void s_free_array_of_strings(char** a, int num);
@@ -98,10 +117,11 @@ char** s_split_string_str(const char* s, const char* sub, int* num);
 /*  Split the provided string by any of the delimeters in s2; does not keep any empty strings */
 char** s_split_string_any(const char* s, const char* s2, int* num);
 
+/*  Split the provided string by newline characters (\n\r\f); does not keep any empty strings */
 char** s_split_lines(const char* s, int* num);
 
-// NOTE: FUTURE WORK
+/*  Remove duplicate spaces in a string while also trimming and standardizing whitespaces */
+char* s_single_space(char* s);
 
-// char* s_single_space(char* s);
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */

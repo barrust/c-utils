@@ -360,6 +360,31 @@ char** s_split_string_any(const char* s, const char* s2, int* num) {
     return v;
 }
 
+
 char** s_split_lines(const char* s, int* num) {
     return s_split_string_any(s, "\n\r\f", num);
+}
+
+
+char* s_single_space(char* s) {
+    s_trim(s);
+
+    int i = 0, j = 0, found = 0;
+    while (s[j] != '\0') {
+        int space = isspace(s[j]);
+        if (space != 0 && found > 0) {
+            ++found;
+            ++j;
+        } else if (space != 0) {
+            ++found;
+            s[i++] = ' ';
+            ++j;
+        } else {
+            s[i++] = s[j++];
+            found = 0;
+        }
+    }
+    s[i] = '\0';
+
+    return s;
 }

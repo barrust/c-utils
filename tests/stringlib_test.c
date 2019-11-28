@@ -411,6 +411,16 @@ MU_TEST(test_s_split_lines) {
 
 
 /*******************************************************************************
+*   Test single space
+*******************************************************************************/
+MU_TEST(test_s_single_space) {
+    char test[] = "  This\t \n\r is \n\r a test! \n\r\f\t";
+    s_single_space(test);
+    mu_assert_string_eq("This is a test!", test);
+}
+
+
+/*******************************************************************************
 *    Test Suite Setup
 *******************************************************************************/
 MU_TEST_SUITE(test_suite) {
@@ -478,6 +488,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_split_string_str);
     MU_RUN_TEST(test_split_string_any);
     MU_RUN_TEST(test_s_split_lines);
+
+    /* single space */
+    MU_RUN_TEST(test_s_single_space);
 }
 
 
