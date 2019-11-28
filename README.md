@@ -21,9 +21,9 @@ A great issue would provide the following:
 > s_remove_unwanted_chars does shows duplicate entries after removal.
 > ``` c
 > char* test[] = "This is a test";
-// expect "Ths s a es"
-// get "Ths s a esest"
-// Notice the extra `est`; likely due to not erasing
+> // expect "Ths s a es"
+> // get "Ths s a esest"
+> // Notice the extra `est`; likely due to not erasing
 > s_remove_unwanted_chars(test, "ti");  
 > ```
 
