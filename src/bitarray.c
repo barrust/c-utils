@@ -4,9 +4,10 @@
 #include <math.h>
 #include "bitarray.h"
 
-#define CHECK_BIT(A, k)       (A[((k) / 8)] &=  (1 << ((k) % 8)))
+#define CHECK_BIT(A, k)       (A[((k) / 8)] &  (1 << ((k) % 8)))
 #define SET_BIT(A,k)          (A[((k) / 8)] |=  (1 << ((k) % 8)))
 #define CLEAR_BIT(A,k)        (A[((k) / 8)] &= ~(1 << ((k) % 8)))
+
 
 typedef struct __bitarray {
     unsigned char* arr;
@@ -25,17 +26,21 @@ bitarray_t ba_init(size_t bits) {
     return ba;
 }
 
+
 size_t ba_array_size(bitarray_t ba) {
     return ba->num_chars;
 }
+
 
 size_t ba_number_bits(bitarray_t ba) {
     return ba->num_bits;
 }
 
-const unsigned char* ba_get_bitarray(bitarray_t ba) {
+
+const unsigned char* const ba_get_bitarray(bitarray_t ba) {
     return ba->arr;
 }
+
 
 void ba_free(bitarray_t ba) {
     free(ba->arr);
@@ -47,23 +52,25 @@ void ba_free(bitarray_t ba) {
 
 
 int ba_set_bit(bitarray_t ba, size_t bit) {
-    if (bit > ba->num_bits)
+    if (bit >= ba->num_bits)
         return BITARRAY_INDEX_ERROR;
     SET_BIT(ba->arr, bit);
-    return BITARRAY_SUCCESS;  // no reason this should ever fail...
+    return BIT_SET;  // no reason this should ever fail...
 }
+
 
 int ba_check_bit(bitarray* ba, size_t bit) {
-    if (bit > ba->num_bits)
+    if (bit >= ba->num_bits)
         return BITARRAY_INDEX_ERROR;
-    CHECK_BIT(ba->arr, bit);
-    return 0;
+    return (CHECK_BIT(ba->arr, bit) != 0) ? BIT_SET : BIT_NOT_SET;
 }
 
+
 int ba_clear_bit(bitarray* ba, size_t bit) {
-    if (bit > ba->num_bits)
+    if (bit >= ba->num_bits)
         return BITARRAY_INDEX_ERROR;
-    return CLEAR_BIT(ba->arr, bit);
+    CLEAR_BIT(ba->arr, bit);
+    return BIT_NOT_SET;
 }
 
 
@@ -71,5 +78,5 @@ int ba_reset_bitarray(bitarray* ba) {
     for (size_t i = 0; i < ba->num_chars; i++) {
         ba->arr[i] = 0;
     }
-    return BITARRAY_SUCCESS;
+    return BIT_SET;
 }

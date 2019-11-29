@@ -1,18 +1,142 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../src/bitarray.h"
-// #include "minunit.h"
+#include "minunit.h"
 
-int main(int argc, char const *argv[]) {
 
-    // bitarray ba;
-    // ba_initialize(&ba, 125);
-    bitarray_t ba = ba_init(125);
+void test_setup(void) {}
 
-    printf("num_chars: %lu\n", ba_array_size(ba));
-    printf("num_bits: %lu\n", ba_number_bits(ba));
+void test_teardown(void) {}
 
-    printf("set bit: %d\n", ba_set_bit(ba, 125));
+/*******************************************************************************
+*   Test the setup
+*******************************************************************************/
+MU_TEST(test_default_setup) {
+    bitarray_t ba = ba_init(125);  // bit array of length 125
+    mu_assert_int_eq(125, ba_number_bits(ba));
+    mu_assert_int_eq(16, ba_array_size(ba));
+    mu_assert_int_eq(128, ba_array_size(ba) * 8);  // maximum number of bits, possible
     ba_free(ba);
+}
+
+
+/*******************************************************************************
+*   Test setting a bit
+*******************************************************************************/
+MU_TEST(test_set_bit) {
+    bitarray_t ba = ba_init(125);  // bit array of length 125
+    int res;
+    res = ba_set_bit(ba, 0);
+    mu_assert_int_eq(1, res);
+    res = ba_set_bit(ba, 50);
+    mu_assert_int_eq(1, res);
+    res = ba_set_bit(ba, 75);
+    mu_assert_int_eq(1, res);
+    res = ba_set_bit(ba, 125);
+    mu_assert_int_eq(-1, res);
+
+    ba_free(ba);
+}
+
+
+/*******************************************************************************
+*   Test check bit
+*******************************************************************************/
+MU_TEST(test_check_bit) {
+    bitarray_t ba = ba_init(125);  // bit array of length 125
+    int res;
+    res = ba_set_bit(ba, 0);
+    res = ba_set_bit(ba, 50);
+    res = ba_set_bit(ba, 75);
+
+    // now check that these bits are set!
+    res = ba_check_bit(ba, 0);
+    mu_assert_int_eq(BIT_SET, res);
+    res = ba_check_bit(ba, 50);
+    mu_assert_int_eq(BIT_SET, res);
+    res = ba_check_bit(ba, 75);
+    mu_assert_int_eq(BIT_SET, res);
+    res = ba_check_bit(ba, 125);
+    mu_assert_int_eq(BITARRAY_INDEX_ERROR, res);
+    res = ba_check_bit(ba, 15); // shouldn't be there!
+    mu_assert_int_eq(BIT_NOT_SET, res);
+    res = ba_check_bit(ba, 124); // shouldn't be there!
+    mu_assert_int_eq(BIT_NOT_SET, res);
+
+    ba_free(ba);
+}
+
+
+/*******************************************************************************
+*   Test clear bit
+*******************************************************************************/
+MU_TEST(test_clear_bit) {
+    bitarray_t ba = ba_init(125);  // bit array of length 125
+    int res;
+    res = ba_set_bit(ba, 0);
+    res = ba_set_bit(ba, 50);
+    res = ba_set_bit(ba, 75);
+
+    res = ba_check_bit(ba, 0);
+    mu_assert_int_eq(BIT_SET, res);
+    res = ba_check_bit(ba, 50);
+    mu_assert_int_eq(BIT_SET, res);
+    res = ba_check_bit(ba, 75);
+    mu_assert_int_eq(BIT_SET, res);
+
+    // clear the bits!
+    res = ba_clear_bit(ba, 0);
+    mu_assert_int_eq(BIT_NOT_SET, res);
+    res = ba_clear_bit(ba, 50);
+    mu_assert_int_eq(BIT_NOT_SET, res);
+    res = ba_clear_bit(ba, 75);
+    mu_assert_int_eq(BIT_NOT_SET, res);
+
+    ba_free(ba);
+}
+
+
+MU_TEST(test_reset_bitarray) {
+    bitarray_t ba = ba_init(128);  // this is easier to test when all bits in the char are settable!
+
+    // set all the bits!
+    for (int i = 0; i < ba_number_bits(ba); i++)
+        ba_set_bit(ba, i);
+
+    // check that each char is 255
+    const unsigned char* array = ba_get_bitarray(ba);
+
+    int errors = 0;
+    for (int i = 0; i < ba_array_size(ba); i++)
+        errors += array[i] == 255 ? 0 : 1;
+
+    mu_assert_int_eq(0, errors);
+
+    ba_reset_bitarray(ba);
+    errors = 0;
+    for (int i = 0; i < ba_array_size(ba); i++)
+        errors += array[i] == 0 ? 0 : 1;
+
+    ba_free(ba);
+}
+
+
+/*******************************************************************************
+*    Test Suite Setup
+*******************************************************************************/
+MU_TEST_SUITE(test_suite) {
+    MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+
+    MU_RUN_TEST(test_default_setup);
+    MU_RUN_TEST(test_set_bit);
+    MU_RUN_TEST(test_check_bit);
+    MU_RUN_TEST(test_clear_bit);
+    MU_RUN_TEST(test_reset_bitarray);
+}
+
+
+int main(int argc, char *argv[]) {
+    MU_RUN_SUITE(test_suite);
+    MU_REPORT();
     return 0;
 }
