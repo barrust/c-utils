@@ -6,6 +6,7 @@ If there are other commonly used code that should be added, please add a feature
 
 ##### Table of Contents:
 * [stringlib](#stringlib)
+* [bitarray](#bitarray)
 * [timing-c](#timing-c)
 
 ##### External Libraries
@@ -57,6 +58,40 @@ pos = s_find_str_reverse(str, "ri"); // 21
 // remove unwanted characters
 s_remove_unwanted_chars(str, "tph"); // "Tis is a orrible sring o clean u... lease el!"
 ```
+
+## bitarray
+
+The bit array library is provided to allow for a drop in bit array. It uses the smallest binary size possible for the array (`char`) to reduce the few extra bits needed if using an int (8 bits per element vs 32). It also tracks how many bits were desired and how many elements were used to hold the bit array.
+
+#### Usage
+
+To use, copy the `bitarray.h` and `bitarray.c` files into your project folder and add them to your project.
+
+``` c
+#include "bitarray.h"
+
+bitarray_t ba = ba_init(20000000);  // we want to track 20,000,000 items!
+
+for (int i = 0; i < 20000000; i++) {
+    if (...)  // whatever makes us want to set track this element
+        ba_set_bit(ba, i);
+}
+
+// we can check bits easily!
+if (ba_check_bit(ba, 10000000) == BIT_SET)
+    printf("Bit 10,000,000 is set!\n");
+else
+    printf("Bit 10,000,000 is not set!\n");
+
+// we can also clear a single bit or reset the whole array
+ba_clear_bit(ba, 10000000); // a check would now be BIT_NOT_SET
+
+ba_reset_bitarray(ba); // all the bits are set to 0
+
+// free all the memory!
+ba_free(ba);
+```
+
 
 ## timing-c
 

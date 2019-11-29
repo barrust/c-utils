@@ -21,8 +21,8 @@ bitarray_t ba_init(size_t bits) {
     ba->num_bits = bits;
     size_t num_chars = ceil(bits / 8.0);
     ba->num_chars = num_chars;
-    ba->arr = calloc(num_chars, sizeof(unsigned char));
-
+    // the extra one is for the null byte!
+    ba->arr = calloc(num_chars + 1, sizeof(unsigned char));
     return ba;
 }
 
@@ -78,5 +78,5 @@ int ba_reset_bitarray(bitarray* ba) {
     for (size_t i = 0; i < ba->num_chars; i++) {
         ba->arr[i] = 0;
     }
-    return BIT_SET;
+    return BIT_NOT_SET;
 }

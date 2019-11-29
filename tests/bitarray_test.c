@@ -112,7 +112,9 @@ MU_TEST(test_reset_bitarray) {
 
     mu_assert_int_eq(0, errors);
 
-    ba_reset_bitarray(ba);
+    int res = ba_reset_bitarray(ba);
+    mu_assert_int_eq(BIT_NOT_SET, res);
+
     errors = 0;
     for (int i = 0; i < ba_array_size(ba); i++)
         errors += array[i] == 0 ? 0 : 1;
