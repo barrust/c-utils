@@ -4,6 +4,8 @@
 #include <math.h>
 #include "bitarray.h"
 
+
+
 #define CHECK_BIT(A, k)       (A[((k) / 8)] &  (1 << ((k) % 8)))
 #define SET_BIT(A,k)          (A[((k) / 8)] |=  (1 << ((k) % 8)))
 #define CLEAR_BIT(A,k)        (A[((k) / 8)] &= ~(1 << ((k) % 8)))
@@ -79,4 +81,12 @@ int ba_reset_bitarray(bitarray* ba) {
         ba->arr[i] = 0;
     }
     return BIT_NOT_SET;
+}
+
+
+char* ba_to_string(bitarray_t ba) {
+    char* res = calloc(ba->num_bits + 1, sizeof(char));
+    for (int i = 0; i < ba->num_bits; i++)
+        res[i] = (CHECK_BIT(ba->arr, i) != 0) ? '1' : '0';
+    return res;
 }

@@ -123,6 +123,21 @@ MU_TEST(test_reset_bitarray) {
 }
 
 
+MU_TEST(test_print_array) {
+    bitarray_t ba = ba_init(25);
+
+    for (int i = 0; i < 25; i+=5)
+        ba_set_bit(ba, i);
+
+    char* res = ba_to_string(ba);
+
+    mu_assert_string_eq("1000010000100001000010000", res);
+
+    free(res);
+    ba_free(ba);
+}
+
+
 /*******************************************************************************
 *    Test Suite Setup
 *******************************************************************************/
@@ -134,6 +149,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_check_bit);
     MU_RUN_TEST(test_clear_bit);
     MU_RUN_TEST(test_reset_bitarray);
+    MU_RUN_TEST(test_print_array);
 }
 
 
