@@ -3,7 +3,7 @@
 ***	 Author: Tyler Barrus
 ***	 email:  barrust@gmail.com
 ***
-***	 Version: 0.1.0
+***	 Version: 0.1.1
 ***	 Purpose: Single source of common string functions in C
 ***
 ***	 License: MIT 2019
@@ -122,6 +122,19 @@ char** s_split_lines(const char* s, int* num);
 
 /*  Remove duplicate spaces in a string while also trimming and standardizing whitespaces */
 char* s_single_space(char* s);
+
+/*  Count the number of occurances of the delimiter;
+    NOTE: This will be >= the size of the split out strings due to the split
+          strings functions not keeping blank lines; i.e., \n\n */
+int s_find_cnt(const char* s, const char c);
+int s_find_cnt_str(const char* s, const char* sub);
+int s_find_cnt_any(const char* s, const char* s2);
+
+/*  Find the index of the `idx` delimiter; returns -1 if not found
+    NOTE: idx is 1 based (i.e., use 1 for the first instance, 2 for the second) */
+int s_find_alt(const char*s, const char c, int idx);
+int s_find_alt_str(const char*s, const char* sub, int idx);
+int s_find_alt_any(const char*s, const char* s2, int idx);
 
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */

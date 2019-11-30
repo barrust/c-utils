@@ -145,7 +145,7 @@ MU_TEST(test_to_lower) {
 
 
 /*******************************************************************************
-*   Test s_find and s_find reverse
+*   Test s_find, s_find reverse, and s_find count
 *******************************************************************************/
 MU_TEST(test_s_find) {
     char test[] = "This is a test of the system!";
@@ -153,6 +153,17 @@ MU_TEST(test_s_find) {
     mu_assert_int_eq(11, s_find(test, 'e'));
     mu_assert_int_eq(-1, s_find(test, 'z'));
     mu_assert_int_eq(28, s_find(test, '!'));
+}
+
+MU_TEST(test_s_find_alt) {
+    char test[] = "This is a test of the system!";
+    mu_assert_int_eq(6, s_find_alt(test, 's', 2));
+    mu_assert_int_eq(11, s_find_alt(test, 'e', 1));
+    mu_assert_int_eq(20, s_find_alt(test, 'e', 2));
+    mu_assert_int_eq(26, s_find_alt(test, 'e', 3));
+    mu_assert_int_eq(-1, s_find_alt(test, 'e', 4));
+    mu_assert_int_eq(-1, s_find_alt(test, 'z', 1));
+    mu_assert_int_eq(28, s_find_alt(test, '!', 1));
 }
 
 MU_TEST(test_s_find_reverse) {
@@ -163,12 +174,38 @@ MU_TEST(test_s_find_reverse) {
     mu_assert_int_eq(28, s_find_reverse(test, '!'));
 }
 
+MU_TEST(test_s_find_cnt) {
+    char test[] = "This is a test of the system!";
+    mu_assert_int_eq(5, s_find_cnt(test, 's'));
+    mu_assert_int_eq(6, s_find_cnt(test, ' '));
+    mu_assert_int_eq(0, s_find_cnt(test, '.'));
+    mu_assert_int_eq(4, s_find_cnt(test, 't'));
+}
+
 MU_TEST(test_s_find_str) {
     char test[] = "This is a test of the system!";
     mu_assert_int_eq(10, s_find_str(test, "test"));
     mu_assert_int_eq(27, s_find_str(test, "m!"));
     mu_assert_int_eq(-1, s_find_str(test, "system."));
     mu_assert_int_eq(28, s_find_str(test, "!"));
+}
+
+MU_TEST(test_s_find_cnt_str) {
+    char test[] = "This is a test of the system!";
+    mu_assert_int_eq(1, s_find_cnt_str(test, "test"));
+    mu_assert_int_eq(2, s_find_cnt_str(test, "is"));
+    mu_assert_int_eq(0, s_find_cnt_str(test, "system."));
+    mu_assert_int_eq(4, s_find_cnt_str(test, "t"));
+}
+
+MU_TEST(test_s_find_alt_str) {
+    char test[] = "This is a test of the system! And it is the best!";
+    mu_assert_int_eq(10, s_find_alt_str(test, "test", 1));
+    mu_assert_int_eq(2, s_find_alt_str(test, "is", 1));
+    mu_assert_int_eq(5, s_find_alt_str(test, "is", 2));
+    mu_assert_int_eq(37, s_find_alt_str(test, "is", 3));
+    mu_assert_int_eq(-1, s_find_alt_str(test, "is", 4));
+    mu_assert_int_eq(27, s_find_alt_str(test, "m!", 1));
 }
 
 MU_TEST(test_s_strrstr) {
@@ -182,7 +219,7 @@ MU_TEST(test_s_find_reverse_str) {
     char test[] = "This is a test of the test system!";
     mu_assert_int_eq(22, s_find_str_reverse(test, "test"));  // should pick up the second one!
     mu_assert_int_eq(5, s_find_str_reverse(test, "is"));  // should pick up the second one!
-    mu_assert_int_eq(-1, s_find_str_reverse(test, "foo"));  // should pick up the second one!
+    mu_assert_int_eq(-1, s_find_str_reverse(test, "foo"));
 }
 
 MU_TEST(test_s_find_any) {
@@ -193,6 +230,25 @@ MU_TEST(test_s_find_any) {
 MU_TEST(test_s_find_any_reverse) {
     mu_assert_int_eq(51, s_find_any_reverse(foostring, "\n\t\r"));
     mu_assert_int_eq(23, s_find_any_reverse(foostring, "jx!"));
+}
+
+MU_TEST(test_s_find_cnt_any) {
+    char test[] = "This is a test of the system!";
+    mu_assert_int_eq(5, s_find_cnt_any(test, "tT"));
+    mu_assert_int_eq(7, s_find_cnt_any(test, "is"));
+    mu_assert_int_eq(0, s_find_cnt_any(test, "\n\r"));
+    mu_assert_int_eq(6, s_find_cnt_any(test, " \n\r"));
+}
+
+MU_TEST(test_s_find_alt_any) {
+    char test[] = "This is a test of the system!";
+    mu_assert_int_eq(0, s_find_alt_any(test, "tT", 1));
+    mu_assert_int_eq(10, s_find_alt_any(test, "tT", 2));
+    mu_assert_int_eq(13, s_find_alt_any(test, "tT", 3));
+    mu_assert_int_eq(18, s_find_alt_any(test, "tT", 4));
+    mu_assert_int_eq(25, s_find_alt_any(test, "tT", 5));
+    mu_assert_int_eq(-1, s_find_alt_any(test, "tT", 6));
+    mu_assert_int_eq(-1, s_find_alt_any(test, "qv", 1));
 }
 
 
@@ -460,11 +516,17 @@ MU_TEST_SUITE(test_suite) {
 
     /* s_find & s_find reverse */
     MU_RUN_TEST(test_s_find);
+    MU_RUN_TEST(test_s_find_alt);
     MU_RUN_TEST(test_s_find_reverse);
+    MU_RUN_TEST(test_s_find_cnt);
     MU_RUN_TEST(test_s_find_str);
+    MU_RUN_TEST(test_s_find_alt_str);
     MU_RUN_TEST(test_s_strrstr);
     MU_RUN_TEST(test_s_find_reverse_str);
+    MU_RUN_TEST(test_s_find_cnt_str);
     MU_RUN_TEST(test_s_find_any);
+    MU_RUN_TEST(test_s_find_alt_any);
+    MU_RUN_TEST(test_s_find_cnt_any);
     MU_RUN_TEST(test_s_find_any_reverse);
 
     /* append */

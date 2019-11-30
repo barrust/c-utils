@@ -16,6 +16,7 @@ MU_TEST(test_timing_simple) {
     Timing t;
 
     timing_start(&t);
+    printf("Begin sleeping test... about 61 seconds\n");
     sleep(61); // sleep isn't exactly this many seconds... so get close!
     timing_end(&t);
     mu_assert(t.timing_double > 61.00 && t.timing_double < 61.01, "Sleeping 61 seconds didn't respond correctly");
