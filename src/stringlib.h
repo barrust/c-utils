@@ -3,7 +3,7 @@
 ***	 Author: Tyler Barrus
 ***	 email:  barrust@gmail.com
 ***
-***	 Version: 0.1.0
+***	 Version: 0.1.1
 ***	 Purpose: Single source of common string functions in C
 ***
 ***	 License: MIT 2019
