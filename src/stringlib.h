@@ -123,5 +123,17 @@ char** s_split_lines(const char* s, int* num);
 /*  Remove duplicate spaces in a string while also trimming and standardizing whitespaces */
 char* s_single_space(char* s);
 
+/*  Count the number of occurances of the delimiter;
+    NOTE: This will be >= the size of the split out strings due to the split
+          strings functions not keeping blank lines; i.e., \n\n */
+int s_find_cnt(const char* s, const char c);
+int s_find_cnt_str(const char* s, const char* sub);
+int s_find_cnt_any(const char* s, const char* s2);
+
+/*  Find the index of the `idx` delimiter; returns -1 if not found */
+int s_find_alt(const char*s, const char c, int idx);        // TODO - test
+int s_find_alt_str(const char*s, const char* sub, int idx); // TODO - write and test
+int s_find_alt_any(const char*s, const char* s2, int idx);  // TODO -write and test
+
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */
