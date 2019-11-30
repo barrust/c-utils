@@ -130,10 +130,11 @@ int s_find_cnt(const char* s, const char c);
 int s_find_cnt_str(const char* s, const char* sub);
 int s_find_cnt_any(const char* s, const char* s2);
 
-/*  Find the index of the `idx` delimiter; returns -1 if not found */
-int s_find_alt(const char*s, const char c, int idx);        // TODO - test
-int s_find_alt_str(const char*s, const char* sub, int idx); // TODO - write and test
-int s_find_alt_any(const char*s, const char* s2, int idx);  // TODO -write and test
+/*  Find the index of the `idx` delimiter; returns -1 if not found
+    NOTE: idx is 1 based (i.e., use 1 for the first instance, 2 for the second) */
+int s_find_alt(const char*s, const char c, int idx);
+int s_find_alt_str(const char*s, const char* sub, int idx);
+int s_find_alt_any(const char*s, const char* s2, int idx);
 
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */

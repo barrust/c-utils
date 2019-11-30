@@ -229,12 +229,29 @@ int s_find_cnt_str(const char* s, const char* sub) {
 }
 
 
+int s_find_alt_str(const char*s, const char* sub, int idx) {
+    int i = 0;
+    int len = strlen(sub);
+    char* loc = strstr(s, sub);
+    while (loc != NULL) {
+        ++i;
+        if (i == idx)
+            break;
+        loc = strstr(loc + len, sub);
+    }
+    if (loc == NULL)
+        return -1;
+    return loc - s;
+}
+
+
 int s_find_any(const char* s, const char* s2) {
     char* loc = strpbrk(s, s2);
     if (loc == NULL)
         return -1;
     return loc - s;
 }
+
 
 int s_find_any_reverse(const char* s, const char* s2) {
     char* res = NULL;
@@ -258,6 +275,21 @@ int s_find_cnt_any(const char* s, const char* s2) {
         loc = strpbrk(loc + 1, s2);
     }
     return res;
+}
+
+
+int s_find_alt_any(const char*s, const char* s2, int idx) {
+    int i = 0;
+    char* loc = strpbrk(s, s2);
+    while (loc != NULL) {
+        ++i;
+        if (i == idx)
+            break;
+        loc = strpbrk(loc + 1, s2);
+    }
+    if (loc == NULL)
+        return -1;
+    return loc - s;
 }
 
 
@@ -327,7 +359,8 @@ char* s_extract_substring_c(const char* s, const char c, size_t length) {
 
 
 char** s_split_string_c(const char* s, const char c, int* num) {
-    char** results = malloc(strlen(s) * sizeof(char*));
+    int max_size = s_find_cnt(s, c);
+    char** results = malloc(max_size * sizeof(char*));  // will be cut down for empty lines...
 
     const char* loc = s;
     int cnt = 0;
@@ -352,7 +385,8 @@ char** s_split_string_c(const char* s, const char c, int* num) {
 
 
 char** s_split_string_str(const char* s, const char* sub, int* num) {
-    char** results = malloc(strlen(s) * sizeof(char*));
+    int max_size = s_find_cnt_str(s, sub);
+    char** results = malloc(max_size * sizeof(char*));  // will be cut down for empty lines...
 
     int sub_len = strlen(sub);
 
@@ -380,14 +414,14 @@ char** s_split_string_str(const char* s, const char* sub, int* num) {
 
 
 char** s_split_string_any(const char* s, const char* s2, int* num) {
-    char** results = malloc(strlen(s) * sizeof(char*));
-
     const char* find;
     if (s2 == NULL)
         find = " \n\r\f\v\t";
     else
         find = s2;
 
+    int max_size = s_find_cnt_any(s, find);
+    char** results = malloc(max_size * sizeof(char*));
     const char* loc = s;
     int cnt = 0;
     int len = s_find_any(loc, find);
