@@ -9,7 +9,7 @@ If there are other commonly used code that should be added, please add a feature
 * [bitarray](#bitarray)
 * [timing-c](#timing-c)
 
-##### External Libraries
+##### Recommended External Libraries
 * [set](https://github.com/barrust/set)
 * [hashmap](https://github.com/barrust/hashmap)
 
@@ -37,6 +37,11 @@ Those functions that have a `const char*` do not modify the string!
 
 Documentation of each function is found in the `stringlib.h` file.
 
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `stringlib` library
+
+
 #### Usage
 
 To use, copy the `stringlib.h` and `stringlib.c` files into your project folder and add them to your project.
@@ -62,6 +67,10 @@ s_remove_unwanted_chars(str, "tph"); // "Tis is a orrible sring o clean u... lea
 ## bitarray
 
 The bit array library is provided to allow for a drop in bit array. It uses the smallest binary size possible for the array (`char`) to reduce the few extra bits needed if using an int (8 bits per element vs 32). It also tracks how many bits were desired and how many elements were used to hold the bit array.
+
+#### Compiler Flags
+
+***-lm*** - The `bitarray` library requires the math flag; some compilers automatically include it, but if not, add `-lm`
 
 #### Usage
 
@@ -96,6 +105,10 @@ ba_free(ba);
 ## timing-c
 
 This header utility is to be able to quickly provide timing functionality to standard `C` code. It is designed to be beneficial to me as I am tired of re-writting the same type of functionality. To use, simply copy the header into your project folder.
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `timing.h` library
 
 #### Usage
 

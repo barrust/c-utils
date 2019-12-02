@@ -138,6 +138,41 @@ MU_TEST(test_print_array) {
 }
 
 
+MU_TEST(test_toggle_bit) {
+    bitarray_t ba = ba_init(20);
+    for (int i = 0; i < 10; i++)
+        ba_set_bit(ba, i);
+    char* res = ba_to_string(ba);
+    mu_assert_string_eq("11111111110000000000", res);
+    free(res);
+
+    for(int i = 0; i < 20; i++)
+        ba_toggle_bit(ba, i);
+    res = ba_to_string(ba);
+    mu_assert_string_eq("00000000001111111111", res);
+    free(res);
+
+    ba_free(ba);
+}
+
+
+MU_TEST(test_number_bits_set) {
+    bitarray_t ba = ba_init(25);
+
+    for (int i = 0; i < 25; i+=5)
+        ba_set_bit(ba, i);
+    mu_assert_int_eq(5, ba_number_bits_set(ba));
+
+    for (int i = 0; i < 25; i++)
+        ba_toggle_bit(ba, i);
+    mu_assert_int_eq(20, ba_number_bits_set(ba));
+
+    ba_reset_bitarray(ba);
+    mu_assert_int_eq(0, ba_number_bits_set(ba));
+    ba_free(ba);
+}
+
+
 /*******************************************************************************
 *    Test Suite Setup
 *******************************************************************************/
@@ -150,6 +185,8 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_clear_bit);
     MU_RUN_TEST(test_reset_bitarray);
     MU_RUN_TEST(test_print_array);
+    MU_RUN_TEST(test_toggle_bit);
+    MU_RUN_TEST(test_number_bits_set);
 }
 
 
