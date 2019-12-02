@@ -3,7 +3,7 @@
 ***	 Author: Tyler Barrus
 ***	 email:  barrust@gmail.com
 ***
-***	 Version: 0.1.1
+***	 Version: 0.1.2
 ***	 Purpose: Simple bit array library
 ***
 ***	 License: MIT 2019
@@ -49,6 +49,10 @@ int ba_set_bit(bitarray_t ba, size_t bit);
     BIT_NOT_SET if false */
 int ba_check_bit(bitarray_t ba, size_t bit);
 
+/*  Toggle the bit by setting it to BIT_NOT_SET if currently is BIT_SET or
+    vice versa; returns the updated value of the bit */
+int ba_toggle_bit(bitarray_t ba, size_t bit);
+
 /*  Clear a bit by setting it to 0 */
 int ba_clear_bit(bitarray_t ba, size_t bit);
 
@@ -58,6 +62,9 @@ int ba_reset_bitarray(bitarray_t ba);
 /*  Return a printable representation of the array as 0's and 1's;
     NOTE: It is up to the caller to free the memory */
 char* ba_to_string(bitarray_t ba);
+
+/*  Return the number of bits set */
+size_t ba_number_bits_set(bitarray_t ba);
 
 /*  Free all the memory */
 void ba_free(bitarray_t ba);

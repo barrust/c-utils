@@ -6,9 +6,10 @@
 
 
 
-#define CHECK_BIT(A, k)       (A[((k) / 8)] &  (1 << ((k) % 8)))
-#define SET_BIT(A,k)          (A[((k) / 8)] |=  (1 << ((k) % 8)))
-#define CLEAR_BIT(A,k)        (A[((k) / 8)] &= ~(1 << ((k) % 8)))
+#define CHECK_BIT(A, k)     (A[((k) / 8)] &   (1 << ((k) % 8)))
+#define SET_BIT(A,k)        (A[((k) / 8)] |=  (1 << ((k) % 8)))
+#define CLEAR_BIT(A,k)      (A[((k) / 8)] &= ~(1 << ((k) % 8)))
+#define TOGGLE_BIT(A,k)     (A[((k) / 8)] ^=  (1 << ((k) % 8)))
 
 
 typedef struct __bitarray {
@@ -61,14 +62,22 @@ int ba_set_bit(bitarray_t ba, size_t bit) {
 }
 
 
-int ba_check_bit(bitarray* ba, size_t bit) {
+int ba_check_bit(bitarray_t ba, size_t bit) {
     if (bit >= ba->num_bits)
         return BITARRAY_INDEX_ERROR;
     return (CHECK_BIT(ba->arr, bit) != 0) ? BIT_SET : BIT_NOT_SET;
 }
 
 
-int ba_clear_bit(bitarray* ba, size_t bit) {
+int ba_toggle_bit(bitarray_t ba, size_t bit) {
+    if (bit >= ba->num_bits)
+        return BITARRAY_INDEX_ERROR;
+    TOGGLE_BIT(ba->arr, bit);
+    return ba_check_bit(ba, bit);
+}
+
+
+int ba_clear_bit(bitarray_t ba, size_t bit) {
     if (bit >= ba->num_bits)
         return BITARRAY_INDEX_ERROR;
     CLEAR_BIT(ba->arr, bit);
@@ -76,7 +85,7 @@ int ba_clear_bit(bitarray* ba, size_t bit) {
 }
 
 
-int ba_reset_bitarray(bitarray* ba) {
+int ba_reset_bitarray(bitarray_t ba) {
     for (size_t i = 0; i < ba->num_chars; i++) {
         ba->arr[i] = 0;
     }
@@ -88,5 +97,13 @@ char* ba_to_string(bitarray_t ba) {
     char* res = calloc(ba->num_bits + 1, sizeof(char));
     for (int i = 0; i < ba->num_bits; i++)
         res[i] = (CHECK_BIT(ba->arr, i) != 0) ? '1' : '0';
+    return res;
+}
+
+
+size_t ba_number_bits_set(bitarray_t ba) {
+    size_t res = 0;
+    for (size_t i = 0; i < ba->num_bits; i++)
+        res += (CHECK_BIT(ba->arr, i) != 0) ? 1 : 0;
     return res;
 }
