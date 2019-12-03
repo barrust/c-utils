@@ -19,66 +19,43 @@ typedef struct __file_struct {
 
 
 /* private functions */
-char* __str_duplicate(const char* s);
-char* __str_extract_substring(const char* s, size_t start, size_t length);
-int __str_find_reverse(const char* s, const char c);
-void __parse_file_info(const char* full_filepath, char** filepath, char** filename);
-
+char*   __str_duplicate(const char* s);
+char*   __str_extract_substring(const char* s, size_t start, size_t length);
+int     __str_find_reverse(const char* s, const char c);
+void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
+void    __print_out_stat_errno(int e);
 
 
 file_t f_init(const char* filepath) {
-
-    file_t f = calloc(1, sizeof(file_struct));
     struct stat stats;
-    int status = stat(filepath, &stats);
-    if (status == -1) {
-        switch(errno) {
-            case EACCES:
-                printf("EACCES\n"); break;
-            case EFAULT:
-                printf("EFAULT\n"); break;
-            case ENAMETOOLONG:
-                printf("ENAMETOOLONG\n"); break;
-            case ENOENT:
-                printf("ENOENT\n"); break;
-            case ENOMEM:
-                printf("ENOMEM\n"); break;
-            case ENOTDIR:
-                printf("ENOENT\n"); break;
-            case EOVERFLOW:
-                printf("EOVERFLOW\n"); break;
-            case EBADF:
-                printf("EBADF\n"); break;
-            case EINVAL:
-                printf("EINVAL\n"); break;
-            default:
-                printf("errno: %d\n", errno); break;
-        }
+    if (stat(filepath, &stats) == -1) {
+        __print_out_stat_errno(errno);
         return NULL;
     }
-    f->filesize = stats.st_size;
-    f->mode = stats.st_mode;
-    if (S_ISDIR(stats.st_mode) != 0) {
-        f->filename = NULL;
-        f->extension = NULL;
-        f->basepath = realpath(filepath, NULL);
-        f->filesize = 0; // can't calc this right now!
-    } else {
-        char* tmp_curpath = NULL;
-        char* tmp_filename = NULL;
-        __parse_file_info(filepath, &tmp_curpath, &tmp_filename);
-        f->filename = __str_duplicate(tmp_filename);
-        f->basepath = realpath(tmp_curpath, NULL);
-        free(tmp_filename);
-        free(tmp_curpath);
-        int ex_pos = __str_find_reverse(f->filename, '.');
-        if (ex_pos == -1)
-            f->extension = NULL;
-        else
-            f->extension = __str_duplicate(f->filename + ex_pos + 1);
-    }
 
+    file_t f = calloc(1, sizeof(file_struct));
+    // set the defaults
+    f->filename = NULL;
+    f->extension = NULL;
+    f->filesize = 0;
     f->numlines = 0;
+    f->extension = NULL;
+    f->mode = stats.st_mode;
+
+    if (S_ISDIR(stats.st_mode) != 0) {
+        f->basepath = realpath(filepath, NULL);
+    } else if (S_ISREG(stats.st_mode) != 0) {
+        char* path = NULL;
+        __parse_file_info(filepath, &path, &f->filename);
+        f->basepath = realpath(path, NULL);
+        free(path);
+        int ex_pos = __str_find_reverse(f->filename, '.');
+        if (ex_pos != -1)
+            f->extension = __str_duplicate(f->filename + ex_pos + 1);
+        f->filesize = stats.st_size;
+    } else if (S_ISLNK(stats.st_mode) != 0) {
+        // do something with symlinks?
+    }
     return f;
 }
 
@@ -91,6 +68,7 @@ void f_free(file_t f) {
         f->lines[i] = NULL;
     free(f->lines);
     free(f->buffer);
+    free(f);
 }
 
 
@@ -169,4 +147,29 @@ void __parse_file_info(const char* full_filepath, char** filepath, char** filena
     *filepath = __str_extract_substring(full_filepath, 0, slash_loc + 1);
     *filename = __str_extract_substring(full_filepath, slash_loc + 1, pathlen);
     return;
+}
+
+void __print_out_stat_errno(int e) {
+    switch(e) {
+        case EACCES:
+            printf("EACCES\n"); break;
+        case EFAULT:
+            printf("EFAULT\n"); break;
+        case ENAMETOOLONG:
+            printf("ENAMETOOLONG\n"); break;
+        case ENOENT:
+            printf("ENOENT\n"); break;
+        case ENOMEM:
+            printf("ENOMEM\n"); break;
+        case ENOTDIR:
+            printf("ENOENT\n"); break;
+        case EOVERFLOW:
+            printf("EOVERFLOW\n"); break;
+        case EBADF:
+            printf("EBADF\n"); break;
+        case EINVAL:
+            printf("EINVAL\n"); break;
+        default:
+            printf("errno: %d\n", errno); break;
+    }
 }
