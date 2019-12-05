@@ -9,6 +9,7 @@ typedef struct __file_struct {
     size_t filesize;
     mode_t mode;
     size_t numlines;
+    int is_symlink;
     char* basepath;
     char* filename;
     char* extension;
@@ -26,7 +27,93 @@ void    __parse_file_info(const char* full_filepath, char** filepath, char** fil
 void    __print_out_stat_errno(int e);
 
 
+
+int fs_identify_path(const char* path) {
+    errno = 0;
+    struct stat stats;
+    if (stat(path, &stats) == -1) {
+        if (errno == ENOENT)
+            return FS_NOT_VALID;
+    }
+    if (S_ISDIR(stats.st_mode) != 0)
+        return FS_DIRECTORY;
+    if (S_ISREG(stats.st_mode) != 0)
+        return FS_FILE;
+    if (S_ISLNK(stats.st_mode) != 0)
+        return FS_SYMLINK;
+    return FS_NOT_VALID;
+}
+
+int fs_mkdir(const char* path, bool recursive) {
+    return fs_mkdir_alt(path, recursive, S_IRWXU | S_IRGRP | S_IWGRP);
+}
+
+int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
+    size_t len = strlen(path);
+    if (path == NULL || len == 0)
+        return FS_NOT_VALID;  // do something with this...
+
+    errno = 0;
+    struct stat stats;
+    int stat_res = stat(path, &stats);
+    if (stat_res != -1) {
+        return FS_EXISTS;
+    }
+
+    if (!recursive) {
+        if (mkdir(path, mode) == -1) {
+            if (errno != EEXIST)
+                return FS_FAILURE;
+        }
+        return FS_EXISTS;
+    }
+
+    // need to start by finding a way to resolve the relative paths!
+    char* new_path = NULL;
+    char* tmp = __str_duplicate(path);
+    int pos = __str_find_reverse(tmp, '/');
+    while (pos != -1) {
+        tmp[pos] = '\0';
+        char* p = realpath(tmp, NULL);
+        if (p != NULL) {
+            char* s = tmp + (pos + 1);
+            int p_len = strlen(p), t_len = strlen(s);
+            new_path = calloc(p_len + t_len + 2, sizeof(char));  // include slash and \0
+            snprintf(new_path, p_len + 1 + t_len, "%s/%s", p, s);
+            free(p);
+            break;
+        }
+        int tmp_pos = __str_find_reverse(tmp, '/');
+        pos[tmp] = '/';
+        pos = tmp_pos;
+    }
+    free(tmp);
+
+    if (new_path == NULL)
+        return FS_NOT_VALID;
+
+    char* p;
+    for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
+        *p = '\0';
+        // printf("attempt to make%s\n", new_path);
+        if (mkdir(new_path, mode) == -1) {
+            if (errno != EEXIST) {
+                free(new_path);
+                return FS_FAILURE;
+            }
+        }
+        *p = '/';
+    }
+    free(new_path);
+    return FS_EXISTS;
+}
+
+/*******************************************************************************
+*   file Objects
+*******************************************************************************/
+
 file_t f_init(const char* filepath) {
+    errno = 0;
     struct stat stats;
     if (stat(filepath, &stats) == -1) {
         __print_out_stat_errno(errno);
@@ -89,6 +176,9 @@ size_t f_filesize(file_t f) {
 }
 
 
+/*******************************************************************************
+*   Directory Objects
+*******************************************************************************/
 
 
 
@@ -139,7 +229,7 @@ void __parse_file_info(const char* full_filepath, char** filepath, char** filena
 
     int slash_loc = __str_find_reverse(full_filepath, '/');
     if (slash_loc == -1) {
-        (*filepath) = NULL;
+        (*filepath) = __str_duplicate(".");
         (*filename) = __str_duplicate(full_filepath);
         return;
     }
@@ -162,7 +252,7 @@ void __print_out_stat_errno(int e) {
         case ENOMEM:
             printf("ENOMEM\n"); break;
         case ENOTDIR:
-            printf("ENOENT\n"); break;
+            printf("ENOTDIR\n"); break;
         case EOVERFLOW:
             printf("EOVERFLOW\n"); break;
         case EBADF:

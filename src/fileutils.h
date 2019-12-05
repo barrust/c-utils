@@ -1,8 +1,30 @@
-
+#include <stdbool.h>
+#include <sys/stat.h>
 
 
 typedef struct __file_struct file_struct;
 typedef struct __file_struct *file_t;
+
+
+#define FS_NOT_VALID        -10
+#define FS_FILE             -9
+#define FS_DIRECTORY        -8
+#define FS_SYMLINK          -7
+
+#define FS_EXISTS           0
+#define FS_FAILURE          -1
+
+
+/*******************************************************************************
+*   Utility Functions
+*******************************************************************************/
+
+int fs_identify_path(const char* path);
+
+int fs_mkdir(const char* path, bool recursive);
+
+int fs_mkdir_alt(const char* path, bool recursive, mode_t mode);
+
 
 
 /*******************************************************************************
