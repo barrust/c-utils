@@ -11,7 +11,7 @@ typedef struct __file_struct {
     size_t filesize;
     mode_t mode;
     size_t numlines;
-    int is_symlink;
+    bool is_symlink;     // 0 for false, 1 for true
     char* basepath;
     char* filename;
     char* extension;
@@ -88,7 +88,7 @@ char* fs_resolve_path(const char* path) {
 char* fs_cwd() {
     size_t malsize = 16; // some defult power of 2...
     char* buf = malloc(malsize * sizeof(char));
-
+    errno = 0;
     while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
         malsize *= 2;
         buf = (char*)realloc(buf, malsize * sizeof(char));
@@ -230,29 +230,27 @@ file_t f_init(const char* filepath) {
         return NULL;
     }
 
+    mode_t mode = stats.st_mode;
+    if (S_ISREG(mode) == 0 && S_ISLNK(mode) == 0)
+        return NULL; // it isn't a file or symlink
+
     file_t f = calloc(1, sizeof(file_struct));
     // set the defaults
     f->filename = NULL;
     f->extension = NULL;
     f->filesize = 0;
     f->numlines = 0;
-    f->extension = NULL;
-    f->mode = stats.st_mode;
+    f->is_symlink = S_ISLNK(mode) == 0 ? false : true;
+    f->mode = mode;
 
-    if (S_ISDIR(stats.st_mode) != 0) {
-        f->basepath = realpath(filepath, NULL);
-    } else if (S_ISREG(stats.st_mode) != 0) {
-        char* path = NULL;
-        __parse_file_info(filepath, &path, &f->filename);
-        f->basepath = realpath(path, NULL);
-        free(path);
-        int ex_pos = __str_find_reverse(f->filename, '.');
-        if (ex_pos != -1)
-            f->extension = __str_duplicate(f->filename + ex_pos + 1);
-        f->filesize = stats.st_size;
-    } else if (S_ISLNK(stats.st_mode) != 0) {
-        // do something with symlinks?
-    }
+    char* path = NULL;
+    __parse_file_info(filepath, &path, &f->filename);
+    f->basepath = realpath(path, NULL);
+    int ex_pos = __str_find_reverse(f->filename, '.');
+    if (ex_pos != -1)
+        f->extension = __str_extract_substring(f->filename, ex_pos + 1, strlen(f->filename));
+    f->filesize = stats.st_size;
+
     return f;
 }
 
