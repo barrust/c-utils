@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "minunit.h"
 #include "../src/fileutils.h"
 
@@ -7,24 +8,25 @@
 char* test_dir = NULL;
 char* test_dir_rel = NULL;
 
+/* private functions */
+char* __str_snprintf(const char* fmt, ...);
+
+
+
 void test_setup(void) {
     char* curr_dir = fs_resolve_path("./");
     int len = strlen(curr_dir);
-    if (strncmp(&curr_dir[len - 4], "test", 4) != 0) {
-        char* tmp = realloc(curr_dir, len + 6);
-        strcpy(tmp + len, "test/");
+    if (strncmp(&curr_dir[len - 5], "tests", 5) != 0) {
+        char* tmp = __str_snprintf("%s%s", curr_dir, "tests");
+        free(curr_dir);
         curr_dir = tmp;
         tmp = NULL;
 
-        test_dir_rel = calloc(12, sizeof(char));
-        snprintf(test_dir_rel, 12, "./test/tmp/");
+        test_dir_rel = __str_snprintf("./tests/tmp");
     } else {
-        test_dir_rel = calloc(7, sizeof(char));
-        snprintf(test_dir_rel, 7, "./tmp/");
+        test_dir_rel = __str_snprintf("./tmp");
     }
-
-    test_dir = calloc(strlen(curr_dir) + 5, sizeof(char));
-    snprintf(test_dir, strlen(curr_dir) + 5, "%s%s", curr_dir, "tmp/");
+    test_dir = __str_snprintf("%s/%s", curr_dir, "tmp");
     free(curr_dir);
 }
 
@@ -34,10 +36,106 @@ void test_teardown(void) {
 }
 
 
-MU_TEST(test_default_setup) {
-    mu_assert_string_eq(NULL, NULL);
+/*******************************************************************************
+*    Test resolve paths
+*******************************************************************************/
+MU_TEST(test_setup_resolve_paths) {
+    char* path = fs_resolve_path(test_dir_rel);
+    mu_assert_string_eq(test_dir, path);
+    int len = strlen(path);
+    mu_assert_int_eq('p', path[len-1]);  // make sure no trailing '/'
+    free(path);
 }
 
+MU_TEST(test_resolve_path_file) {
+    char* tmp = __str_snprintf("%s/tmp/test.txt", test_dir_rel);
+    char* res = __str_snprintf("%s/tmp/test.txt", test_dir);
+    char* path = fs_resolve_path(tmp);
+    mu_assert_string_eq(res, path);
+    free(tmp);
+    free(path);
+    free(res);
+}
+
+MU_TEST(test_resolve_path_no_exist) {
+    char* tmp = __str_snprintf("%s/blah/test.txt", test_dir_rel);
+    char* res = __str_snprintf("%s/blah/test.txt", test_dir);
+    char* path = fs_resolve_path(tmp);
+    mu_assert_string_eq(res, path);
+    free(tmp);
+    free(path);
+    free(res);
+}
+
+/*******************************************************************************
+*    Test identify path
+*******************************************************************************/
+MU_TEST(test_identify_path) {
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(test_dir));
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(test_dir_rel));
+
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
+    free(filepath);
+
+    filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+    free(filepath);
+}
+
+/*******************************************************************************
+*    Test touch
+*******************************************************************************/
+MU_TEST(test_touch) {
+    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+
+    mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
+
+    mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
+    unlink(filepath);
+
+    free(filepath);
+}
+
+/*******************************************************************************
+*    Test rename / move     NOTE: rename and move are synonymous
+*******************************************************************************/
+MU_TEST(test_rename) {
+    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    char* new_filepath = __str_snprintf("%s/no-test_2.txt", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(new_filepath));
+
+    mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
+    mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
+
+    mu_assert_int_eq(FS_SUCCESS, fs_rename(filepath, new_filepath));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  // make sure no longer there
+    mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  // make sure this one is!
+    unlink(new_filepath);
+
+    free(filepath);
+    free(new_filepath);
+}
+
+MU_TEST(test_move) {
+    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    char* new_filepath = __str_snprintf("%s/lvl2/no-test_2.txt", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(new_filepath));
+
+    mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
+    mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
+
+    mu_assert_int_eq(FS_SUCCESS, fs_move(filepath, new_filepath));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  // make sure no longer there
+    mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  // make sure this one is!
+    unlink(new_filepath);
+
+    free(filepath);
+    free(new_filepath);
+}
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -45,7 +143,23 @@ MU_TEST(test_default_setup) {
 MU_TEST_SUITE(test_suite) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-    MU_RUN_TEST(test_default_setup);
+    // resolve
+    MU_RUN_TEST(test_setup_resolve_paths);
+    MU_RUN_TEST(test_resolve_path_file);
+    MU_RUN_TEST(test_resolve_path_no_exist);
+
+    // fs_identify_path
+    MU_RUN_TEST(test_identify_path);
+
+    // touch
+    MU_RUN_TEST(test_touch);
+
+    // rename / move
+    MU_RUN_TEST(test_rename);
+    MU_RUN_TEST(test_move);
+
+    // mkdir
+
 }
 
 
@@ -54,4 +168,27 @@ int main(int argc, char *argv[]) {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
     return 0;
+}
+
+
+/*******************************************************************************
+*   PRIVATE FUNCTIONS
+*******************************************************************************/
+char* __str_snprintf(const char* fmt, ...) {
+    va_list args;
+
+    va_start(args, fmt);
+
+    size_t len = vsnprintf(NULL, 0, fmt, args);
+    va_end(args);
+
+    char* buf = malloc((len + 1) * sizeof(char));
+    if (buf == NULL)
+        return NULL; // must be an error state
+
+    va_start(args, fmt);
+    vsnprintf(buf, len + 1, fmt, args);
+    va_end(args);
+
+    return buf;
 }

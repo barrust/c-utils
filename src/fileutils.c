@@ -57,7 +57,7 @@ char* fs_resolve_path(const char* path) {
             char* s = tmp + (pos + 1);
             int p_len = strlen(p), t_len = strlen(s);
             new_path = calloc(p_len + t_len + 3, sizeof(char));  // include slash x2 and \0
-            snprintf(new_path, p_len + 2 + t_len, "%s/%s/", p, s);
+            snprintf(new_path, p_len + 2 + t_len, "%s/%s", p, s);
             free(p);
             break;
         }
@@ -120,7 +120,15 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     if (new_path == NULL)
         return FS_NOT_VALID;
 
-    printf("new_path: %s\n", new_path);
+    // add a trailing '/' for the loop to work!
+    len = strlen(new_path);
+    char* tmp = realloc(new_path, len + 2);
+    tmp[len] = '/';
+    tmp[len + 1] = '\0';
+    new_path = tmp;
+    tmp = NULL;
+
+    // printf("new_path: %s\n", new_path);
     char* p;
     for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
         *p = '\0';

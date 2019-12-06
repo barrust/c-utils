@@ -37,11 +37,8 @@ int fs_mkdir(const char* path, bool recursive);
 
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode);
 
+// int fs_rmdir(const char* path, bool recursive);  // TODO: implement
 // int fs_rmdir_alt(const char* path, bool recursive);  // TODO: implement
-
-int fs_touch(const char* path);
-
-int fs_touch_alt(const char* path, mode_t mode);
 
 
 
