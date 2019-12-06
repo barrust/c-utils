@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 #include "fileutils.h"
 
@@ -25,6 +26,7 @@ char*   __str_extract_substring(const char* s, size_t start, size_t length);
 int     __str_find_reverse(const char* s, const char c);
 void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
 void    __print_out_stat_errno(int e);
+int     __fs_mkdir(const char* path, mode_t mode);
 
 
 
@@ -33,7 +35,7 @@ int fs_identify_path(const char* path) {
     struct stat stats;
     if (stat(path, &stats) == -1) {
         if (errno == ENOENT)
-            return FS_NOT_VALID;
+            return FS_NO_EXISTS;
     }
     if (S_ISDIR(stats.st_mode) != 0)
         return FS_DIRECTORY;
@@ -42,6 +44,55 @@ int fs_identify_path(const char* path) {
     if (S_ISLNK(stats.st_mode) != 0)
         return FS_SYMLINK;
     return FS_NOT_VALID;
+}
+
+char* fs_resolve_path(const char* path) {
+    char* new_path = NULL;
+    char* tmp = __str_duplicate(path);
+    int pos = __str_find_reverse(tmp, '/');
+    while (pos != -1) {
+        tmp[pos] = '\0';
+        char* p = realpath(tmp, NULL);
+        if (p != NULL) {
+            char* s = tmp + (pos + 1);
+            int p_len = strlen(p), t_len = strlen(s);
+            new_path = calloc(p_len + t_len + 3, sizeof(char));  // include slash x2 and \0
+            snprintf(new_path, p_len + 2 + t_len, "%s/%s/", p, s);
+            free(p);
+            break;
+        }
+        int tmp_pos = __str_find_reverse(tmp, '/');
+        pos[tmp] = '/';
+        pos = tmp_pos;
+    }
+    free(tmp);
+
+    return new_path;
+}
+
+int fs_rename(const char* path, const char* new_path) {
+    errno = 0;
+    int res = rename(path, new_path);
+    if (res == 0)
+        return FS_SUCCESS;
+    if (errno == ENOENT)
+        return FS_NO_EXISTS;
+    return FS_FAILURE;
+}
+
+int fs_move(const char* path, const char* new_path) {
+    return fs_rename(path, new_path);
+}
+
+int fs_touch(const char* path) {
+    return fs_touch_alt(path, S_IRWXU | S_IRGRP | S_IWGRP);
+}
+
+int fs_touch_alt(const char* path, mode_t mode) {
+    open(path, O_CREAT, mode);
+    if (fs_identify_path(path) == FS_FILE)
+        return FS_SUCCESS;
+    return FS_FAILURE;
 }
 
 int fs_mkdir(const char* path, bool recursive) {
@@ -61,47 +112,24 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     }
 
     if (!recursive) {
-        if (mkdir(path, mode) == -1) {
-            if (errno != EEXIST)
-                return FS_FAILURE;
-        }
-        return FS_EXISTS;
+        return __fs_mkdir(path, mode);
     }
 
     // need to start by finding a way to resolve the relative paths!
-    char* new_path = NULL;
-    char* tmp = __str_duplicate(path);
-    int pos = __str_find_reverse(tmp, '/');
-    while (pos != -1) {
-        tmp[pos] = '\0';
-        char* p = realpath(tmp, NULL);
-        if (p != NULL) {
-            char* s = tmp + (pos + 1);
-            int p_len = strlen(p), t_len = strlen(s);
-            new_path = calloc(p_len + t_len + 2, sizeof(char));  // include slash and \0
-            snprintf(new_path, p_len + 1 + t_len, "%s/%s", p, s);
-            free(p);
-            break;
-        }
-        int tmp_pos = __str_find_reverse(tmp, '/');
-        pos[tmp] = '/';
-        pos = tmp_pos;
-    }
-    free(tmp);
-
+    char* new_path = fs_resolve_path(path);
     if (new_path == NULL)
         return FS_NOT_VALID;
 
+    printf("new_path: %s\n", new_path);
     char* p;
     for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
         *p = '\0';
-        // printf("attempt to make%s\n", new_path);
-        if (mkdir(new_path, mode) == -1) {
-            if (errno != EEXIST) {
-                free(new_path);
-                return FS_FAILURE;
-            }
+        int res = __fs_mkdir(new_path, mode);
+        if (res == FS_FAILURE) {
+            free(new_path);
+            return FS_FAILURE;
         }
+        printf("tmp_path: %s\n", new_path);
         *p = '/';
     }
     free(new_path);
@@ -186,6 +214,15 @@ size_t f_filesize(file_t f) {
 /*******************************************************************************
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
+int __fs_mkdir(const char* path, mode_t mode) {
+    if (mkdir(path, mode) == -1) {
+        if (errno != EEXIST) {
+            return FS_FAILURE;
+        }
+    }
+    return FS_EXISTS;
+}
+
 char* __str_duplicate(const char* s) {
     size_t len = strlen(s);  // ensure room for NULL terminated
     char* buf = malloc((len + 1) * sizeof(char));
