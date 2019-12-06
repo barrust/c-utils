@@ -17,7 +17,7 @@ void test_setup(void) {
     char* curr_dir = fs_resolve_path("./");
     int len = strlen(curr_dir);
     if (strncmp(&curr_dir[len - 5], "tests", 5) != 0) {
-        char* tmp = __str_snprintf("%s%s", curr_dir, "tests");
+        char* tmp = __str_snprintf("%s/%s", curr_dir, "tests");
         free(curr_dir);
         curr_dir = tmp;
         tmp = NULL;
@@ -35,6 +35,16 @@ void test_teardown(void) {
     free(test_dir_rel);
 }
 
+/*******************************************************************************
+*    Test cwd...
+*******************************************************************************/
+MU_TEST(test_cwd) {
+    char* cwd = fs_cwd();
+    char* res = fs_resolve_path("./");
+    mu_assert_string_eq(res, cwd);
+    free(cwd);
+    free(res);
+}
 
 /*******************************************************************************
 *    Test resolve paths
@@ -142,6 +152,9 @@ MU_TEST(test_move) {
 *******************************************************************************/
 MU_TEST_SUITE(test_suite) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+
+    // cwd
+    MU_RUN_TEST(test_cwd);
 
     // resolve
     MU_RUN_TEST(test_setup_resolve_paths);

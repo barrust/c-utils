@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -31,6 +32,9 @@ int     __fs_mkdir(const char* path, mode_t mode);
 
 
 int fs_identify_path(const char* path) {
+    if (path == NULL)
+        return FS_NOT_VALID;
+
     errno = 0;
     struct stat stats;
     if (stat(path, &stats) == -1) {
@@ -47,6 +51,12 @@ int fs_identify_path(const char* path) {
 }
 
 char* fs_resolve_path(const char* path) {
+    if (path == NULL)
+        return NULL;
+
+    if (strlen(path) == 1 && strcmp(path, ".") == 0)
+        return fs_cwd();
+
     char* new_path = NULL;
     char* tmp = __str_duplicate(path);
     int pos = __str_find_reverse(tmp, '/');
@@ -67,10 +77,29 @@ char* fs_resolve_path(const char* path) {
     }
     free(tmp);
 
+    // ensure no trailing '/'
+    int len = strlen(new_path);
+    if (new_path[len - 1] == '/')
+        new_path[len - 1] = '\0';
+
     return new_path;
 }
 
+char* fs_cwd() {
+    size_t malsize = 16; // some defult power of 2...
+    char* buf = malloc(malsize * sizeof(char));
+
+    while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
+        malsize *= 2;
+        buf = (char*)realloc(buf, malsize * sizeof(char));
+    }
+    return buf;
+}
+
 int fs_rename(const char* path, const char* new_path) {
+    if (path == NULL || new_path == NULL)
+        return FS_NOT_VALID;
+
     errno = 0;
     int res = rename(path, new_path);
     if (res == 0)
@@ -89,6 +118,9 @@ int fs_touch(const char* path) {
 }
 
 int fs_touch_alt(const char* path, mode_t mode) {
+    if (path == NULL)
+        return FS_NOT_VALID;
+
     open(path, O_CREAT, mode);
     if (fs_identify_path(path) == FS_FILE)
         return FS_SUCCESS;

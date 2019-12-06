@@ -24,6 +24,8 @@ typedef struct __file_struct *file_t;
 
 int fs_identify_path(const char* path);
 
+char* fs_cwd();  // current working directory
+
 char* fs_resolve_path(const char* path); // NOTE: This is a proposed path, not validated
 
 int fs_rename(const char* path, const char* new_path);
