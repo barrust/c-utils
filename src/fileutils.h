@@ -11,10 +11,10 @@ typedef struct __file_struct *file_t;
 #define FS_DIRECTORY        -8
 #define FS_SYMLINK          -7
 
-#define FS_EXISTS           0
+#define FS_EXISTS            0
 #define FS_NO_EXISTS        -2
 
-#define FS_SUCCESS          0
+#define FS_SUCCESS           0
 #define FS_FAILURE          -1
 
 
@@ -26,7 +26,7 @@ int fs_identify_path(const char* path);
 
 char* fs_cwd();  // current working directory
 
-char* fs_resolve_path(const char* path); // NOTE: This is a proposed path, not validated
+char* fs_resolve_path(const char* path); // NOTE: This is a proposed path, not validated path
 
 int fs_rename(const char* path, const char* new_path);
 int fs_move(const char* path, const char* new_path);
@@ -38,6 +38,10 @@ int fs_touch_alt(const char* path, mode_t mode);
 int fs_mkdir(const char* path, bool recursive);
 
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode);
+
+char* fs_mode_to_string(mode_t mode);
+char* fs_mode_to_string_alt(mode_t mode, char* res);
+mode_t fs_string_to_mode(const char* s);
 
 // int fs_rmdir(const char* path, bool recursive);  // TODO: implement
 // int fs_rmdir_alt(const char* path, bool recursive);  // TODO: implement
@@ -71,6 +75,8 @@ const char* f_filename(file_t f);
 const char* f_extension(file_t f);
 
 size_t f_filesize(file_t f);
+
+mode_t f_mode(file_t f);
 
 // void f_read_file(file_t f);  // NOTE: put it into the buffer...
 

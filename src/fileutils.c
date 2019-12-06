@@ -176,6 +176,48 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     return FS_EXISTS;
 }
 
+char* fs_mode_to_string(mode_t mode) {
+    return fs_mode_to_string_alt(mode, NULL);
+}
+
+char* fs_mode_to_string_alt(mode_t mode, char* res) {
+    char* tmp;
+    if (res == NULL)
+        tmp = calloc(10, sizeof(char));
+    else
+        tmp = res;
+
+    tmp[0] = S_ISDIR(mode) == 0 ? '-' : 'd';
+    tmp[1] = mode & S_IRUSR ? 'r' : '-';
+    tmp[2] = mode & S_IWUSR ? 'w' : '-';
+    tmp[3] = mode & S_IXUSR ? 'x' : '-';
+    tmp[4] = mode & S_IRGRP ? 'r' : '-';
+    tmp[5] = mode & S_IWGRP ? 'w' : '-';
+    tmp[6] = mode & S_IXGRP ? 'x' : '-';
+    tmp[7] = mode & S_IROTH ? 'r' : '-';
+    tmp[8] = mode & S_IWOTH ? 'w' : '-';
+    tmp[9] = mode & S_IXOTH ? 'x' : '-';
+    tmp[10] = '\0';
+    return tmp;
+}
+
+mode_t fs_string_to_mode(const char* s) {
+    mode_t res = 0;
+    if (s == NULL || strlen(s) != 10)
+        return FS_FAILURE;
+    // skip the directory char
+    res |= s[1] == 'r' ? S_IRUSR : 0;
+    res |= s[2] == 'w' ? S_IWUSR : 0;
+    res |= s[3] == 'x' ? S_IXUSR : 0;
+    res |= s[4] == 'r' ? S_IRGRP : 0;
+    res |= s[5] == 'w' ? S_IWGRP : 0;
+    res |= s[6] == 'x' ? S_IXGRP : 0;
+    res |= s[7] == 'r' ? S_IROTH : 0;
+    res |= s[8] == 'w' ? S_IWOTH : 0;
+    res |= s[9] == 'x' ? S_IXOTH : 0;
+    return res;
+}
+
 /*******************************************************************************
 *   file Objects
 *******************************************************************************/
@@ -241,6 +283,10 @@ const char* f_extension(file_t f) {
 
 size_t f_filesize(file_t f) {
     return f->filesize;
+}
+
+mode_t f_mode(file_t f) {
+    return f->mode;
 }
 
 

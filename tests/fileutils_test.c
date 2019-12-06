@@ -94,6 +94,24 @@ MU_TEST(test_identify_path) {
 }
 
 /*******************************************************************************
+*    Test mode conversions (string octal)
+*******************************************************************************/
+MU_TEST(test_mode_to_string) {
+    char* m_str = fs_mode_to_string(0666);
+    mu_assert_string_eq("-rw-rw-rw-", m_str);
+    m_str = fs_mode_to_string_alt(0777, m_str);
+    mu_assert_string_eq("-rwxrwxrwx", m_str);
+    free(m_str);
+}
+
+MU_TEST(test_string_to_mode) {
+    mu_assert_int_eq(0777, fs_string_to_mode("-rwxrwxrwx"));
+    mu_assert_int_eq(0666, fs_string_to_mode("-rw-rw-rw-"));
+
+    mu_assert_int_eq(-1, fs_string_to_mode("-rw-rw-"));
+}
+
+/*******************************************************************************
 *    Test touch
 *******************************************************************************/
 MU_TEST(test_touch) {
@@ -163,6 +181,10 @@ MU_TEST_SUITE(test_suite) {
 
     // fs_identify_path
     MU_RUN_TEST(test_identify_path);
+
+    // mode conversions
+    MU_RUN_TEST(test_mode_to_string);
+    MU_RUN_TEST(test_string_to_mode);
 
     // touch
     MU_RUN_TEST(test_touch);
