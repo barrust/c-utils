@@ -1,3 +1,6 @@
+#ifndef BARRUST_TIMING_H__
+#define BARRUST_TIMING_H__
+
 /*******************************************************************************
 ***
 ***	 Author: Tyler Barrus
@@ -22,8 +25,6 @@
 ***		 free(pretty_output);
 ***
 *******************************************************************************/
-#ifndef BARRUST_TIMING_H__
-#define BARRUST_TIMING_H__
 
 
 #include <stdlib.h>

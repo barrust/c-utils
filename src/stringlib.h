@@ -1,3 +1,6 @@
+#ifndef BARRUST_STRING_LIBRARY_H__
+#define BARRUST_STRING_LIBRARY_H__
+
 /*******************************************************************************
 ***
 ***	 Author: Tyler Barrus
@@ -17,8 +20,6 @@
 ***     s_reverse(str); // "!tset a si sihT"
 ***
 *******************************************************************************/
-#ifndef BARRUST_STRING_LIBRARY_H__
-#define BARRUST_STRING_LIBRARY_H__
 
 #include <stdio.h>
 
