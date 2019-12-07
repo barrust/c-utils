@@ -161,7 +161,15 @@ char* f_buffer(file_t f);
     NOTE: Returns NULL if error occured; check errno if NULL */
 const char* f_read_file(file_t f);
 
-// const char** f_parse_lines(file_t f);
+/*  Read the contents of file_t (if necessary) and modify buffer to place NULLs
+    at each \n\r\f characters; lines points to each location for the line. This
+    allows for not needing double the space for buffer and lines.
+    NOTE: Modifies the buffer member so f_buffer() == f_lines()[0]
+    NOTE: Will read the file if not already read
+    NOTE: Returns NULL if error reading file; check errno for reason
+    NOTE: Sets the f_number_lines() member
+*/
+char** f_parse_lines(file_t f);
 
 
 #endif      /*  BARRUST_FILE_UTILS_H__  */

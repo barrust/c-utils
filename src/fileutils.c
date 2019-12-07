@@ -25,6 +25,9 @@ typedef struct __file_struct {
 static char*   __str_duplicate(const char* s);
 static char*   __str_extract_substring(const char* s, size_t start, size_t length);
 static int     __str_find_reverse(const char* s, const char c);
+static char**  __str_split_string_any(char* s, const char* s2, size_t* num);
+static int     __str_find_any(const char* s, const char* s2);
+static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
 static void    __print_out_stat_errno(int e);
 static int     __fs_mkdir(const char* path, mode_t mode);
@@ -335,6 +338,20 @@ const char* f_read_file(file_t f) {
     return f->buffer;
 }
 
+char** f_parse_lines(file_t f) {
+    if (f->buffer == NULL) {
+        const char* buf = f_read_file(f);
+        if (buf == NULL)
+            return NULL;
+    }
+
+    size_t num = 0;
+    char** res = __str_split_string_any(f->buffer, "\n\r\f", &num);
+    f->num_lines = num;
+    f->lines = res;
+    return res;
+}
+
 /*******************************************************************************
 *   Directory Objects
 *******************************************************************************/
@@ -381,6 +398,56 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
     char* ret = calloc(length + 1, sizeof(char));
     return strncpy(ret, s + start, length);
 }
+
+static char** __str_split_string_any(char* s, const char* s2, size_t* num) {
+    const char* find;
+    if (s2 == NULL)
+        find = " \n\r\f\v\t";
+    else
+        find = s2;
+
+    size_t max_size = __str_find_cnt_any(s, find);
+    char** results = malloc(max_size * sizeof(char*));
+    char* loc = s;
+    int cnt = 0;
+    int len = __str_find_any(loc, find);
+
+    while (len != -1) {
+        if (len == 0) {
+            loc[0] = '\0';
+            len = __str_find_any(++loc, find);
+            continue;
+        }
+        results[cnt++] = loc;
+        loc += len;
+        loc[0] = '\0';
+        len = __str_find_any(++loc, find);
+    }
+    if (loc[0] != '\0')
+        results[cnt++] = loc;
+    *num = cnt;
+
+    char** v = realloc(results, cnt * sizeof(char*));
+    return v;
+}
+
+static int __str_find_any(const char* s, const char* s2) {
+    char* loc = strpbrk(s, s2);
+    if (loc == NULL)
+        return -1;
+    return loc - s;
+}
+
+static size_t __str_find_cnt_any(const char* s, const char* s2) {
+    size_t res = 0;
+    char* loc = strpbrk(s, s2);
+    while (loc != NULL) {
+        ++res;
+        loc = strpbrk(loc + 1, s2);
+    }
+    return res;
+}
+
 
 static void __parse_file_info(const char* full_filepath, char** filepath, char** filename) {
     // ensure path and filename are not leaking memory

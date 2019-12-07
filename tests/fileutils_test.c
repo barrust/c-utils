@@ -205,7 +205,31 @@ MU_TEST(test_file_t_read_file) {
     f_free(f);
 }
 
+MU_TEST(test_file_t_parse_lines) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    file_t f = f_init(filepath);
+    free(filepath);
+    char** buf = f_parse_lines(f);
 
+    mu_assert_int_eq(5, f_number_lines(f));
+    mu_assert_string_eq(f_buffer(f), buf[0]);
+    // check line lengths
+    mu_assert_int_eq(843, strlen(buf[0]));
+    mu_assert(buf[0][strlen(buf[0]) - 1] == '.', "Failed to get the correct, last character!");
+    mu_assert_int_eq(434, strlen(buf[1]));
+    mu_assert(buf[1][strlen(buf[1]) - 1] == '.', "Failed to get the correct, last character!");
+    mu_assert_int_eq(659, strlen(buf[2]));
+    mu_assert(buf[2][strlen(buf[2]) - 1] == '.', "Failed to get the correct, last character!");
+    mu_assert_int_eq(862, strlen(buf[3]));
+    mu_assert(buf[3][strlen(buf[3]) - 1] == '.', "Failed to get the correct, last character!");
+    mu_assert_int_eq(452, strlen(buf[4]));
+    mu_assert(buf[4][strlen(buf[4]) - 1] == '.', "Failed to get the correct, last character!");
+    // for (size_t i = 0; i < f_number_lines(f); i++) {
+    //     printf("Line %lu: %s\n", i, buf[i]);
+    // }
+
+    f_free(f);
+}
 
 
 
@@ -249,6 +273,7 @@ MU_TEST_SUITE(test_suite) {
     ***************************************************************************/
     MU_RUN_TEST(test_file_t_init);
     MU_RUN_TEST(test_file_t_read_file);
+    MU_RUN_TEST(test_file_t_parse_lines);
 
 
 }
