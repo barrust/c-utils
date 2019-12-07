@@ -1,3 +1,6 @@
+#ifndef BARRUST_BIT_ARRAY_H__
+#define BARRUST_BIT_ARRAY_H__
+
 /*******************************************************************************
 ***
 ***	 Author: Tyler Barrus
@@ -21,8 +24,6 @@
 ***
 *******************************************************************************/
 
-#ifndef BARRUST_BIT_ARRAY_H__
-#define BARRUST_BIT_ARRAY_H__
 
 #define BIT_SET 1
 #define BIT_NOT_SET 0

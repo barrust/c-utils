@@ -1,7 +1,28 @@
-
-
 #ifndef BARRUST_FILE_UTILS_H__
 #define BARRUST_FILE_UTILS_H__
+
+/*******************************************************************************
+***
+***	 Author: Tyler Barrus
+***	 email:  barrust@gmail.com
+***
+***	 Version: 0.1.0
+***	 Purpose: Simple file system library with utility functions
+***
+***	 License: MIT 2019
+***
+***	 URL: https://github.com/barrust/c-utils
+***
+***	 Usage:
+***     file_t f = f_init(filepath);
+***     f_parse_lines(f);
+***     // print all lines from file
+***     for (size_t i = 0; i < f_number_lines(f); i++)
+***         printf("Line %lu:\t%s\n", i, f_lines[i]);
+***     // free memory
+***     f_free(f);
+***
+*******************************************************************************/
 
 #include <stdbool.h>
 #include <sys/stat.h>
