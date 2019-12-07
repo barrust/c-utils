@@ -10,7 +10,7 @@
 typedef struct __file_struct {
     size_t filesize;
     mode_t mode;
-    size_t numlines;
+    size_t num_lines;
     bool is_symlink;     // 0 for false, 1 for true
     char* basepath;
     char* filename;
@@ -239,7 +239,8 @@ file_t f_init(const char* filepath) {
     f->filename = NULL;
     f->extension = NULL;
     f->filesize = 0;
-    f->numlines = 0;
+    f->num_lines = 0;
+    f->lines = NULL;
     f->is_symlink = S_ISLNK(mode) == 0 ? false : true;
     f->mode = mode;
 
@@ -259,13 +260,16 @@ void f_free(file_t f) {
     free(f->basepath);
     free(f->filename);
     free(f->extension);
-    for (size_t i = 0; i < f->numlines; i++)
+    for (size_t i = 0; i < f->num_lines; i++)
         f->lines[i] = NULL;
     free(f->lines);
     free(f->buffer);
     free(f);
 }
 
+bool f_is_symlink(file_t f) {
+    return f->is_symlink;
+}
 
 const char* f_basedir(file_t f) {
     return f->basepath;
@@ -283,10 +287,21 @@ size_t f_filesize(file_t f) {
     return f->filesize;
 }
 
-mode_t f_mode(file_t f) {
-    return f->mode;
+mode_t f_permissions(file_t f) {
+    return f->mode & (S_IRWXU | S_IRWXG | S_IRWXO);;
 }
 
+size_t f_number_lines(file_t f) {
+    return f->num_lines;
+}
+
+char** f_lines(file_t f) {
+    return f->lines;
+}
+
+char* f_buffer(file_t f) {
+    return f->buffer;
+}
 
 /*******************************************************************************
 *   Directory Objects

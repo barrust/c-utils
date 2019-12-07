@@ -165,12 +165,37 @@ MU_TEST(test_move) {
     free(new_filepath);
 }
 
+/***************************************************************************
+*   file_t - usage
+***************************************************************************/
+MU_TEST(test_file_t_init) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    file_t f = f_init(filepath);
+
+    // ensure things are correct!
+    mu_assert_string_eq("test.txt", f_filename(f));
+    mu_assert_string_eq(test_dir, f_basedir(f));
+    mu_assert_string_eq("txt", f_extension(f));
+    mu_assert_int_eq(0664 , f_permissions(f));
+    mu_assert_int_eq(3259 , f_filesize(f));
+
+    free(filepath);
+}
+
+
+
+
+
+
 /*******************************************************************************
 *    Test Suite Setup
 *******************************************************************************/
 MU_TEST_SUITE(test_suite) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
+    /***************************************************************************
+    *   filesystem functions
+    ***************************************************************************/
     // cwd
     MU_RUN_TEST(test_cwd);
 
@@ -194,6 +219,13 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_move);
 
     // mkdir
+
+
+    /***************************************************************************
+    *   file_t
+    ***************************************************************************/
+    MU_RUN_TEST(test_file_t_init);
+
 
 }
 

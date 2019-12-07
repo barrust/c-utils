@@ -106,19 +106,51 @@ mode_t fs_string_to_mode(const char* s);
 *   File Functionality Encapsulation
 *******************************************************************************/
 
+/*  Initialize the file_t object and pull information about the file pointed to
+    by filepath
+    Returns:
+        NULL    - If filepath doesn't point to a file or symlink
+        file_t  - Allocated memory with all members set except for reading the
+                  file into memory
+*/
 file_t f_init(const char* filepath);
 
+/*  Free the memory held by the file_t object */
 void f_free(file_t f);
 
+bool f_is_symlink(file_t f);
+
+/*  Returns the base directory (path) of the file */
 const char* f_basedir(file_t f);
 
+/*  Returns the filename of the file */
 const char* f_filename(file_t f);
 
+/*  Returns the file extension (without the .) */
 const char* f_extension(file_t f);
 
+/*  Returns the size of the file, in bytes */
 size_t f_filesize(file_t f);
 
-mode_t f_mode(file_t f);
+/*  Returns the permissions bitmask of the file */
+mode_t f_permissions(file_t f);
+
+/*  Return the number of lines extracted, will be 0 if lines have not been
+    extracted from the file */
+size_t f_number_lines(file_t f);
+
+/*  Return access to the lines extracted, will be NULL if lines have not been
+    extracted from the file */
+char** f_lines(file_t f);
+
+/*  Return the full buffer contents of the file; originally will have newlines
+    (if text) but those will be set to \0 if lines are extracted. This will
+    allow for only needing to read the contents once.
+    NOTE: Will be of size f_filesize + 1
+    NOTE: If lines have been extracted, printing buffer will only show the
+          first line!
+*/
+char* f_buffer(file_t f);
 
 // void f_read_file(file_t f);  // NOTE: put it into the buffer...
 
