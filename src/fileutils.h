@@ -1,3 +1,8 @@
+
+
+#ifndef BARRUST_FILE_UTILS_H__
+#define BARRUST_FILE_UTILS_H__
+
 #include <stdbool.h>
 #include <sys/stat.h>
 
@@ -77,7 +82,7 @@ char* fs_mode_to_string(mode_t mode);
     NOTE: If res is NULL then memory will be allocated and the caller will
           need to free the memory
     NOTE: If res is memory already allocated to hold the string, it must be at
-          least 10 characters in length */
+          least 11 characters in length */
 char* fs_mode_to_string_alt(mode_t mode, char* res);
 
 /*  Turn a permissions string "drwxrwxrwx" into the mode flag (int) */
@@ -152,6 +157,11 @@ char** f_lines(file_t f);
 */
 char* f_buffer(file_t f);
 
-// void f_read_file(file_t f);  // NOTE: put it into the buffer...
+/*  Read the contents of file_t f and copy them into buffer (f_buffer);
+    NOTE: Returns NULL if error occured; check errno if NULL */
+const char* f_read_file(file_t f);
 
-// void f_read_lines(file_t f);  // TODO: rethink this name...
+// const char** f_parse_lines(file_t f);
+
+
+#endif      /*  BARRUST_FILE_UTILS_H__  */

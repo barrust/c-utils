@@ -22,12 +22,12 @@ typedef struct __file_struct {
 
 
 /* private functions */
-char*   __str_duplicate(const char* s);
-char*   __str_extract_substring(const char* s, size_t start, size_t length);
-int     __str_find_reverse(const char* s, const char c);
-void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
-void    __print_out_stat_errno(int e);
-int     __fs_mkdir(const char* path, mode_t mode);
+static char*   __str_duplicate(const char* s);
+static char*   __str_extract_substring(const char* s, size_t start, size_t length);
+static int     __str_find_reverse(const char* s, const char c);
+static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
+static void    __print_out_stat_errno(int e);
+static int     __fs_mkdir(const char* path, mode_t mode);
 
 
 
@@ -169,7 +169,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
             free(new_path);
             return FS_FAILURE;
         }
-        printf("tmp_path: %s\n", new_path);
+        // printf("tmp_path: %s\n", new_path);
         *p = '/';
     }
     free(new_path);
@@ -183,7 +183,7 @@ char* fs_mode_to_string(mode_t mode) {
 char* fs_mode_to_string_alt(mode_t mode, char* res) {
     char* tmp;
     if (res == NULL)
-        tmp = calloc(10, sizeof(char));
+        tmp = calloc(11, sizeof(char));
     else
         tmp = res;
 
@@ -198,7 +198,9 @@ char* fs_mode_to_string_alt(mode_t mode, char* res) {
     tmp[8] = mode & S_IWOTH ? 'w' : '-';
     tmp[9] = mode & S_IXOTH ? 'x' : '-';
     tmp[10] = '\0';
-    return tmp;
+    res = tmp;
+    tmp = NULL;
+    return res;
 }
 
 mode_t fs_string_to_mode(const char* s) {
@@ -247,6 +249,7 @@ file_t f_init(const char* filepath) {
     char* path = NULL;
     __parse_file_info(filepath, &path, &f->filename);
     f->basepath = realpath(path, NULL);
+    free(path);
     int ex_pos = __str_find_reverse(f->filename, '.');
     if (ex_pos != -1)
         f->extension = __str_extract_substring(f->filename, ex_pos + 1, strlen(f->filename));
@@ -303,6 +306,35 @@ char* f_buffer(file_t f) {
     return f->buffer;
 }
 
+const char* f_read_file(file_t f) {
+    free(f->buffer);
+
+    int blen = strlen(f->basepath), flen = strlen(f->filename);
+    char* full_path = calloc(blen + flen + 2, sizeof(char)); // '/' and '\0'
+    strncpy(full_path, f->basepath, blen);
+    full_path[blen] = '/';
+    strncpy(full_path + blen + 1, f->filename, flen);
+
+    FILE* fobj = fopen(full_path, "rb");
+    if (fobj == NULL) { // some error occured...
+        // fprintf(stderr, "Unable to open file [%s]; errno=%d\n", full_path, errno);
+        free(full_path);
+        fclose(fobj);
+        return NULL;
+    }
+    free(full_path);
+
+    f->buffer = calloc(f->filesize + 1, sizeof(char));
+    size_t read = fread(f->buffer, sizeof(char), f->filesize, fobj);
+    if (read != f->filesize) {
+        // fprintf(stderr, "Did not read the full file: read %lu bytes\n", read);
+        fclose(fobj);
+        return NULL;
+    }
+    fclose(fobj);
+    return f->buffer;
+}
+
 /*******************************************************************************
 *   Directory Objects
 *******************************************************************************/
@@ -313,7 +345,7 @@ char* f_buffer(file_t f) {
 /*******************************************************************************
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
-int __fs_mkdir(const char* path, mode_t mode) {
+static int __fs_mkdir(const char* path, mode_t mode) {
     if (mkdir(path, mode) == -1) {
         if (errno != EEXIST) {
             return FS_FAILURE;
@@ -322,7 +354,7 @@ int __fs_mkdir(const char* path, mode_t mode) {
     return FS_EXISTS;
 }
 
-char* __str_duplicate(const char* s) {
+static char* __str_duplicate(const char* s) {
     size_t len = strlen(s);  // ensure room for NULL terminated
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
@@ -332,14 +364,14 @@ char* __str_duplicate(const char* s) {
     return buf;
 }
 
-int __str_find_reverse(const char* s, const char c) {
+static int __str_find_reverse(const char* s, const char c) {
     char* loc = strrchr(s, c);
     if (loc == NULL)
         return -1;
     return loc - s;
 }
 
-char* __str_extract_substring(const char* s, size_t start, size_t length) {
+static char* __str_extract_substring(const char* s, size_t start, size_t length) {
     unsigned int len = strlen(s);
     if (start >= len)
         return NULL;
@@ -350,7 +382,7 @@ char* __str_extract_substring(const char* s, size_t start, size_t length) {
     return strncpy(ret, s + start, length);
 }
 
-void __parse_file_info(const char* full_filepath, char** filepath, char** filename) {
+static void __parse_file_info(const char* full_filepath, char** filepath, char** filename) {
     // ensure path and filename are not leaking memory
     free(*filepath);
     free(*filename);
@@ -375,7 +407,7 @@ void __parse_file_info(const char* full_filepath, char** filepath, char** filena
     return;
 }
 
-void __print_out_stat_errno(int e) {
+static void __print_out_stat_errno(int e) {
     switch(e) {
         case EACCES:
             printf("EACCES\n"); break;

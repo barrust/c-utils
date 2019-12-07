@@ -21,6 +21,9 @@
 ***
 *******************************************************************************/
 
+#ifndef BARRUST_BIT_ARRAY_H__
+#define BARRUST_BIT_ARRAY_H__
+
 #define BIT_SET 1
 #define BIT_NOT_SET 0
 #define BITARRAY_INDEX_ERROR -1
@@ -61,3 +64,6 @@ char* ba_to_string(bitarray_t ba);
 
 /*  Free all the memory */
 void ba_free(bitarray_t ba);
+
+
+#endif      /*   BARRUST_BIT_ARRAY_H__   */

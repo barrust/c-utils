@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include "minunit.h"
 #include "../src/fileutils.h"
 
@@ -9,7 +10,9 @@ char* test_dir = NULL;
 char* test_dir_rel = NULL;
 
 /* private functions */
-char* __str_snprintf(const char* fmt, ...);
+static char* __str_snprintf(const char* fmt, ...);
+static char* __str_extract_substring(const char* s, size_t start, size_t length);
+static char* __str_duplicate(const char* s);
 
 
 
@@ -171,15 +174,35 @@ MU_TEST(test_move) {
 MU_TEST(test_file_t_init) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
     file_t f = f_init(filepath);
-
+    free(filepath);
     // ensure things are correct!
     mu_assert_string_eq("test.txt", f_filename(f));
     mu_assert_string_eq(test_dir, f_basedir(f));
     mu_assert_string_eq("txt", f_extension(f));
     mu_assert_int_eq(0664 , f_permissions(f));
     mu_assert_int_eq(3259 , f_filesize(f));
+    mu_assert_int_eq(false , f_is_symlink(f));
+    // haven't loaded the file, so these should be the defaults!
+    mu_assert_int_eq(0 , f_number_lines(f));
+    mu_assert_string_eq(NULL , f_buffer(f));
+    mu_assert(f_lines(f) == NULL, "Expected lines to be NULL, if was not...");
 
+    f_free(f);
+}
+
+MU_TEST(test_file_t_read_file) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    file_t f = f_init(filepath);
     free(filepath);
+    const char* buf = f_read_file(f);
+
+    mu_assert_int_eq(3259, strlen(buf));
+
+    char* tmp = __str_extract_substring(buf, 0, 17);
+    mu_assert_string_eq("Lorem ipsum dolor", tmp);
+    free(tmp);
+
+    f_free(f);
 }
 
 
@@ -225,6 +248,7 @@ MU_TEST_SUITE(test_suite) {
     *   file_t
     ***************************************************************************/
     MU_RUN_TEST(test_file_t_init);
+    MU_RUN_TEST(test_file_t_read_file);
 
 
 }
@@ -241,7 +265,7 @@ int main(int argc, char *argv[]) {
 /*******************************************************************************
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
-char* __str_snprintf(const char* fmt, ...) {
+static char* __str_snprintf(const char* fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
@@ -257,5 +281,26 @@ char* __str_snprintf(const char* fmt, ...) {
     vsnprintf(buf, len + 1, fmt, args);
     va_end(args);
 
+    return buf;
+}
+
+static char* __str_extract_substring(const char* s, size_t start, size_t length) {
+    unsigned int len = strlen(s);
+    if (start >= len)
+        return NULL;
+    if (start + length > len)
+        return __str_duplicate(s + start);
+
+    char* ret = calloc(length + 1, sizeof(char));
+    return strncpy(ret, s + start, length);
+}
+
+static char* __str_duplicate(const char* s) {
+    size_t len = strlen(s);  // ensure room for NULL terminated
+    char* buf = malloc((len + 1) * sizeof(char));
+    if (buf == NULL)
+        return NULL;
+    strncpy(buf, s, len);
+    buf[len] = '\0';
     return buf;
 }
