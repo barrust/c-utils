@@ -188,7 +188,7 @@ static void (*minunit_teardown)(void) = NULL;
 	minunit_tmp_e = (expected_1);\
 	minunit_tmp_e2 = (expected_2);\
 	minunit_tmp_r = (result);\
-	if (minunit_tmp_e != minunit_tmp_r) {\
+	if (minunit_tmp_e != minunit_tmp_r && minunit_tmp_e2 != minunit_tmp_r) {\
 		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %d or %d expected but was %d", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_e2, minunit_tmp_r);\
 		minunit_status = 1;\
 		return;\

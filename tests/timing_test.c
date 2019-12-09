@@ -51,7 +51,7 @@ MU_TEST(test_default_hand_long_hours) {
     long long i = timeval_diff(NULL, &t.end_time, &t.start_time);
     mu_assert(999000000001 == i, "Expected: 999000000001 but did not receive that value");
 
-    char* res = format_time_diff(&t);
+    res = format_time_diff(&t);
     mu_assert_string_eq("277:30:00:000.001", res);
 
     mu_assert_int_eq(277, t.hours);
@@ -73,7 +73,7 @@ MU_TEST(test_default_get_functions) {
     t.end_time = tv;
     calc_difference(&t);  // force this call
 
-    char* res = format_time_diff(&t);
+    res = format_time_diff(&t);
     mu_assert_string_eq("02:09:11:078.088", res);
 
     mu_assert_int_eq(2, timing_get_hours(t));
