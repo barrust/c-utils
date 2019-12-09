@@ -94,5 +94,6 @@ MU_TEST_SUITE(test_suite) {
 int main(int argc, char *argv[]) {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
-    return 0;
+    printf("Number failed tests: %d\n", minunit_fail);
+    return minunit_fail;
 }
