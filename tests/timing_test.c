@@ -21,7 +21,9 @@ MU_TEST(test_timing_simple) {
     timing_end(&t);
     mu_assert(t.timing_double > 61.00 && t.timing_double < 61.01, "Sleeping 61 seconds didn't respond correctly");
 
-    t.microseconds = 150; // set this to something we can test!
+    // set these to something we can test!
+    t.milliseconds = 0;
+    t.microseconds = 150;
     res = format_time_diff(&t);
 
     mu_assert_string_eq("00:01:01:000.150", res);

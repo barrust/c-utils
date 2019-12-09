@@ -179,7 +179,7 @@ MU_TEST(test_file_t_init) {
     mu_assert_string_eq("test.txt", f_filename(f));
     mu_assert_string_eq(test_dir, f_basedir(f));
     mu_assert_string_eq("txt", f_extension(f));
-    mu_assert_int_eq(0664 , f_permissions(f));
+    mu_assert_int_one_of(0664, 0644, f_permissions(f));  // 0664 is the value for linux, 0644 OSX
     mu_assert_int_eq(3259 , f_filesize(f));
     mu_assert_int_eq(false , f_is_symlink(f));
     // haven't loaded the file, so these should be the defaults!
