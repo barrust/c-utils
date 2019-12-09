@@ -25,13 +25,13 @@
 *******************************************************************************/
 
 #include <stdbool.h>
-#include <sys/stat.h>
 
 
 typedef struct __file_struct file_struct;
 typedef struct __file_struct *file_t;
 
 
+#define FS_INVALID_MODE     65535
 #define FS_NOT_VALID        -10
 #define FS_FILE             -9
 #define FS_DIRECTORY        -8
@@ -106,8 +106,10 @@ char* fs_mode_to_string(mode_t mode);
           least 11 characters in length */
 char* fs_mode_to_string_alt(mode_t mode, char* res);
 
-/*  Turn a permissions string "drwxrwxrwx" into the mode flag (int) */
-mode_t fs_string_to_mode(const char* s);
+/*  Turn a permissions string "drwxrwxrwx" into the mode flag (int) or
+    FS_INVALID_MODE if the provided string s does not contain enough
+    information or is invalid. */
+unsigned short fs_string_to_mode(const char* s);
 
 
 
@@ -159,7 +161,7 @@ const char* f_extension(file_t f);
 size_t f_filesize(file_t f);
 
 /*  Returns the permissions bitmask of the file */
-mode_t f_permissions(file_t f);
+unsigned short f_permissions(file_t f);
 
 /*  Return the number of lines extracted, will be 0 if lines have not been
     extracted from the file */

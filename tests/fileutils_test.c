@@ -111,7 +111,7 @@ MU_TEST(test_string_to_mode) {
     mu_assert_int_eq(0777, fs_string_to_mode("-rwxrwxrwx"));
     mu_assert_int_eq(0666, fs_string_to_mode("-rw-rw-rw-"));
 
-    mu_assert_int_eq(-1, fs_string_to_mode("-rw-rw-"));
+    mu_assert_int_eq(FS_INVALID_MODE, fs_string_to_mode("-rw-rw-"));
 }
 
 /*******************************************************************************

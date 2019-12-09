@@ -6,6 +6,7 @@ If there are other commonly used code that should be added, please add a feature
 
 ##### Table of Contents:
 * [stringlib](#stringlib)
+* [fileutils](#fileutils)
 * [bitarray](#bitarray)
 * [timing-c](#timing-c)
 
@@ -28,6 +29,7 @@ A great issue would provide the following:
 > s_remove_unwanted_chars(test, "ti");  
 > ```
 
+To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make`. Then you can execute the tests using `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, or `./dist/timing`
 
 ## stringlib
 
@@ -63,6 +65,31 @@ pos = s_find_str_reverse(str, "ri"); // 21
 // remove unwanted characters
 s_remove_unwanted_chars(str, "tph"); // "Tis is a orrible sring o clean u... lease el!"
 ```
+
+## fileutils
+
+The file utils library provides utility functions to deal with basic file system operations. From determining if a file exists, to making directories, to reading in a file and parsing out the lines.
+
+The functions are documented within the `.h` file.
+
+Unfortunately, I have not been able to test this library on non-Linux machines. If errors arise on Windows, please submit an issue or a ***pull request***! If something is shown to work on Windows, that information would also be very helpful!
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `fileutils` library
+
+#### Usage
+
+To use, copy the `fileutils.h` and `fileutils.c` files into your project folder and add them to your project.
+
+``` c
+#include "fileutils.h"
+
+
+
+```
+
+
 
 ## bitarray
 

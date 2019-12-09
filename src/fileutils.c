@@ -1,9 +1,9 @@
-#include <string.h>
+#include <string.h>         /* strlen, strcmp, strchr, strncpy, strpbrk */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <unistd.h>         /* getcwd */
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <fcntl.h>          /* O_CREAT */
 #include <errno.h>
 #include "fileutils.h"
 
@@ -141,8 +141,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
 
     errno = 0;
     struct stat stats;
-    int stat_res = stat(path, &stats);
-    if (stat_res != -1) {
+    if (stat(path, &stats) != -1) {
         return FS_EXISTS;
     }
 
@@ -206,10 +205,10 @@ char* fs_mode_to_string_alt(mode_t mode, char* res) {
     return res;
 }
 
-mode_t fs_string_to_mode(const char* s) {
-    mode_t res = 0;
+unsigned short fs_string_to_mode(const char* s) {
+    unsigned short res = 0;
     if (s == NULL || strlen(s) != 10)
-        return FS_FAILURE;
+        return FS_INVALID_MODE;
     // skip the directory char
     res |= s[1] == 'r' ? S_IRUSR : 0;
     res |= s[2] == 'w' ? S_IWUSR : 0;
@@ -293,8 +292,8 @@ size_t f_filesize(file_t f) {
     return f->filesize;
 }
 
-mode_t f_permissions(file_t f) {
-    return f->mode & (S_IRWXU | S_IRWXG | S_IRWXO);;
+unsigned short f_permissions(file_t f) {
+    return f->mode & (S_IRWXU | S_IRWXG | S_IRWXO);
 }
 
 size_t f_number_lines(file_t f) {
@@ -363,7 +362,8 @@ char** f_parse_lines(file_t f) {
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
 static int __fs_mkdir(const char* path, mode_t mode) {
-    if (mkdir(path, mode) == -1) {
+    int res = mkdir(path, mode);
+    if (res == -1) {
         if (errno != EEXIST) {
             return FS_FAILURE;
         }

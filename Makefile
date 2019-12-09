@@ -19,5 +19,8 @@ bitarray:
 fileutils:
 	gcc -c $(SRCDIR)/fileutils.c -o $(DISTDIR)/fileutils-lib.o $(CCFLAGS)
 
+debug: CCFLAGS += -g
+debug: all
+
 clean:
 	rm -rf ./$(DISTDIR)/*
