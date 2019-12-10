@@ -20,7 +20,7 @@ char* s_duplicate(const char* s) {
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
-    strncpy(buf, s, len);
+    strcpy(buf, s);
     buf[len] = '\0';
     return buf;
 }
@@ -301,7 +301,7 @@ int s_find_alt_any(const char*s, const char* s2, int idx) {
 char* s_append(char* s1, const char* s2) {
     size_t len =  strlen(s2);
     char* res = realloc(s1, strlen(s1) + len + 1);
-    strncat(res, s2, len);
+    strcat(res, s2);
     /* set s1 pointer to the res pointer */
     s1 = res;
     res = NULL;
@@ -365,7 +365,7 @@ char* s_extract_substring_c(const char* s, const char c, size_t length) {
 
 char** s_split_string_c(const char* s, const char c, int* num) {
     int max_size = s_find_cnt(s, c);
-    char** results = malloc(max_size * sizeof(char*));  /* will be cut down for empty lines... */
+    char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
     const char* loc = s;
     int cnt = 0;
@@ -391,7 +391,7 @@ char** s_split_string_c(const char* s, const char c, int* num) {
 
 char** s_split_string_str(const char* s, const char* sub, int* num) {
     int max_size = s_find_cnt_str(s, sub);
-    char** results = malloc(max_size * sizeof(char*));  /* will be cut down for empty lines... */
+    char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
     int sub_len = strlen(sub);
 
@@ -426,7 +426,7 @@ char** s_split_string_any(const char* s, const char* s2, int* num) {
         find = s2;
 
     int max_size = s_find_cnt_any(s, find);
-    char** results = malloc(max_size * sizeof(char*));
+    char** results = calloc(max_size + 1, sizeof(char*));
     const char* loc = s;
     int cnt = 0;
     int len = s_find_any(loc, find);
