@@ -314,9 +314,9 @@ const char* f_read_file(file_t f) {
 
     int blen = strlen(f->basepath), flen = strlen(f->filename);
     char* full_path = calloc(blen + flen + 2, sizeof(char)); /* '/' and '\0' */
-    strncpy(full_path, f->basepath, blen);
+    strcpy(full_path, f->basepath);
     full_path[blen] = '/';
-    strncpy(full_path + blen + 1, f->filename, flen);
+    strcpy(full_path + blen + 1, f->filename);
 
     FILE* fobj = fopen(full_path, "rb");
     if (fobj == NULL) {
@@ -375,7 +375,7 @@ static char* __str_duplicate(const char* s) {
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
-    strncpy(buf, s, len);
+    strcpy(buf, s);
     buf[len] = '\0';
     return buf;
 }
