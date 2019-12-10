@@ -3,11 +3,6 @@ DISTDIR=dist
 SRCDIR=src
 CCFLAGS=-lm -Wall -Wpedantic -Winline -O3
 
-ifndef $(CC)
-CC=gcc
-endif
-
-
 
 all: string bitarray fileutils
 	$(CC) $(STD) $(DISTDIR)/stringlib.o $(TESTDIR)/stringlib_test.c $(CCFLAGS) -o ./$(DISTDIR)/strlib
