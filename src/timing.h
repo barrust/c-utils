@@ -31,7 +31,7 @@
 #include <stdio.h>
 #ifdef _WIN32
     #include <Windows.h>
-    #include <stdint.h>    // portable: uint64_t   MSVC: __int64
+    #include <stdint.h>    /* portable: uint64_t   MSVC: __int64 */
 #else
     #include <sys/time.h>  /* *nix based timing; doesn't support windows */
 #endif
@@ -126,8 +126,6 @@ void calc_difference(Timing *t){
 char* format_time_diff(Timing *t) {
     struct timeval difference;
     timeval_diff(&difference, &t->end_time, &t->start_time);
-
-    // put it into a string!
     int len = snprintf(NULL, 0, "%02d:%02d:%02d:%03d.%03d", t->hours, t->minutes, t->seconds, t->milliseconds, t->microseconds);
     char* res = calloc(len + 1, sizeof(char));
     snprintf(res, len + 1, "%02d:%02d:%02d:%03d.%03d", t->hours, t->minutes, t->seconds, t->milliseconds, t->microseconds);
@@ -140,8 +138,8 @@ char* format_time_diff(Timing *t) {
 *******************************************************************************/
 static long long timeval_diff(struct timeval *difference, struct timeval *end_time, struct timeval *start_time) {
     struct timeval temp_diff;
-    // if not passed in, we will use this to do the calculation and
-    // then return the number of microseconds
+    /*  if not passed in, we will use this to do the calculation and
+        then return the number of microseconds */
     if(difference == NULL) {
     difference = &temp_diff;
     }
@@ -166,7 +164,7 @@ static long long timeval_diff(struct timeval *difference, struct timeval *end_ti
     NOTE: this ignores the timezone information since we don't need it
 */
 int gettimeofday(struct timeval *tp, struct timezone *tzp) {
-    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+    /* Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's */
     static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
 
     SYSTEMTIME  system_time;
@@ -182,7 +180,7 @@ int gettimeofday(struct timeval *tp, struct timezone *tzp) {
     tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
     return 0;
 }
-#endif // end defining windows gettimeofday function
+#endif /* end defining windows gettimeofday function */
 
 
 #endif /* END OF BARRUST_TIMING_H__ */

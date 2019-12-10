@@ -8,14 +8,15 @@
 
 
 void s_free_array_of_strings(char** a, int num) {
-    for (int i = 0; i < num; i++)
+    int i;
+    for (i = 0; i < num; i++)
         free(a[i]);
     free(a);
 }
 
 
 char* s_duplicate(const char* s) {
-    size_t len = strlen(s);  // ensure room for NULL terminated
+    size_t len = strlen(s);  /* ensure room for NULL terminated */
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
@@ -42,19 +43,19 @@ char* s_reverse(char* s) {
 size_t s_trim(char* s) {
     size_t res = 0, i = 0, j = 0, length = strlen(s);
 
-    // remove trailing spaces
+    /* remove trailing spaces */
     while (isspace(s[length - 1]) != 0) {
         s[--length] = '\0';
         res++;
     }
 
-    // count the number of leading spaces
+    /* count the number of leading spaces */
     while (isspace(s[j]) != 0) j++;
 
-    // set our return value
+    /* set our return value */
     res += j;
 
-    // now we need to move things
+    /* now we need to move things */
     while (j <= length) s[i++] = s[j++];
 
     return res;
@@ -82,7 +83,7 @@ char* s_snprintf(const char* fmt, ...) {
 
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
-        return NULL; // must be an error state
+        return NULL; /* must be an error state */
 
     va_start(args, fmt);
     vsnprintf(buf, len + 1, fmt, args);
@@ -95,7 +96,8 @@ char* s_remove_unwanted_chars(char* s, const char* unwanted) {
     size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
         int changes = 0;
-        for (size_t q = 0; q < unwanted_len; q++) {
+        size_t q;
+        for (q = 0; q < unwanted_len; q++) {
             if (s[j] == unwanted[q]) {
                 changes = 1;
                 ++j;
@@ -118,7 +120,8 @@ char* s_remove_unwanted_chars(char* s, const char* unwanted) {
 char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
     size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
-        for (size_t q = 0; q < unwanted_len; q++) {
+        size_t q;
+        for (q = 0; q < unwanted_len; q++) {
             if (s[j] == unwanted[q]) {
                 s[j] = c;
                 break;
@@ -133,14 +136,16 @@ char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
 
 
 char* s_toupper(char* s) {
-    for (size_t i = 0; s[i] != '\0'; i++)
+    size_t i;
+    for (i = 0; s[i] != '\0'; i++)
         s[i] = toupper(s[i]);
     return s;
 }
 
 
 char* s_tolower(char* s) {
-    for (size_t i = 0; s[i] != '\0'; i++)
+    size_t i;
+    for (i = 0; s[i] != '\0'; i++)
         s[i] = tolower(s[i]);
     return s;
 }
@@ -256,11 +261,11 @@ int s_find_any(const char* s, const char* s2) {
 int s_find_any_reverse(const char* s, const char* s2) {
     char* res = NULL;
     char* loc = strpbrk(s, s2);
-    if (loc == NULL)  // quick exit
+    if (loc == NULL)  /* quick exit */
         return -1;
 
     while (loc != NULL) {
-        res = loc; // it matches a single element...
+        res = loc; /* it matches a single element... */
         loc = strpbrk(loc + 1, s2);
     }
     return res - s;
@@ -297,7 +302,7 @@ char* s_append(char* s1, const char* s2) {
     size_t len =  strlen(s2);
     char* res = realloc(s1, strlen(s1) + len + 1);
     strncat(res, s2, len);
-    // set s1 pointer to the res pointer
+    /* set s1 pointer to the res pointer */
     s1 = res;
     res = NULL;
     return s1;
@@ -311,7 +316,7 @@ char* s_concat(const char* s1, const char* s2) {
 
 
 int s_cmp(const char* s1, const char* s2) {
-    return s_cmp_alt(s1, s2, CASE_SENSITIVE);  // we want it case sensitive
+    return s_cmp_alt(s1, s2, CASE_SENSITIVE);  /* we want it case sensitive */
 }
 
 
@@ -360,7 +365,7 @@ char* s_extract_substring_c(const char* s, const char c, size_t length) {
 
 char** s_split_string_c(const char* s, const char c, int* num) {
     int max_size = s_find_cnt(s, c);
-    char** results = malloc(max_size * sizeof(char*));  // will be cut down for empty lines...
+    char** results = malloc(max_size * sizeof(char*));  /* will be cut down for empty lines... */
 
     const char* loc = s;
     int cnt = 0;
@@ -386,7 +391,7 @@ char** s_split_string_c(const char* s, const char c, int* num) {
 
 char** s_split_string_str(const char* s, const char* sub, int* num) {
     int max_size = s_find_cnt_str(s, sub);
-    char** results = malloc(max_size * sizeof(char*));  // will be cut down for empty lines...
+    char** results = malloc(max_size * sizeof(char*));  /* will be cut down for empty lines... */
 
     int sub_len = strlen(sub);
 
