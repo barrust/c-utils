@@ -2,7 +2,6 @@ TESTDIR=tests
 DISTDIR=dist
 SRCDIR=src
 
-CC=gcc
 CCFLAGS=-lm -Wall -Wpedantic -Winline -O3
 
 all: string bitarray fileutils
