@@ -210,15 +210,15 @@ MU_TEST(test_s_find_alt_str) {
 
 MU_TEST(test_s_strrstr) {
     char test[] = "This is a test of the test system!";
-    mu_assert_string_eq("test system!", s_strrstr(test, "test"));  // should pick up the second one!
-    mu_assert_string_eq("is a test of the test system!", s_strrstr(test, "is"));  // should pick up the second one!
-    mu_assert_string_eq(NULL, s_strrstr(test, "foo"));  // should pick up the second one!
+    mu_assert_string_eq("test system!", s_strrstr(test, "test"));  /* should pick up the second one! */
+    mu_assert_string_eq("is a test of the test system!", s_strrstr(test, "is"));  /* should pick up the second one! */
+    mu_assert_string_eq(NULL, s_strrstr(test, "foo"));
 }
 
 MU_TEST(test_s_find_reverse_str) {
     char test[] = "This is a test of the test system!";
-    mu_assert_int_eq(22, s_find_str_reverse(test, "test"));  // should pick up the second one!
-    mu_assert_int_eq(5, s_find_str_reverse(test, "is"));  // should pick up the second one!
+    mu_assert_int_eq(22, s_find_str_reverse(test, "test"));  /* should pick up the second one! */
+    mu_assert_int_eq(5, s_find_str_reverse(test, "is"));  /* should pick up the second one! */
     mu_assert_int_eq(-1, s_find_str_reverse(test, "foo"));
 }
 
@@ -272,7 +272,7 @@ MU_TEST(test_concat) {
     char* res = s_concat(test, t2);
 
     mu_assert_string_eq("This is a test of the system!", res);
-    // show that all the pointers are different!
+    /* show that all the pointers are different! */
     mu_assert(test != t2, "Pointers test and t1 are equal when they should not be!");
     mu_assert(test != res, "Pointers test and res are equal when they should not be!");
     mu_assert(t2 != res, "Pointers t1 and res are equal when they should not be!");
@@ -295,10 +295,12 @@ MU_TEST(test_cmp_basic) {
 
 MU_TEST(test_cmp_case_sensitivity) {
     char* test = s_duplicate("This is a test");
-    mu_assert(s_cmp_alt(test, "This is a test", CASE_SENSITIVE) == 0, "s_cmp_alt failed for case sensitive!");  // case sensitive
-    mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE) != 0, "s_cmp_alt failed for case sensitive!");  // case sensitive
-    mu_assert(s_cmp_alt(test, "This is a test", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");  // case insensitive
-    mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");  // case insensitive
+    /* case sensitive */
+    mu_assert(s_cmp_alt(test, "This is a test", CASE_SENSITIVE) == 0, "s_cmp_alt failed for case sensitive!");
+    mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE) != 0, "s_cmp_alt failed for case sensitive!");
+    /* case insensitive */
+    mu_assert(s_cmp_alt(test, "This is a test", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");
+    mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");
     free(test);
 }
 
@@ -318,10 +320,10 @@ MU_TEST(test_extract_substring) {
 
 MU_TEST(test_extract_substring_bad_start) {
     char test[] = "The quick brown fox jumped over the lazy dog.";
-    char* r1 = s_extract_substring(test, 45, 5); // close but still to long
+    char* r1 = s_extract_substring(test, 45, 5); /* close but still to long */
     mu_assert_string_eq(NULL, r1);
     free(r1);
-    char* r2 = s_extract_substring(test, 145, 5); // not even close
+    char* r2 = s_extract_substring(test, 145, 5); /* not even close */
     mu_assert_string_eq(NULL, r2);
     free(r2);
 }
@@ -332,7 +334,7 @@ MU_TEST(test_extract_substring_str) {
     mu_assert_string_eq("quick brown fox", r1);
     free(r1);
 
-    // now check one that is not present
+    /* now check one that is not present */
     char* r2 = s_extract_substring_str(test, "qiuck", 15);
     mu_assert_string_eq(NULL, r2);
     free(r2);
@@ -348,7 +350,7 @@ MU_TEST(test_extract_substring_c) {
     mu_assert_string_eq("quick brown fox", r1);
     free(r1);
 
-    // now check one that is not present
+    /* now check one that is not present */
     char* r2 = s_extract_substring_c(test, '!', 15);
     mu_assert_string_eq(NULL, r2);
     free(r2);
@@ -559,5 +561,6 @@ MU_TEST_SUITE(test_suite) {
 int main(int argc, char *argv[]) {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
-    return 0;
+    printf("Number failed tests: %d\n", minunit_fail);
+    return minunit_fail;
 }

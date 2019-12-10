@@ -17,11 +17,16 @@ MU_TEST(test_timing_simple) {
 
     timing_start(&t);
     printf("Begin sleeping test... about 61 seconds\n");
-    sleep(61); // sleep isn't exactly this many seconds... so get close!
+    sleep(61); /* sleep isn't exactly this many seconds... so get close! */
     timing_end(&t);
-    mu_assert(t.timing_double > 61.00 && t.timing_double < 61.01, "Sleeping 61 seconds didn't respond correctly");
+    char* msg = calloc(MINUNIT_MESSAGE_LEN, sizeof(char));
+    snprintf(msg, MINUNIT_MESSAGE_LEN, "Time not between 61.00 and 61.10 was %f", t.timing_double);
+    mu_assert(t.timing_double > 61.00 && t.timing_double < 61.10, msg);
+    free(msg);
 
-    t.microseconds = 150; // set this to something we can test!
+    /* set these to something we can test! */
+    t.milliseconds = 0;
+    t.microseconds = 150;
     res = format_time_diff(&t);
 
     mu_assert_string_eq("00:01:01:000.150", res);
@@ -34,7 +39,7 @@ MU_TEST(test_timing_simple) {
 
 MU_TEST(test_default_hand_long_hours) {
     Timing t;
-    // set some times by hand
+    /* set some times by hand */
     struct timeval tv;
     tv.tv_sec = 1000;
     tv.tv_usec = 101;
@@ -43,12 +48,15 @@ MU_TEST(test_default_hand_long_hours) {
     tv.tv_sec = 1000000;
     tv.tv_usec = 102;
     t.end_time = tv;
-    calc_difference(&t);  // force this call
+    calc_difference(&t);  /* force this call */
 
     long long i = timeval_diff(NULL, &t.end_time, &t.start_time);
-    mu_assert(999000000001 == i, "Expected: 999000000001 but did not receive that value");
+    char* msg = calloc(MINUNIT_MESSAGE_LEN, sizeof(char));
+    snprintf(msg, MINUNIT_MESSAGE_LEN, "Expected: 999000000001 but did not receive that value");
+    mu_assert(999000000001 == i, msg);
+    free(msg);
 
-    char* res = format_time_diff(&t);
+    res = format_time_diff(&t);
     mu_assert_string_eq("277:30:00:000.001", res);
 
     mu_assert_int_eq(277, t.hours);
@@ -68,9 +76,9 @@ MU_TEST(test_default_get_functions) {
     tv.tv_sec = 7851;
     tv.tv_usec = 78189;
     t.end_time = tv;
-    calc_difference(&t);  // force this call
+    calc_difference(&t);  /* force this call */
 
-    char* res = format_time_diff(&t);
+    res = format_time_diff(&t);
     mu_assert_string_eq("02:09:11:078.088", res);
 
     mu_assert_int_eq(2, timing_get_hours(t));
@@ -94,5 +102,6 @@ MU_TEST_SUITE(test_suite) {
 int main(int argc, char *argv[]) {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
-    return 0;
+    printf("Number failed tests: %d\n", minunit_fail);
+    return minunit_fail;
 }

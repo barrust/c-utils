@@ -11,11 +11,11 @@ typedef struct __file_struct {
     size_t filesize;
     mode_t mode;
     size_t num_lines;
-    bool is_symlink;     // 0 for false, 1 for true
+    bool is_symlink;     /* 0 for false, 1 for true */
     char* basepath;
     char* filename;
     char* extension;
-    char* buffer;       // this will hold the whole file and lines will index into it
+    char* buffer;       /* this will hold the whole file and lines will index into it */
     char** lines;
 } __file_struct;
 
@@ -69,7 +69,7 @@ char* fs_resolve_path(const char* path) {
         if (p != NULL) {
             char* s = tmp + (pos + 1);
             int p_len = strlen(p), t_len = strlen(s);
-            new_path = calloc(p_len + t_len + 3, sizeof(char));  // include slash x2 and \0
+            new_path = calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
             snprintf(new_path, p_len + 2 + t_len, "%s/%s", p, s);
             free(p);
             break;
@@ -80,7 +80,7 @@ char* fs_resolve_path(const char* path) {
     }
     free(tmp);
 
-    // ensure no trailing '/'
+    /* ensure no trailing '/' */
     int len = strlen(new_path);
     if (new_path[len - 1] == '/')
         new_path[len - 1] = '\0';
@@ -89,7 +89,7 @@ char* fs_resolve_path(const char* path) {
 }
 
 char* fs_cwd() {
-    size_t malsize = 16; // some defult power of 2...
+    size_t malsize = 16; /* some defult power of 2... */
     char* buf = malloc(malsize * sizeof(char));
     errno = 0;
     while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
@@ -137,7 +137,7 @@ int fs_mkdir(const char* path, bool recursive) {
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     size_t len = strlen(path);
     if (path == NULL || len == 0)
-        return FS_NOT_VALID;  // do something with this...
+        return FS_NOT_VALID;  /* do something with this... */
 
     errno = 0;
     struct stat stats;
@@ -149,12 +149,12 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
         return __fs_mkdir(path, mode);
     }
 
-    // need to start by finding a way to resolve the relative paths!
+    /* need to start by finding a way to resolve the relative paths! */
     char* new_path = fs_resolve_path(path);
     if (new_path == NULL)
         return FS_NOT_VALID;
 
-    // add a trailing '/' for the loop to work!
+    /* add a trailing '/' for the loop to work! */
     len = strlen(new_path);
     char* tmp = realloc(new_path, len + 2);
     tmp[len] = '/';
@@ -162,7 +162,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     new_path = tmp;
     tmp = NULL;
 
-    // printf("new_path: %s\n", new_path);
+    /* printf("new_path: %s\n", new_path); */
     char* p;
     for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
         *p = '\0';
@@ -171,7 +171,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
             free(new_path);
             return FS_FAILURE;
         }
-        // printf("tmp_path: %s\n", new_path);
+        /* printf("tmp_path: %s\n", new_path); */
         *p = '/';
     }
     free(new_path);
@@ -209,7 +209,7 @@ unsigned short fs_string_to_mode(const char* s) {
     unsigned short res = 0;
     if (s == NULL || strlen(s) != 10)
         return FS_INVALID_MODE;
-    // skip the directory char
+    /* skip the directory char */
     res |= s[1] == 'r' ? S_IRUSR : 0;
     res |= s[2] == 'w' ? S_IWUSR : 0;
     res |= s[3] == 'x' ? S_IXUSR : 0;
@@ -236,10 +236,10 @@ file_t f_init(const char* filepath) {
 
     mode_t mode = stats.st_mode;
     if (S_ISREG(mode) == 0 && S_ISLNK(mode) == 0)
-        return NULL; // it isn't a file or symlink
+        return NULL; /* it isn't a file or symlink */
 
     file_t f = calloc(1, sizeof(file_struct));
-    // set the defaults
+    /* set the defaults */
     f->filename = NULL;
     f->extension = NULL;
     f->filesize = 0;
@@ -265,7 +265,8 @@ void f_free(file_t f) {
     free(f->basepath);
     free(f->filename);
     free(f->extension);
-    for (size_t i = 0; i < f->num_lines; i++)
+    size_t i;
+    for (i = 0; i < f->num_lines; i++)
         f->lines[i] = NULL;
     free(f->lines);
     free(f->buffer);
@@ -312,14 +313,13 @@ const char* f_read_file(file_t f) {
     free(f->buffer);
 
     int blen = strlen(f->basepath), flen = strlen(f->filename);
-    char* full_path = calloc(blen + flen + 2, sizeof(char)); // '/' and '\0'
-    strncpy(full_path, f->basepath, blen);
+    char* full_path = calloc(blen + flen + 2, sizeof(char)); /* '/' and '\0' */
+    strcpy(full_path, f->basepath);
     full_path[blen] = '/';
-    strncpy(full_path + blen + 1, f->filename, flen);
+    strcpy(full_path + blen + 1, f->filename);
 
     FILE* fobj = fopen(full_path, "rb");
-    if (fobj == NULL) { // some error occured...
-        // fprintf(stderr, "Unable to open file [%s]; errno=%d\n", full_path, errno);
+    if (fobj == NULL) {
         free(full_path);
         fclose(fobj);
         return NULL;
@@ -329,7 +329,6 @@ const char* f_read_file(file_t f) {
     f->buffer = calloc(f->filesize + 1, sizeof(char));
     size_t read = fread(f->buffer, sizeof(char), f->filesize, fobj);
     if (read != f->filesize) {
-        // fprintf(stderr, "Did not read the full file: read %lu bytes\n", read);
         fclose(fobj);
         return NULL;
     }
@@ -372,11 +371,11 @@ static int __fs_mkdir(const char* path, mode_t mode) {
 }
 
 static char* __str_duplicate(const char* s) {
-    size_t len = strlen(s);  // ensure room for NULL terminated
+    size_t len = strlen(s);
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
-    strncpy(buf, s, len);
+    strcpy(buf, s);
     buf[len] = '\0';
     return buf;
 }
@@ -407,7 +406,7 @@ static char** __str_split_string_any(char* s, const char* s2, size_t* num) {
         find = s2;
 
     size_t max_size = __str_find_cnt_any(s, find);
-    char** results = malloc(max_size * sizeof(char*));
+    char** results = calloc(max_size + 1,  sizeof(char*));
     char* loc = s;
     int cnt = 0;
     int len = __str_find_any(loc, find);
@@ -450,7 +449,7 @@ static size_t __str_find_cnt_any(const char* s, const char* s2) {
 
 
 static void __parse_file_info(const char* full_filepath, char** filepath, char** filename) {
-    // ensure path and filename are not leaking memory
+    /* ensure path and filename are not leaking memory */
     free(*filepath);
     free(*filename);
 

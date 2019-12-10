@@ -56,7 +56,7 @@ MU_TEST(test_setup_resolve_paths) {
     char* path = fs_resolve_path(test_dir_rel);
     mu_assert_string_eq(test_dir, path);
     int len = strlen(path);
-    mu_assert_int_eq('p', path[len-1]);  // make sure no trailing '/'
+    mu_assert_int_eq('p', path[len-1]);  /* make sure no trailing '/' */
     free(path);
 }
 
@@ -142,8 +142,8 @@ MU_TEST(test_rename) {
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
 
     mu_assert_int_eq(FS_SUCCESS, fs_rename(filepath, new_filepath));
-    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  // make sure no longer there
-    mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  // make sure this one is!
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  /* make sure no longer there */
+    mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  /* make sure this one is! */
     unlink(new_filepath);
 
     free(filepath);
@@ -160,8 +160,8 @@ MU_TEST(test_move) {
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
 
     mu_assert_int_eq(FS_SUCCESS, fs_move(filepath, new_filepath));
-    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  // make sure no longer there
-    mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  // make sure this one is!
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  /* make sure no longer there */
+    mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  /* make sure this one is! */
     unlink(new_filepath);
 
     free(filepath);
@@ -175,14 +175,14 @@ MU_TEST(test_file_t_init) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
     file_t f = f_init(filepath);
     free(filepath);
-    // ensure things are correct!
+    /* ensure things are correct! */
     mu_assert_string_eq("test.txt", f_filename(f));
     mu_assert_string_eq(test_dir, f_basedir(f));
     mu_assert_string_eq("txt", f_extension(f));
-    mu_assert_int_eq(0664 , f_permissions(f));
+    mu_assert_int_one_of(0644, 0664, f_permissions(f));  /* 0664 is the value for linux, 0644 OSX */
     mu_assert_int_eq(3259 , f_filesize(f));
     mu_assert_int_eq(false , f_is_symlink(f));
-    // haven't loaded the file, so these should be the defaults!
+    /* haven't loaded the file, so these should be the defaults! */
     mu_assert_int_eq(0 , f_number_lines(f));
     mu_assert_string_eq(NULL , f_buffer(f));
     mu_assert(f_lines(f) == NULL, "Expected lines to be NULL, if was not...");
@@ -213,7 +213,7 @@ MU_TEST(test_file_t_parse_lines) {
 
     mu_assert_int_eq(5, f_number_lines(f));
     mu_assert_string_eq(f_buffer(f), buf[0]);
-    // check line lengths
+    /* check line lengths */
     mu_assert_int_eq(843, strlen(buf[0]));
     mu_assert(buf[0][strlen(buf[0]) - 1] == '.', "Failed to get the correct, last character!");
     mu_assert_int_eq(434, strlen(buf[1]));
@@ -224,9 +224,11 @@ MU_TEST(test_file_t_parse_lines) {
     mu_assert(buf[3][strlen(buf[3]) - 1] == '.', "Failed to get the correct, last character!");
     mu_assert_int_eq(452, strlen(buf[4]));
     mu_assert(buf[4][strlen(buf[4]) - 1] == '.', "Failed to get the correct, last character!");
-    // for (size_t i = 0; i < f_number_lines(f); i++) {
-    //     printf("Line %lu: %s\n", i, buf[i]);
-    // }
+    /*
+    size_t i;
+    for (i = 0; i < f_number_lines(f); i++) {
+         printf("Line %lu: %s\n", i, buf[i]);
+    } */
 
     f_free(f);
 }
@@ -243,29 +245,29 @@ MU_TEST_SUITE(test_suite) {
     /***************************************************************************
     *   filesystem functions
     ***************************************************************************/
-    // cwd
+    /* cwd */
     MU_RUN_TEST(test_cwd);
 
-    // resolve
+    /* resolve */
     MU_RUN_TEST(test_setup_resolve_paths);
     MU_RUN_TEST(test_resolve_path_file);
     MU_RUN_TEST(test_resolve_path_no_exist);
 
-    // fs_identify_path
+    /* fs_identify_path */
     MU_RUN_TEST(test_identify_path);
 
-    // mode conversions
+    /* mode conversions */
     MU_RUN_TEST(test_mode_to_string);
     MU_RUN_TEST(test_string_to_mode);
 
-    // touch
+    /* touch */
     MU_RUN_TEST(test_touch);
 
-    // rename / move
+    /* rename / move */
     MU_RUN_TEST(test_rename);
     MU_RUN_TEST(test_move);
 
-    // mkdir
+    /* mkdir */
 
 
     /***************************************************************************
@@ -283,7 +285,8 @@ MU_TEST_SUITE(test_suite) {
 int main(int argc, char *argv[]) {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
-    return 0;
+    printf("Number failed tests: %d\n", minunit_fail);
+    return minunit_fail;
 }
 
 
@@ -300,7 +303,7 @@ static char* __str_snprintf(const char* fmt, ...) {
 
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
-        return NULL; // must be an error state
+        return NULL;
 
     va_start(args, fmt);
     vsnprintf(buf, len + 1, fmt, args);
@@ -321,11 +324,11 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
 }
 
 static char* __str_duplicate(const char* s) {
-    size_t len = strlen(s);  // ensure room for NULL terminated
+    size_t len = strlen(s);
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
-    strncpy(buf, s, len);
+    strcpy(buf, s);
     buf[len] = '\0';
     return buf;
 }

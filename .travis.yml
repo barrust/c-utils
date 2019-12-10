@@ -1,0 +1,86 @@
+language: c
+
+sudo: false # only for faster builds
+
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode10.1
+
+    - os: osx
+      osx_image: xcode9.4
+
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.9
+      env:
+         - MATRIX_EVAL="CC=gcc-4.9 && STD=-std=gnu99"
+
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+      env:
+         - MATRIX_EVAL="CC=gcc-5"
+
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+      env:
+        - MATRIX_EVAL="CC=gcc-6"
+
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-8
+      env:
+        - MATRIX_EVAL="CC=gcc-8"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-9
+      env:
+        - MATRIX_EVAL="CC=gcc-9"
+
+
+before_install:
+    - eval "${MATRIX_EVAL}"
+
+script:
+  - make
+  - ./dist/fileutils
+  - ./dist/bitarray
+  - ./dist/strlib
+  - ./dist/timing

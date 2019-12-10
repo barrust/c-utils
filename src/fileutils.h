@@ -60,7 +60,7 @@ int fs_identify_path(const char* path);
 
 /*  Returns the current working directory
     NOTE: Up to the user to free the resulting memory */
-char* fs_cwd();  // current working directory
+char* fs_cwd();
 
 /*  Resolve the path provided by turning it into an absolute path
     NOTE: Up to the caller to free the resulting memory
@@ -113,8 +113,8 @@ unsigned short fs_string_to_mode(const char* s);
 
 
 
-// int fs_rmdir(const char* path, bool recursive);  // TODO: implement
-// int fs_rmdir_alt(const char* path, bool recursive);  // TODO: implement
+/* int fs_rmdir(const char* path, bool recursive);      TODO: implement */
+/* int fs_rmdir_alt(const char* path, bool recursive);  TODO: implement */
 
 
 
@@ -122,13 +122,13 @@ unsigned short fs_string_to_mode(const char* s);
 /*******************************************************************************
 *   Directory Functionality Encapsulation
 *******************************************************************************/
-// int d_is_directory(const char* path);
+/* int d_is_directory(const char* path); */
 
-// int d_mkdir(const char* path, int recursive);
+/* int d_mkdir(const char* path, int recursive); */
 
-// char* d_list_dir(const char* path);
+/* char* d_list_dir(const char* path); */
 
-// char* d_resolve_directory(const char* path);
+/* char* d_resolve_directory(const char* path); */
 
 /*******************************************************************************
 *   File Functionality Encapsulation
