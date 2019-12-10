@@ -406,7 +406,7 @@ static char** __str_split_string_any(char* s, const char* s2, size_t* num) {
         find = s2;
 
     size_t max_size = __str_find_cnt_any(s, find);
-    char** results = malloc(max_size * sizeof(char*));
+    char** results = calloc(max_size + 1,  sizeof(char*));
     char* loc = s;
     int cnt = 0;
     int len = __str_find_any(loc, find);

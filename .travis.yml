@@ -4,11 +4,11 @@ sudo: false # only for faster builds
 
 matrix:
   include:
-    # - os: osx
-    #   osx_image: xcode10.1
-    #
-    # - os: osx
-    #   osx_image: xcode9.4
+    - os: osx
+      osx_image: xcode10.1
+
+    - os: osx
+      osx_image: xcode9.4
 
     # works on Precise and Trusty
     - os: linux
@@ -81,6 +81,6 @@ before_install:
 script:
   - make
   - ./dist/fileutils
-  - ./dist/timing
   - ./dist/bitarray
   - ./dist/strlib
+  - ./dist/timing
