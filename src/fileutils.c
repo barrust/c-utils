@@ -104,8 +104,6 @@ int fs_rename(const char* path, const char* new_path) {
     if (path == NULL || new_path == NULL)
         return FS_NOT_VALID;
 
-    char* a = malloc(10);
-    a[10] = 'c'; // this should cause an error in cppcheck!
     errno = 0;
     int res = rename(path, new_path);
     if (res == 0)
