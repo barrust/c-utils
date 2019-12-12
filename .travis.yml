@@ -1,8 +1,7 @@
 language: c
 
-sudo: false # only for faster builds
 
-matrix:
+jobs:
   include:
     - os: osx
       osx_image: xcode10.1
@@ -87,4 +86,4 @@ script:
   - ./dist/bitarray
   - ./dist/strlib
   - ./dist/timing
-  - if [ $TRAVIS_OS_NAME == linux ]; then cppcheck ./src/ ; fi
+  - if [ $TRAVIS_OS_NAME == linux ]; then cppcheck --error-exitcode=1 --enable=warning,performance,information,style ./src/ ; fi
