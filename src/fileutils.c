@@ -138,9 +138,11 @@ int fs_mkdir(const char* path, bool recursive) {
 }
 
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
+    if (path == NULL)
+        return FS_NOT_VALID;
     size_t len = strlen(path);
-    if (path == NULL || len == 0)
-        return FS_NOT_VALID;  /* do something with this... */
+    if (len == 0)
+        return FS_NOT_VALID;
 
     errno = 0;
     struct stat stats;
@@ -193,15 +195,15 @@ char* fs_mode_to_string_alt(mode_t mode, char* res) {
         tmp = res;
 
     tmp[0] = S_ISDIR(mode) == 0 ? '-' : 'd';
-    tmp[1] = mode & S_IRUSR ? 'r' : '-';
-    tmp[2] = mode & S_IWUSR ? 'w' : '-';
-    tmp[3] = mode & S_IXUSR ? 'x' : '-';
-    tmp[4] = mode & S_IRGRP ? 'r' : '-';
-    tmp[5] = mode & S_IWGRP ? 'w' : '-';
-    tmp[6] = mode & S_IXGRP ? 'x' : '-';
-    tmp[7] = mode & S_IROTH ? 'r' : '-';
-    tmp[8] = mode & S_IWOTH ? 'w' : '-';
-    tmp[9] = mode & S_IXOTH ? 'x' : '-';
+    tmp[1] = (mode & S_IRUSR) ? 'r' : '-';
+    tmp[2] = (mode & S_IWUSR) ? 'w' : '-';
+    tmp[3] = (mode & S_IXUSR) ? 'x' : '-';
+    tmp[4] = (mode & S_IRGRP) ? 'r' : '-';
+    tmp[5] = (mode & S_IWGRP) ? 'w' : '-';
+    tmp[6] = (mode & S_IXGRP) ? 'x' : '-';
+    tmp[7] = (mode & S_IROTH) ? 'r' : '-';
+    tmp[8] = (mode & S_IWOTH) ? 'w' : '-';
+    tmp[9] = (mode & S_IXOTH) ? 'x' : '-';
     tmp[10] = '\0';
     res = tmp;
     tmp = NULL;
@@ -324,7 +326,6 @@ const char* f_read_file(file_t f) {
     FILE* fobj = fopen(full_path, "rb");
     if (fobj == NULL) {
         free(full_path);
-        fclose(fobj);
         return NULL;
     }
     free(full_path);
@@ -456,13 +457,13 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
     free(*filepath);
     free(*filename);
 
-    int pathlen = strlen(full_filepath);
-
-    if (full_filepath == NULL || pathlen == 0) {
+    if (full_filepath == NULL || strlen(full_filepath) == 0) {
         (*filepath) = NULL;
         (*filename) = NULL;
         return;
     }
+
+    int pathlen = strlen(full_filepath);
 
     int slash_loc = __str_find_reverse(full_filepath, '/');
     if (slash_loc == -1) {
