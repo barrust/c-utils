@@ -22,5 +22,11 @@ fileutils:
 debug: CCFLAGS += -g
 debug: all
 
+test: CCFLAGS += -coverage
+test: all
+
 clean:
 	rm -rf ./$(DISTDIR)/*
+	rm -rf ./*.gcno
+	rm -rf ./*.gcda
+	rm -rf ./*.gcov

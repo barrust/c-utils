@@ -1,5 +1,8 @@
 # Project specific
 dist/*
+*.gcno
+*.gcda
+*.gcov
 
 # Prerequisites
 *.d

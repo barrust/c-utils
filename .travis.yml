@@ -81,9 +81,13 @@ install:
     - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install -qq cppcheck; fi
 
 script:
-  - make
+  - make test
   - ./dist/fileutils
   - ./dist/bitarray
   - ./dist/strlib
   - ./dist/timing
   - if [ $TRAVIS_OS_NAME == linux ]; then cppcheck --error-exitcode=1 --enable=warning,performance,information,style ./src/ ; fi
+  - gcov ./dist/*.gcno
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
