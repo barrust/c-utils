@@ -196,7 +196,7 @@ static void (*minunit_teardown)(void) = NULL;
 			t = 1;\
 	}\
 	if (t == 0) {\
-		char tmp[1024] = {0};\
+		char tmp[500] = {0};\
 		tmp[0] = '[';\
 		for (i = 0; i < array_length; i++) {\
 			sprintf(tmp + strlen(tmp), "%d, ", expected[i]);\
