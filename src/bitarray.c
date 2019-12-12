@@ -50,7 +50,6 @@ void ba_free(bitarray_t ba) {
     ba->num_bits = 0;
     ba->num_chars = 0;
     free(ba);
-    ba = NULL;
 }
 
 
