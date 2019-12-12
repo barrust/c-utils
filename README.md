@@ -1,5 +1,9 @@
 # c-utils
 
+[![Build Status](https://travis-ci.org/barrust/c-utils.svg?branch=master)](https://travis-ci.org/barrust/c-utils)
+[![codecov](https://codecov.io/gh/barrust/c-utils/branch/master/graph/badge.svg)](https://codecov.io/gh/barrust/c-utils)
+
+
 This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but write as needed, usually differently each time and without unit tests.
 
 If there are other commonly used code that should be added, please add a feature request!
