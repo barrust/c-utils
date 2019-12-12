@@ -1,8 +1,7 @@
 language: c
 
-sudo: false # only for faster builds
 
-matrix:
+jobs:
   include:
     - os: osx
       osx_image: xcode10.1
@@ -78,9 +77,13 @@ matrix:
 before_install:
     - eval "${MATRIX_EVAL}"
 
+install:
+    - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install -qq cppcheck; fi
+
 script:
   - make
   - ./dist/fileutils
   - ./dist/bitarray
   - ./dist/strlib
   - ./dist/timing
+  - if [ $TRAVIS_OS_NAME == linux ]; then cppcheck --error-exitcode=1 --enable=warning,performance,information,style ./src/ ; fi

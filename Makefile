@@ -1,7 +1,7 @@
 TESTDIR=tests
 DISTDIR=dist
 SRCDIR=src
-CCFLAGS=-lm -Wall -Wpedantic -Winline -O3
+CCFLAGS=-lm -Wall -Wpedantic -Winline
 
 
 all: string bitarray fileutils
