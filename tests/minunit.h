@@ -54,6 +54,10 @@
 #include <mach/mach_time.h>
 #endif
 
+#if __GNUC__ >= 5 && !defined(__STDC_VERSION__)
+#define __func__ __extension__ __FUNCTION__
+#endif
+
 #else
 #error "Unable to define timers for an unknown OS."
 #endif
@@ -134,6 +138,7 @@ static void (*minunit_teardown)(void) = NULL;
 		minunit_end_real_timer - minunit_real_timer,\
 		minunit_end_proc_timer - minunit_proc_timer);\
 )
+#define MU_EXIT_CODE minunit_fail
 
 /*  Assertions */
 #define mu_check(test) MU__SAFE_BLOCK(\
@@ -180,16 +185,26 @@ static void (*minunit_teardown)(void) = NULL;
 	}\
 )
 
-#define mu_assert_int_one_of(expected_1, expected_2, result) MU__SAFE_BLOCK(\
-	int minunit_tmp_e;\
-	int minunit_tmp_e2;\
+#define mu_assert_int_in(expected, array_length, result) MU__SAFE_BLOCK(\
 	int minunit_tmp_r;\
 	minunit_assert++;\
-	minunit_tmp_e = (expected_1);\
-	minunit_tmp_e2 = (expected_2);\
 	minunit_tmp_r = (result);\
-	if (minunit_tmp_e != minunit_tmp_r && minunit_tmp_e2 != minunit_tmp_r) {\
-		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %d or %d expected but was %d", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_e2, minunit_tmp_r);\
+	int t = 0;\
+	int i;\
+	for (i = 0; i < array_length; i++) {\
+		if (expected[i] == minunit_tmp_r)\
+			t = 1;\
+	}\
+	if (t == 0) {\
+		char tmp[1024] = {0};\
+		tmp[0] = '[';\
+		for (i = 0; i < array_length; i++) {\
+			sprintf(tmp + strlen(tmp), "%d, ", expected[i]);\
+		}\
+		int len = strlen(tmp);\
+		tmp[len - 2] = ']';\
+		tmp[len - 1] = '\0';\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: expected to be one of %s but was %d", __func__, __FILE__, __LINE__, tmp, minunit_tmp_r);\
 		minunit_status = 1;\
 		return;\
 	} else {\

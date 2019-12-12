@@ -19,10 +19,9 @@ MU_TEST(test_timing_simple) {
     printf("Begin sleeping test... about 61 seconds\n");
     sleep(61); /* sleep isn't exactly this many seconds... so get close! */
     timing_end(&t);
-    char* msg = calloc(MINUNIT_MESSAGE_LEN, sizeof(char));
-    snprintf(msg, MINUNIT_MESSAGE_LEN, "Time not between 61.00 and 61.10 was %f", t.timing_double);
+    char msg[MINUNIT_MESSAGE_LEN] = {0};
+    sprintf(msg, "Time not between 61.00 and 61.10 was %f", t.timing_double);
     mu_assert(t.timing_double > 61.00 && t.timing_double < 61.10, msg);
-    free(msg);
 
     /* set these to something we can test! */
     t.milliseconds = 0;
@@ -51,10 +50,9 @@ MU_TEST(test_default_hand_long_hours) {
     calc_difference(&t);  /* force this call */
 
     long long i = timeval_diff(NULL, &t.end_time, &t.start_time);
-    char* msg = calloc(MINUNIT_MESSAGE_LEN, sizeof(char));
-    snprintf(msg, MINUNIT_MESSAGE_LEN, "Expected: 999000000001 but did not receive that value");
+    char msg[MINUNIT_MESSAGE_LEN] = {0};
+    sprintf(msg, "Expected: 999000000001 but did not receive that value");
     mu_assert(999000000001 == i, msg);
-    free(msg);
 
     res = format_time_diff(&t);
     mu_assert_string_eq("277:30:00:000.001", res);

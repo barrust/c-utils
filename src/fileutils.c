@@ -94,7 +94,8 @@ char* fs_cwd() {
     errno = 0;
     while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
         malsize *= 2;
-        buf = (char*)realloc(buf, malsize * sizeof(char));
+        char* tmp = realloc(buf, malsize * sizeof(char));
+        buf = tmp;
     }
     return buf;
 }
