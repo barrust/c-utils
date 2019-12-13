@@ -146,7 +146,7 @@ int fs_remove_file(const char* path) {
 }
 
 int fs_mkdir(const char* path, bool recursive) {
-    return fs_mkdir_alt(path, recursive, 0764);  /* User rwx group rw othes r */
+    return fs_mkdir_alt(path, recursive, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH);  /* drwxrw-r-- */
 }
 
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {

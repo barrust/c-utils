@@ -240,7 +240,8 @@ MU_TEST(test_mkdir_non_recursive) {
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
     mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath, false)); /* start with non-recursive; one level */
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
-    mu_assert_int_eq(0764, fs_get_permissions(filepath));
+    int vals[] = {0744, 0764};
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
 
     rmdir(filepath);  /* replace with the fs_rmdir once it is written */
     free(filepath);
@@ -270,9 +271,10 @@ MU_TEST(test_mkdir_recursive) {
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath2));
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath3));
     /* check the new directories permissions */
-    mu_assert_int_eq(0764, fs_get_permissions(filepath));
-    mu_assert_int_eq(0764, fs_get_permissions(filepath2));
-    mu_assert_int_eq(0764, fs_get_permissions(filepath3));
+    int vals[] = {0744, 0764};
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath2));
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath3));
 
     /* clean up! replace with the fs_rmdir once it is written */
     rmdir(filepath3);
