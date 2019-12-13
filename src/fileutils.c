@@ -29,8 +29,9 @@ static char**  __str_split_string_any(char* s, const char* s2, size_t* num);
 static int     __str_find_any(const char* s, const char* s2);
 static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
-/*static void    __print_out_stat_errno(int e);*/
+/* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
+/*static int     __fs_rmdir(const char* path);*/
 
 
 
@@ -126,8 +127,10 @@ int fs_touch_alt(const char* path, mode_t mode) {
         return FS_NOT_VALID;
 
     open(path, O_CREAT, mode);
-    if (fs_identify_path(path) == FS_FILE)
+    if (fs_identify_path(path) == FS_FILE) {
+        fs_set_permissions(path, mode);
         return FS_SUCCESS;
+    }
     return FS_FAILURE;
 }
 
@@ -136,7 +139,7 @@ int fs_remove_file(const char* path) {
     if (res != FS_FILE)
         return FS_NOT_VALID;
 
-    res = remove(path);
+    res = remove(path);  /* should supports windows and posix OSes */
     if (res == 0)
         return FS_SUCCESS;
     return FS_FAILURE;
@@ -190,6 +193,29 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     }
     free(new_path);
     return FS_EXISTS;
+}
+
+int fs_get_permissions(const char* path) {
+    if (path == NULL)
+        return FS_NOT_VALID;
+    struct stat stats;
+    if (stat(path, &stats) == -1) {
+        if (errno == ENOENT)
+            return FS_NO_EXISTS;
+        return FS_FAILURE;
+    }
+    return stats.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+}
+
+int fs_set_permissions(const char* path, mode_t mode) {
+    int res = fs_identify_path(path);
+    if (res != FS_FILE && res != FS_DIRECTORY)
+        return FS_NOT_VALID;
+
+    res = chmod(path, mode);
+    if (res == 0)
+        return FS_SUCCESS;
+    return FS_FAILURE;
 }
 
 char* fs_mode_to_string(mode_t mode) {
@@ -374,6 +400,7 @@ char** f_parse_lines(file_t f) {
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
 static int __fs_mkdir(const char* path, mode_t mode) {
+    errno = 0;
     int res = mkdir(path, mode);
     if (res == -1) {
         if (errno != EEXIST) {
@@ -382,7 +409,18 @@ static int __fs_mkdir(const char* path, mode_t mode) {
     }
     return FS_EXISTS;
 }
-
+/*
+static int __fs_rmdir(const char* path) {
+    errno = 0;
+    int res = rmdir(path);
+    if (res == -1) {
+        if (errno == EEXIST || errno == ENOTEMPTY)
+            return FS_NOT_EMPTY;
+        return FS_FAILURE;
+    }
+    return FS_NO_EXISTS;
+}
+*/
 static char* __str_duplicate(const char* s) {
     size_t len = strlen(s);
     char* buf = malloc((len + 1) * sizeof(char));
@@ -485,30 +523,3 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
     *filename = __str_extract_substring(full_filepath, slash_loc + 1, pathlen);
     return;
 }
-
-/*
-static void __print_out_stat_errno(int e) {
-    switch(e) {
-        case EACCES:
-            printf("EACCES\n"); break;
-        case EFAULT:
-            printf("EFAULT\n"); break;
-        case ENAMETOOLONG:
-            printf("ENAMETOOLONG\n"); break;
-        case ENOENT:
-            printf("ENOENT\n"); break;
-        case ENOMEM:
-            printf("ENOMEM\n"); break;
-        case ENOTDIR:
-            printf("ENOTDIR\n"); break;
-        case EOVERFLOW:
-            printf("EOVERFLOW\n"); break;
-        case EBADF:
-            printf("EBADF\n"); break;
-        case EINVAL:
-            printf("EINVAL\n"); break;
-        default:
-            printf("errno: %d\n", errno); break;
-    }
-}
-*/

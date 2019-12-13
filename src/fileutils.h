@@ -37,6 +37,8 @@ typedef struct __file_struct *file_t;
 #define FS_DIRECTORY        -8
 #define FS_SYMLINK          -7
 
+#define FS_NOT_EMPTY        -6
+
 #define FS_EXISTS            0
 #define FS_NO_EXISTS        -2
 
@@ -102,6 +104,16 @@ int fs_remove_file(const char* path);
 */
 int fs_mkdir(const char* path, bool recursive);
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode);
+
+/*  Retrieve the permissions of the file or directory at which path points
+    Returns:
+        FS_NOT_VALID
+        FS_NO_EXISTS
+        FS_FAILURE
+        mode_t as int
+*/
+int fs_get_permissions(const char* path);
+int fs_set_permissions(const char* path, mode_t mode);
 
 /*  Turn the permissions mode_t (int) into a printable format "drwxrwxrwx"
     NOTE: Up to the caller to free the returned memory */

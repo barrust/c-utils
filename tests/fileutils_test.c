@@ -109,6 +109,36 @@ MU_TEST(test_identify_path) {
 }
 
 /*******************************************************************************
+*    Test get / set permissions
+*******************************************************************************/
+MU_TEST(test_get_permissions) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath2 = __str_snprintf("%s/test-2.txt", test_dir);
+    int vals[] = {0664, 0644, 0775};
+    mu_assert_int_in(vals, 3, fs_get_permissions(filepath));
+    mu_assert_int_eq(FS_NOT_VALID, fs_get_permissions(NULL));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_get_permissions(filepath2));
+    /* test a directory */
+    mu_assert_int_in(vals, 3, fs_get_permissions(test_dir));
+    free(filepath);
+    free(filepath2);
+}
+
+MU_TEST(test_set_permissions) {
+    char* filepath = __str_snprintf("%s/test-3.txt", test_dir);
+    /* test errors */
+    mu_assert_int_eq(FS_NOT_VALID, fs_set_permissions(NULL, 0777));
+
+    /* make new file and test */
+    fs_touch_alt(filepath, 0666);
+    mu_assert_int_eq(0666, fs_get_permissions(filepath));
+    mu_assert_int_eq(FS_SUCCESS, fs_set_permissions(filepath, 0777));
+    mu_assert_int_eq(0777, fs_get_permissions(filepath));
+    unlink(filepath);
+    free(filepath);
+}
+
+/*******************************************************************************
 *    Test mode conversions (string octal)
 *******************************************************************************/
 MU_TEST(test_mode_to_string) {
@@ -194,6 +224,23 @@ MU_TEST(test_move) {
     free(filepath);
     free(new_filepath);
 }
+
+/*******************************************************************************
+*    Test mkdir   # NOTE: Not completed! Stubbed portions
+*******************************************************************************/
+MU_TEST(test_mkdir_errors) {
+    mu_assert_int_eq(FS_NOT_VALID, fs_mkdir(NULL, false)); /* Test the passing of NULL */
+    mu_assert_int_eq(FS_NOT_VALID, fs_mkdir("", false));   /* Test an empty string */
+    mu_assert_int_eq(FS_EXISTS, fs_mkdir(test_dir, false));   /* Test existing dir */
+}
+
+// MU_TEST(test_mkdir) {
+//     char* filepath = __str_snprintf("%s/test/", test_dir);
+//     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test existing dir */
+//     mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath, 0775));        /* TODO: make get permissions */
+//
+// }
+
 
 /***************************************************************************
 *   file_t - usage
@@ -295,6 +342,10 @@ MU_TEST_SUITE(test_suite) {
     /* fs_identify_path */
     MU_RUN_TEST(test_identify_path);
 
+    /* get / set permissions */
+    MU_RUN_TEST(test_get_permissions);
+    MU_RUN_TEST(test_set_permissions);
+
     /* mode conversions */
     MU_RUN_TEST(test_mode_to_string);
     MU_RUN_TEST(test_string_to_mode);
@@ -310,7 +361,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_remove);
 
     /* mkdir */
-
+    MU_RUN_TEST(test_mkdir_errors);
 
     /***************************************************************************
     *   file_t
