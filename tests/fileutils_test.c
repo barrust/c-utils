@@ -135,7 +135,7 @@ MU_TEST(test_set_permissions) {
     mu_assert_int_eq(0666, fs_get_permissions(filepath));
     mu_assert_int_eq(FS_SUCCESS, fs_set_permissions(filepath, 0777));
     mu_assert_int_eq(0777, fs_get_permissions(filepath));
-    unlink(filepath);
+    fs_remove_file(filepath);
     free(filepath);
 }
 
@@ -166,7 +166,7 @@ MU_TEST(test_touch) {
     mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
     mu_assert_int_eq(FS_NOT_VALID, fs_touch(NULL));
-    unlink(filepath);
+    fs_remove_file(filepath);
 
     free(filepath);
 }
@@ -197,7 +197,7 @@ MU_TEST(test_rename) {
     mu_assert_int_eq(FS_SUCCESS, fs_rename(filepath, new_filepath));
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  /* make sure no longer there */
     mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  /* make sure this one is! */
-    unlink(new_filepath);
+    fs_remove_file(new_filepath);
 
     /* Test bad input */
     mu_assert_int_eq(FS_NOT_VALID, fs_rename(filepath, NULL));
@@ -235,12 +235,53 @@ MU_TEST(test_mkdir_errors) {
     mu_assert_int_eq(FS_EXISTS, fs_mkdir(test_dir, false));   /* Test existing dir */
 }
 
-// MU_TEST(test_mkdir) {
-//     char* filepath = __str_snprintf("%s/test/", test_dir);
-//     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test existing dir */
-//     mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath, 0775));        /* TODO: make get permissions */
-//
-// }
+MU_TEST(test_mkdir_non_recursive) {
+    char* filepath = __str_snprintf("%s/test/", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
+    mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath, false)); /* start with non-recursive; one level */
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
+    mu_assert_int_eq(0764, fs_get_permissions(filepath));
+
+    rmdir(filepath);  /* replace with the fs_rmdir once it is written */
+    free(filepath);
+}
+
+MU_TEST(test_mkdir_non_recursive_error) {
+    char* filepath = __str_snprintf("%s/test/second/", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
+    mu_assert_int_eq(FS_FAILURE, fs_mkdir(filepath, false)); /* start with non-recursive; multi-level */
+    free(filepath);
+}
+
+MU_TEST(test_mkdir_recursive) {
+    /* Build filepaths we can test */
+    char* filepath = __str_snprintf("%s/test-rec", test_dir);
+    char* filepath2 = __str_snprintf("%s/foo", filepath);
+    char* filepath3 = __str_snprintf("%s/bar", filepath2);
+    /* ensure directories are missing */
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath3));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath2));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+
+    mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath3, true));
+
+    /* ensure directories are now present */
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath2));
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath3));
+    /* check the new directories permissions */
+    mu_assert_int_eq(0764, fs_get_permissions(filepath));
+    mu_assert_int_eq(0764, fs_get_permissions(filepath2));
+    mu_assert_int_eq(0764, fs_get_permissions(filepath3));
+
+    /* clean up! replace with the fs_rmdir once it is written */
+    rmdir(filepath3);
+    rmdir(filepath2);
+    rmdir(filepath);
+    free(filepath);
+    free(filepath2);
+    free(filepath3);
+}
 
 
 /***************************************************************************
@@ -363,6 +404,9 @@ MU_TEST_SUITE(test_suite) {
 
     /* mkdir */
     MU_RUN_TEST(test_mkdir_errors);
+    MU_RUN_TEST(test_mkdir_non_recursive_error);
+    MU_RUN_TEST(test_mkdir_non_recursive);
+    MU_RUN_TEST(test_mkdir_recursive);
 
     /***************************************************************************
     *   file_t
