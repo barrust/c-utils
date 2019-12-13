@@ -131,6 +131,17 @@ int fs_touch_alt(const char* path, mode_t mode) {
     return FS_FAILURE;
 }
 
+int fs_remove_file(const char* path) {
+    int res = fs_identify_path(path);
+    if (res != FS_FILE)
+        return FS_NOT_VALID;
+
+    res = remove(path);
+    if (res == 0)
+        return FS_SUCCESS;
+    return FS_FAILURE;
+}
+
 int fs_mkdir(const char* path, bool recursive) {
     return fs_mkdir_alt(path, recursive, S_IRWXU | S_IRGRP | S_IWGRP);
 }

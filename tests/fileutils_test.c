@@ -141,6 +141,17 @@ MU_TEST(test_touch) {
 }
 
 /*******************************************************************************
+*    Test remove
+*******************************************************************************/
+MU_TEST(test_remove) {
+    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    mu_assert_int_eq(FS_NOT_VALID, fs_remove_file(test_dir));
+    fs_touch(filepath);
+    mu_assert_int_eq(FS_SUCCESS, fs_remove_file(filepath));
+    free(filepath);
+}
+
+/*******************************************************************************
 *    Test rename / move     NOTE: rename and move are synonymous
 *******************************************************************************/
 MU_TEST(test_rename) {
@@ -294,6 +305,9 @@ MU_TEST_SUITE(test_suite) {
     /* rename / move */
     MU_RUN_TEST(test_rename);
     MU_RUN_TEST(test_move);
+
+    /* remove file */
+    MU_RUN_TEST(test_remove);
 
     /* mkdir */
 

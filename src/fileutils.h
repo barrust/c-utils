@@ -86,6 +86,14 @@ int fs_move(const char* path, const char* new_path);
 int fs_touch(const char* path);
 int fs_touch_alt(const char* path, mode_t mode);
 
+/*  Remove the file to which path points
+    Returns:
+        FS_SUCCESS
+        FS_FAILURE
+        FS_NOT_VALID    - invalid path name or not a file
+*/
+int fs_remove_file(const char* path);
+
 /*  Make the directory structure pointed to by path; recursively if desired
     Returns:
         FS_EXISTS       - Path already exists or was created and now exists
