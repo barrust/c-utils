@@ -109,6 +109,37 @@ MU_TEST(test_identify_path) {
 }
 
 /*******************************************************************************
+*    Test get / set permissions
+*******************************************************************************/
+MU_TEST(test_get_permissions) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath2 = __str_snprintf("%s/test-2.txt", test_dir);
+    int vals[] = {0664, 0644};
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
+    mu_assert_int_eq(FS_NOT_VALID, fs_get_permissions(NULL));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_get_permissions(filepath2));
+    /* test a directory */
+    int dir_vals[] = {0775, 0755};
+    mu_assert_int_in(dir_vals, 2, fs_get_permissions(test_dir));
+    free(filepath);
+    free(filepath2);
+}
+
+MU_TEST(test_set_permissions) {
+    char* filepath = __str_snprintf("%s/test-3.txt", test_dir);
+    /* test errors */
+    mu_assert_int_eq(FS_NOT_VALID, fs_set_permissions(NULL, 0777));
+
+    /* make new file and test */
+    fs_touch_alt(filepath, 0666);
+    mu_assert_int_eq(0666, fs_get_permissions(filepath));
+    mu_assert_int_eq(FS_SUCCESS, fs_set_permissions(filepath, 0777));
+    mu_assert_int_eq(0777, fs_get_permissions(filepath));
+    fs_remove_file(filepath);
+    free(filepath);
+}
+
+/*******************************************************************************
 *    Test mode conversions (string octal)
 *******************************************************************************/
 MU_TEST(test_mode_to_string) {
@@ -135,7 +166,7 @@ MU_TEST(test_touch) {
     mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
     mu_assert_int_eq(FS_NOT_VALID, fs_touch(NULL));
-    unlink(filepath);
+    fs_remove_file(filepath);
 
     free(filepath);
 }
@@ -166,7 +197,7 @@ MU_TEST(test_rename) {
     mu_assert_int_eq(FS_SUCCESS, fs_rename(filepath, new_filepath));
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  /* make sure no longer there */
     mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  /* make sure this one is! */
-    unlink(new_filepath);
+    fs_remove_file(new_filepath);
 
     /* Test bad input */
     mu_assert_int_eq(FS_NOT_VALID, fs_rename(filepath, NULL));
@@ -194,6 +225,66 @@ MU_TEST(test_move) {
     free(filepath);
     free(new_filepath);
 }
+
+/*******************************************************************************
+*    Test mkdir   # NOTE: Not completed! Stubbed portions
+*******************************************************************************/
+MU_TEST(test_mkdir_errors) {
+    mu_assert_int_eq(FS_NOT_VALID, fs_mkdir(NULL, false)); /* Test the passing of NULL */
+    mu_assert_int_eq(FS_NOT_VALID, fs_mkdir("", false));   /* Test an empty string */
+    mu_assert_int_eq(FS_EXISTS, fs_mkdir(test_dir, false));   /* Test existing dir */
+}
+
+MU_TEST(test_mkdir_non_recursive) {
+    char* filepath = __str_snprintf("%s/test/", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
+    mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath, false)); /* start with non-recursive; one level */
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
+    int vals[] = {0744, 0764};
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
+
+    rmdir(filepath);  /* replace with the fs_rmdir once it is written */
+    free(filepath);
+}
+
+MU_TEST(test_mkdir_non_recursive_error) {
+    char* filepath = __str_snprintf("%s/test/second/", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
+    mu_assert_int_eq(FS_FAILURE, fs_mkdir(filepath, false)); /* start with non-recursive; multi-level */
+    free(filepath);
+}
+
+MU_TEST(test_mkdir_recursive) {
+    /* Build filepaths we can test */
+    char* filepath = __str_snprintf("%s/test-rec", test_dir);
+    char* filepath2 = __str_snprintf("%s/foo", filepath);
+    char* filepath3 = __str_snprintf("%s/bar", filepath2);
+    /* ensure directories are missing */
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath3));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath2));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+
+    mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath3, true));
+
+    /* ensure directories are now present */
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath2));
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath3));
+    /* check the new directories permissions */
+    int vals[] = {0744, 0764};
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath2));
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath3));
+
+    /* clean up! replace with the fs_rmdir once it is written */
+    rmdir(filepath3);
+    rmdir(filepath2);
+    rmdir(filepath);
+    free(filepath);
+    free(filepath2);
+    free(filepath3);
+}
+
 
 /***************************************************************************
 *   file_t - usage
@@ -295,6 +386,10 @@ MU_TEST_SUITE(test_suite) {
     /* fs_identify_path */
     MU_RUN_TEST(test_identify_path);
 
+    /* get / set permissions */
+    MU_RUN_TEST(test_get_permissions);
+    MU_RUN_TEST(test_set_permissions);
+
     /* mode conversions */
     MU_RUN_TEST(test_mode_to_string);
     MU_RUN_TEST(test_string_to_mode);
@@ -310,7 +405,10 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_remove);
 
     /* mkdir */
-
+    MU_RUN_TEST(test_mkdir_errors);
+    MU_RUN_TEST(test_mkdir_non_recursive_error);
+    MU_RUN_TEST(test_mkdir_non_recursive);
+    MU_RUN_TEST(test_mkdir_recursive);
 
     /***************************************************************************
     *   file_t
