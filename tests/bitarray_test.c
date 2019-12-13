@@ -92,6 +92,9 @@ MU_TEST(test_clear_bit) {
     res = ba_clear_bit(ba, 75);
     mu_assert_int_eq(BIT_NOT_SET, res);
 
+    res = ba_clear_bit(ba, 125);
+    mu_assert_int_eq(BITARRAY_INDEX_ERROR, res);
+
     ba_free(ba);
 }
 
@@ -152,6 +155,9 @@ MU_TEST(test_toggle_bit) {
     res = ba_to_string(ba);
     mu_assert_string_eq("00000000001111111111", res);
     free(res);
+
+    /* test out of bounds toggle */
+    mu_assert_int_eq(BITARRAY_INDEX_ERROR, ba_toggle_bit(ba, 20));
 
     ba_free(ba);
 }

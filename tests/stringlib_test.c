@@ -230,6 +230,7 @@ MU_TEST(test_s_find_any) {
 MU_TEST(test_s_find_any_reverse) {
     mu_assert_int_eq(51, s_find_any_reverse(foostring, "\n\t\r"));
     mu_assert_int_eq(23, s_find_any_reverse(foostring, "jx!"));
+    mu_assert_int_eq(-1, s_find_any_reverse(foostring, ";:"));
 }
 
 MU_TEST(test_s_find_cnt_any) {
@@ -419,6 +420,15 @@ MU_TEST(test_split_string_str) {
     res = s_split_string_c(test, '!', &num);
     mu_assert_int_eq(1, num);
     mu_assert_string_eq("This is a test.", res[0]);
+    s_free_array_of_strings(res, num);
+
+
+    res = s_split_string_str("thissss is a test.", "s", &num);
+    mu_assert_int_eq(4, num);
+    mu_assert_string_eq("thi", res[0]);
+    mu_assert_string_eq(" i", res[1]);
+    mu_assert_string_eq(" a te", res[2]);
+    mu_assert_string_eq("t.", res[3]);
     s_free_array_of_strings(res, num);
 }
 

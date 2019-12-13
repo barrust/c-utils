@@ -29,7 +29,7 @@ static char**  __str_split_string_any(char* s, const char* s2, size_t* num);
 static int     __str_find_any(const char* s, const char* s2);
 static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
-static void    __print_out_stat_errno(int e);
+/*static void    __print_out_stat_errno(int e);*/
 static int     __fs_mkdir(const char* path, mode_t mode);
 
 
@@ -233,7 +233,7 @@ file_t f_init(const char* filepath) {
     errno = 0;
     struct stat stats;
     if (stat(filepath, &stats) == -1) {
-        __print_out_stat_errno(errno);
+        /*__print_out_stat_errno(errno); */
         return NULL;
     }
 
@@ -475,6 +475,7 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
     return;
 }
 
+/*
 static void __print_out_stat_errno(int e) {
     switch(e) {
         case EACCES:
@@ -499,3 +500,4 @@ static void __print_out_stat_errno(int e) {
             printf("errno: %d\n", errno); break;
     }
 }
+*/

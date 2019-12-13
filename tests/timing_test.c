@@ -64,6 +64,28 @@ MU_TEST(test_default_hand_long_hours) {
     mu_assert_int_eq(1, t.microseconds);
 }
 
+MU_TEST(test_default_hand_usec_rev) {
+    Timing t;
+    struct timeval tv;
+    tv.tv_sec = 100;
+    tv.tv_usec = 78189;
+    t.start_time = tv;
+
+    tv.tv_sec = 7851;
+    tv.tv_usec = 101;
+    t.end_time = tv;
+    calc_difference(&t);
+
+    res = format_time_diff(&t);
+    mu_assert_string_eq("02:09:10:921.912", res);
+
+    mu_assert_int_eq(2, timing_get_hours(t));
+    mu_assert_int_eq(9, timing_get_minutes(t));
+    mu_assert_int_eq(10, timing_get_seconds(t));
+    mu_assert_int_eq(921, timing_get_milliseconds(t));
+    mu_assert_int_eq(912, timing_get_microseconds(t));
+}
+
 MU_TEST(test_default_get_functions) {
     Timing t;
     struct timeval tv;
@@ -94,6 +116,7 @@ MU_TEST_SUITE(test_suite) {
 
     MU_RUN_TEST(test_timing_simple);
     MU_RUN_TEST(test_default_hand_long_hours);
+    MU_RUN_TEST(test_default_hand_usec_rev);
     MU_RUN_TEST(test_default_get_functions);
 }
 

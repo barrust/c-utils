@@ -58,6 +58,12 @@ MU_TEST(test_setup_resolve_paths) {
     int len = strlen(path);
     mu_assert_int_eq('p', path[len-1]);  /* make sure no trailing '/' */
     free(path);
+
+    path = fs_resolve_path(".");
+    char* cwd = fs_cwd();
+    mu_assert_string_eq(cwd, path);
+    free(path);
+    free(cwd);
 }
 
 MU_TEST(test_resolve_path_file) {
@@ -80,6 +86,10 @@ MU_TEST(test_resolve_path_no_exist) {
     free(res);
 }
 
+MU_TEST(test_resolve_path_null) {
+    mu_assert_string_eq(NULL, fs_resolve_path(NULL));
+}
+
 /*******************************************************************************
 *    Test identify path
 *******************************************************************************/
@@ -94,6 +104,8 @@ MU_TEST(test_identify_path) {
     filepath = __str_snprintf("%s/no-test.txt", test_dir);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
     free(filepath);
+
+    mu_assert_int_eq(FS_NOT_VALID, fs_identify_path(NULL));
 }
 
 /*******************************************************************************
@@ -120,10 +132,9 @@ MU_TEST(test_string_to_mode) {
 MU_TEST(test_touch) {
     char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
-
     mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
-
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
+    mu_assert_int_eq(FS_NOT_VALID, fs_touch(NULL));
     unlink(filepath);
 
     free(filepath);
@@ -145,6 +156,11 @@ MU_TEST(test_rename) {
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  /* make sure no longer there */
     mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  /* make sure this one is! */
     unlink(new_filepath);
+
+    /* Test bad input */
+    mu_assert_int_eq(FS_NOT_VALID, fs_rename(filepath, NULL));
+    mu_assert_int_eq(FS_NOT_VALID, fs_rename(NULL, filepath));
+    mu_assert_int_eq(FS_NO_EXISTS, fs_rename(filepath, new_filepath));
 
     free(filepath);
     free(new_filepath);
@@ -189,6 +205,16 @@ MU_TEST(test_file_t_init) {
     mu_assert(f_lines(f) == NULL, "Expected lines to be NULL, if was not...");
 
     f_free(f);
+}
+
+MU_TEST(test_file_t_init_non_file) {
+    file_t f = f_init(test_dir);
+    mu_assert_string_eq(NULL, (void*)f);
+
+    char* filepath = __str_snprintf("%s/test-2.txt", test_dir);
+    f = f_init(filepath);
+    mu_assert_string_eq(NULL, (void*)f);
+    free(filepath);
 }
 
 MU_TEST(test_file_t_read_file) {
@@ -253,6 +279,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_setup_resolve_paths);
     MU_RUN_TEST(test_resolve_path_file);
     MU_RUN_TEST(test_resolve_path_no_exist);
+    MU_RUN_TEST(test_resolve_path_null);
 
     /* fs_identify_path */
     MU_RUN_TEST(test_identify_path);
@@ -275,6 +302,7 @@ MU_TEST_SUITE(test_suite) {
     *   file_t
     ***************************************************************************/
     MU_RUN_TEST(test_file_t_init);
+    MU_RUN_TEST(test_file_t_init_non_file);
     MU_RUN_TEST(test_file_t_read_file);
     MU_RUN_TEST(test_file_t_parse_lines);
 
