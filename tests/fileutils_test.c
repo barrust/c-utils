@@ -114,12 +114,13 @@ MU_TEST(test_identify_path) {
 MU_TEST(test_get_permissions) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
     char* filepath2 = __str_snprintf("%s/test-2.txt", test_dir);
-    int vals[] = {0664, 0644, 0775};
-    mu_assert_int_in(vals, 3, fs_get_permissions(filepath));
+    int vals[] = {0664, 0644};
+    mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
     mu_assert_int_eq(FS_NOT_VALID, fs_get_permissions(NULL));
     mu_assert_int_eq(FS_NO_EXISTS, fs_get_permissions(filepath2));
     /* test a directory */
-    mu_assert_int_in(vals, 3, fs_get_permissions(test_dir));
+    int dir_vals[] = {0775, 0755};
+    mu_assert_int_in(dir_vals, 2, fs_get_permissions(test_dir));
     free(filepath);
     free(filepath2);
 }
