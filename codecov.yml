@@ -7,10 +7,13 @@ coverage:
   range: "70...100"
 
   status:
-    project: yes
-      default:
-        threshold: 5
-    patch: yes
+    project:
+        default:
+            # basic settings
+            target: "85%"
+            base: auto
+            threshold: 15
+    patch:
         default:
             target: "50%"
     changes: no
