@@ -133,8 +133,8 @@ unsigned short fs_string_to_mode(const char* s);
 
 
 
-/* int fs_rmdir(const char* path, bool recursive);      TODO: implement */
-/* int fs_rmdir_alt(const char* path, bool recursive);  TODO: implement */
+int fs_rmdir(const char* path);
+int fs_rmdir_alt(const char* path, bool recursive);
 
 
 
