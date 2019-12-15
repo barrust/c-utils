@@ -293,6 +293,10 @@ MU_TEST(test_rmdir_errors) {
     mu_assert_int_eq(FS_NOT_VALID, fs_rmdir(filepath));
     free(filepath);
 
+    filepath = __str_snprintf("%s/nodir", test_dir);  // doesn't exist, nothing to do!
+    mu_assert_int_eq(FS_NO_EXISTS, fs_rmdir(filepath));
+    free(filepath);
+
     mu_assert_int_eq(FS_NOT_EMPTY, fs_rmdir_alt(test_dir, false));
 }
 
