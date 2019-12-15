@@ -218,7 +218,8 @@ int fs_rmdir_alt(const char* path, bool recursive) {
         int num_elms = 0;
         char** paths = __fs_list_dir(path, &num_elms);
 
-        for (int i = 0; i < num_elms; i++) {
+        int i;
+        for (i = 0; i < num_elms; i++) {
             /* TODO: This should be a function called "fs_combine_path" or something */
             char tmp[1024] = {0};
             strncpy(tmp, path, strlen(path));
