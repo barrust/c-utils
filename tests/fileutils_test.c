@@ -13,7 +13,7 @@ char* test_dir_rel = NULL;
 static char* __str_snprintf(const char* fmt, ...);
 static char* __str_extract_substring(const char* s, size_t start, size_t length);
 static char* __str_duplicate(const char* s);
-
+static int   __make_test_file(char* s, size_t len, char c);
 
 
 void test_setup(void) {
@@ -320,23 +320,42 @@ MU_TEST(test_rmdir_recursive) {
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(full_depth));
 
     /* add some files */
-    char* tmp = __str_snprintf("%s/t.txt", full_depth);
-    fs_touch(tmp);
-    char* tmp2 = __str_snprintf("%s/s.txt", full_depth);
-    fs_touch(tmp2);
-    char* tmp3 = __str_snprintf("%s/r.txt", full_depth);
-    fs_touch(tmp3);
+    char* tmp = __str_snprintf("%s/a.txt", full_depth);
+    int len = strlen(tmp);
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'a'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'b'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'c'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'd'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'e'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'f'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'g'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'h'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'i'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'j'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'k'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'l'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'm'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'n'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'o'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'p'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'q'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'r'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 's'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 't'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'u'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'v'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'w'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'x'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'y'));
+    mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'z'));
+
     mu_assert_int_eq(FS_FILE, fs_identify_path(tmp));
-    mu_assert_int_eq(FS_FILE, fs_identify_path(tmp2));
-    mu_assert_int_eq(FS_FILE, fs_identify_path(tmp3));
 
     fs_rmdir_alt(path, true);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(path));
     free(path);
     free(full_depth);
     free(tmp);
-    free(tmp2);
-    free(tmp3);
 }
 
 /***************************************************************************
@@ -533,4 +552,11 @@ static char* __str_duplicate(const char* s) {
     strcpy(buf, s);
     buf[len] = '\0';
     return buf;
+}
+
+static int   __make_test_file(char* s, size_t len, char c) {
+    /* very specific filename changes... */
+    s[len - 5] = c;
+    fs_touch(s);
+    return fs_identify_path(s);
 }
