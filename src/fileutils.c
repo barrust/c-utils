@@ -4,6 +4,7 @@
 #include <unistd.h>         /* getcwd */
 #include <sys/stat.h>
 #include <fcntl.h>          /* O_CREAT */
+#include <dirent.h>         /* */
 #include <errno.h>
 #include "fileutils.h"
 
@@ -29,9 +30,11 @@ static char**  __str_split_string_any(char* s, const char* s2, size_t* num);
 static int     __str_find_any(const char* s, const char* s2);
 static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
+static void    __free_double_array(char** arr, size_t num_elms);
 /* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
-/*static int     __fs_rmdir(const char* path);*/
+static int     __fs_rmdir(const char* path);
+static char**  __fs_list_dir(const char* path, int* elms);
 
 
 
@@ -126,7 +129,13 @@ int fs_touch_alt(const char* path, mode_t mode) {
     if (path == NULL)
         return FS_NOT_VALID;
 
-    open(path, O_CREAT, mode);
+    int pfd;
+    if ((pfd = open(path, O_CREAT | mode)) == -1) {
+        close(pfd);
+        return FS_FAILURE;
+    }
+    close(pfd);
+
     if (fs_identify_path(path) == FS_FILE) {
         fs_set_permissions(path, mode);
         return FS_SUCCESS;
@@ -179,7 +188,6 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     new_path = tmp;
     tmp = NULL;
 
-    /* printf("new_path: %s\n", new_path); */
     char* p;
     for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
         *p = '\0';
@@ -188,11 +196,63 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
             free(new_path);
             return FS_FAILURE;
         }
-        /* printf("tmp_path: %s\n", new_path); */
         *p = '/';
     }
     free(new_path);
     return FS_EXISTS;
+}
+
+int fs_rmdir(const char* path) {
+    return fs_rmdir_alt(path, false);  /* do not default to recursive! */
+}
+
+int fs_rmdir_alt(const char* path, bool recursive) {
+    int res = fs_identify_path(path);
+    if (res == FS_NO_EXISTS)
+        return FS_NO_EXISTS;
+    if (res != FS_DIRECTORY)
+        return FS_NOT_VALID;
+
+    if (recursive == false)
+        return __fs_rmdir(path);
+
+    /* recursively go through and clean everything up... */
+    if (__fs_rmdir(path) == FS_NOT_EMPTY) {
+        int num_elms = 0;
+        char** paths = __fs_list_dir(path, &num_elms);
+
+        int i;
+        for (i = 0; i < num_elms; i++) {
+            /* TODO: This should be a function called "fs_combine_path" or something */
+            char tmp[1024] = {0};
+            strncpy(tmp, path, strlen(path));
+            tmp[strlen(path)] = '/';
+            strncpy(tmp + strlen(path) + 1, paths[i], strlen(paths[i]));
+
+            int type = fs_identify_path(tmp);
+            if (type == FS_FILE) {
+                fs_remove_file(tmp);
+            } else if (type == FS_DIRECTORY) {
+                int val = fs_rmdir_alt(tmp, recursive);
+                if (val == FS_FAILURE) {
+                    /* free the paths! */
+                    __free_double_array(paths, num_elms);
+
+                    return FS_FAILURE;
+                }
+            } else {
+                /* free the paths! */
+                __free_double_array(paths, num_elms);
+
+                return FS_FAILURE;  /* something went wrong; a symlink or something else was encountered... */
+            }
+        }
+
+        /* free the paths! */
+        __free_double_array(paths, num_elms);
+        fs_rmdir(path);
+    }
+    return FS_NO_EXISTS;
 }
 
 int fs_get_permissions(const char* path) {
@@ -409,7 +469,7 @@ static int __fs_mkdir(const char* path, mode_t mode) {
     }
     return FS_EXISTS;
 }
-/*
+
 static int __fs_rmdir(const char* path) {
     errno = 0;
     int res = rmdir(path);
@@ -420,7 +480,43 @@ static int __fs_rmdir(const char* path) {
     }
     return FS_NO_EXISTS;
 }
-*/
+
+static char** __fs_list_dir(const char* path, int* elms) {
+    int growth_num = 10;
+    int cur_size = growth_num;
+    char** paths = calloc(cur_size, sizeof(char*));
+
+    DIR *d;
+    d = opendir(path);
+    int el_num = 0;
+    if (d) {
+        struct dirent *dir;
+        while ((dir = readdir(d)) != NULL) {
+            /* need to skip "." and ".." */
+            int item_len = strlen(dir->d_name);
+            if (item_len == 1 && dir->d_name[0] == '.')
+                continue;
+            else if (item_len == 2 && strcmp(dir->d_name, "..") == 0)
+                continue;
+            paths[el_num++] = __str_duplicate(dir->d_name);
+
+            if (el_num == cur_size) {
+                cur_size += growth_num;
+                char** tmp = realloc(paths, sizeof(char*) * cur_size);
+                paths = tmp;
+            }
+        }
+        closedir(d);
+    }
+
+    if (cur_size != el_num) {
+        char** tmp = realloc(paths, sizeof(char*) * el_num);
+        paths = tmp;
+    }
+    *elms = el_num;
+    return paths;
+}
+
 static char* __str_duplicate(const char* s) {
     size_t len = strlen(s);
     char* buf = malloc((len + 1) * sizeof(char));
@@ -498,6 +594,13 @@ static size_t __str_find_cnt_any(const char* s, const char* s2) {
     return res;
 }
 
+static void __free_double_array(char** arr, size_t num_elms) {
+    size_t i;
+    for (i = 0; i < num_elms; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+}
 
 static void __parse_file_info(const char* full_filepath, char** filepath, char** filename) {
     /* ensure path and filename are not leaking memory */
