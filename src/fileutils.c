@@ -129,7 +129,13 @@ int fs_touch_alt(const char* path, mode_t mode) {
     if (path == NULL)
         return FS_NOT_VALID;
 
-    open(path, O_CREAT, mode);
+    int pfd;
+    if ((pfd = open(path, O_CREAT | mode)) == -1) {
+        close(pfd);
+        return FS_FAILURE;
+    }
+    close(pfd);
+
     if (fs_identify_path(path) == FS_FILE) {
         fs_set_permissions(path, mode);
         return FS_SUCCESS;
@@ -225,20 +231,20 @@ int fs_rmdir_alt(const char* path, bool recursive) {
             } else if (type == FS_DIRECTORY) {
                 int val = fs_rmdir_alt(tmp, recursive);
                 if (val == FS_FAILURE) {
-                    // free the paths!
+                    /* free the paths! */
                     __free_double_array(paths, num_elms);
 
                     return FS_FAILURE;
                 }
             } else {
-                // free the paths!
+                /* free the paths! */
                 __free_double_array(paths, num_elms);
 
-                return FS_FAILURE;  // something went wrong; a symlink or something else was encountered...
+                return FS_FAILURE;  /* something went wrong; a symlink or something else was encountered... */
             }
         }
 
-        // free the paths!
+        /* free the paths! */
         __free_double_array(paths, num_elms);
         fs_rmdir(path);
     }
@@ -477,12 +483,12 @@ static char** __fs_list_dir(const char* path, int* elms) {
     char** paths = calloc(cur_size, sizeof(char*));
 
     DIR *d;
-    struct dirent *dir;
     d = opendir(path);
     int el_num = 0;
     if (d) {
+        struct dirent *dir;
         while ((dir = readdir(d)) != NULL) {
-            // need to skip "." and ".."
+            /* need to skip "." and ".." */
             int item_len = strlen(dir->d_name);
             if (item_len == 1 && dir->d_name[0] == '.')
                 continue;
@@ -585,7 +591,8 @@ static size_t __str_find_cnt_any(const char* s, const char* s2) {
 }
 
 static void __free_double_array(char** arr, size_t num_elms) {
-    for (size_t i = 0; i < num_elms; i++) {
+    size_t i;
+    for (i = 0; i < num_elms; i++) {
         free(arr[i]);
     }
     free(arr);
