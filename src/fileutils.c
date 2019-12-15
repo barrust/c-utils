@@ -30,6 +30,7 @@ static char**  __str_split_string_any(char* s, const char* s2, size_t* num);
 static int     __str_find_any(const char* s, const char* s2);
 static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
+static void    __free_double_array(char** arr, size_t num_elms);
 /* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
@@ -200,16 +201,14 @@ int fs_rmdir(const char* path) {
 }
 
 int fs_rmdir_alt(const char* path, bool recursive) {
-    int res = fs_identify_path(path);
-    if (res != FS_DIRECTORY)
+    if (fs_identify_path(path) != FS_DIRECTORY)
         return FS_NOT_VALID;
 
     if (recursive == false)
         return __fs_rmdir(path);
 
     /* recursively go through and clean everything up... */
-    res = __fs_rmdir(path);
-    if (res == FS_NOT_EMPTY) {
+    if (__fs_rmdir(path) == FS_NOT_EMPTY) {
         int num_elms = 0;
         char** paths = __fs_list_dir(path, &num_elms);
 
@@ -222,34 +221,25 @@ int fs_rmdir_alt(const char* path, bool recursive) {
 
             int type = fs_identify_path(tmp);
             if (type == FS_FILE) {
-                int t = fs_remove_file(tmp);
+                fs_remove_file(tmp);
             } else if (type == FS_DIRECTORY) {
                 int val = fs_rmdir_alt(tmp, recursive);
                 if (val == FS_FAILURE) {
                     // free the paths!
-                    for (int i = 0; i < num_elms; i++) {
-                        free(paths[i]);
-                    }
-                    free(paths);
+                    __free_double_array(paths, num_elms);
 
                     return FS_FAILURE;
                 }
             } else {
                 // free the paths!
-                for (int i = 0; i < num_elms; i++) {
-                    free(paths[i]);
-                }
-                free(paths);
+                __free_double_array(paths, num_elms);
 
                 return FS_FAILURE;  // something went wrong; a symlink or something else was encountered...
             }
         }
 
         // free the paths!
-        for (int i = 0; i < num_elms; i++) {
-            free(paths[i]);
-        }
-        free(paths);
+        __free_double_array(paths, num_elms);
         fs_rmdir(path);
     }
     return FS_NO_EXISTS;
@@ -594,6 +584,12 @@ static size_t __str_find_cnt_any(const char* s, const char* s2) {
     return res;
 }
 
+static void __free_double_array(char** arr, size_t num_elms) {
+    for (size_t i = 0; i < num_elms; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+}
 
 static void __parse_file_info(const char* full_filepath, char** filepath, char** filename) {
     /* ensure path and filename are not leaking memory */

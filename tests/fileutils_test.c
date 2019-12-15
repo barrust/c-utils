@@ -227,7 +227,7 @@ MU_TEST(test_move) {
 }
 
 /*******************************************************************************
-*    Test mkdir   # NOTE: Not completed! Stubbed portions
+*    Test mkdir
 *******************************************************************************/
 MU_TEST(test_mkdir_errors) {
     mu_assert_int_eq(FS_NOT_VALID, fs_mkdir(NULL, false)); /* Test the passing of NULL */
@@ -285,6 +285,59 @@ MU_TEST(test_mkdir_recursive) {
     free(filepath3);
 }
 
+/*******************************************************************************
+*    Test rmdir
+*******************************************************************************/
+MU_TEST(test_rmdir_errors) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    mu_assert_int_eq(FS_NOT_VALID, fs_rmdir(filepath));
+    free(filepath);
+
+    mu_assert_int_eq(FS_NOT_EMPTY, fs_rmdir_alt(test_dir, false));
+}
+
+MU_TEST(test_rmdir_non_recursive) {
+    char* filepath = __str_snprintf("%s/newlevl", test_dir);
+
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+    fs_mkdir(filepath, false);
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
+
+    fs_rmdir(filepath);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+    free(filepath);
+}
+
+
+MU_TEST(test_rmdir_recursive) {
+    char* path = __str_snprintf("%s/newlevl", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(path));
+    fs_mkdir(path, false);
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(path));
+
+    char* full_depth = __str_snprintf("%s/a/b/c/d/e/f/g", path);
+    fs_mkdir(full_depth, true);
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(full_depth));
+
+    /* add some files */
+    char* tmp = __str_snprintf("%s/t.txt", full_depth);
+    fs_touch(tmp);
+    char* tmp2 = __str_snprintf("%s/s.txt", full_depth);
+    fs_touch(tmp2);
+    char* tmp3 = __str_snprintf("%s/r.txt", full_depth);
+    fs_touch(tmp3);
+    mu_assert_int_eq(FS_FILE, fs_identify_path(tmp));
+    mu_assert_int_eq(FS_FILE, fs_identify_path(tmp2));
+    mu_assert_int_eq(FS_FILE, fs_identify_path(tmp3));
+
+    fs_rmdir_alt(path, true);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(path));
+    free(path);
+    free(full_depth);
+    free(tmp);
+    free(tmp2);
+    free(tmp3);
+}
 
 /***************************************************************************
 *   file_t - usage
@@ -410,6 +463,11 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_mkdir_non_recursive);
     MU_RUN_TEST(test_mkdir_recursive);
 
+    /* rmdir */
+    MU_RUN_TEST(test_rmdir_errors);
+    MU_RUN_TEST(test_rmdir_non_recursive);
+    MU_RUN_TEST(test_rmdir_recursive);
+
     /***************************************************************************
     *   file_t
     ***************************************************************************/
@@ -418,6 +476,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_file_t_read_file);
     MU_RUN_TEST(test_file_t_parse_lines);
 
+    /***************************************************************************
+    *   directory_t
+    ***************************************************************************/
 
 }
 
