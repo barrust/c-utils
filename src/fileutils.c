@@ -207,7 +207,10 @@ int fs_rmdir(const char* path) {
 }
 
 int fs_rmdir_alt(const char* path, bool recursive) {
-    if (fs_identify_path(path) != FS_DIRECTORY)
+    int res = fs_identify_path(path);
+    if (res == FS_NO_EXISTS)
+        return FS_NO_EXISTS;
+    if (res != FS_DIRECTORY)
         return FS_NOT_VALID;
 
     if (recursive == false)

@@ -132,10 +132,15 @@ char* fs_mode_to_string_alt(mode_t mode, char* res);
 unsigned short fs_string_to_mode(const char* s);
 
 
-
+/*  Remove the directory pointed to by path; to remove all sub-directories and
+    files, use the `fs_rmdir_alt` function and set recursive to `true`.
+    Returns:
+        FS_NOT_VALID    - bad input
+        FS_FAILURE      - error, likely read/write access or change during operation
+        FS_NO_EXISTS    - on success, will report that the directory no longer exists
+*/
 int fs_rmdir(const char* path);
 int fs_rmdir_alt(const char* path, bool recursive);
-
 
 
 
