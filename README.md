@@ -21,7 +21,9 @@ If there are other commonly used code that should be added, please add a feature
 
 ##### Unit tests
 
-Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully tested. If not, please submit an issue with a ***minimal code example*** that encapsulates the error.
+Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully tested.
+
+If an unexpected outcome occurs, please submit an issue with a ***minimal code example*** that encapsulates the error.
 
 A great issue would provide the following:
 > s_remove_unwanted_chars does shows duplicate entries after removal.
@@ -33,7 +35,7 @@ A great issue would provide the following:
 > s_remove_unwanted_chars(test, "ti");  
 > ```
 
-To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make`. Then you can execute the tests using `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, or `./dist/timing`
+To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make`. Then you can execute the tests using `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, or `./dist/timing` executables.
 
 ## stringlib
 
@@ -74,9 +76,9 @@ s_remove_unwanted_chars(str, "tph"); // "Tis is a orrible sring o clean u... lea
 
 The file utils library provides utility functions to deal with basic file system operations. From determining if a file exists, to making directories, to reading in a file and parsing out the lines.
 
-The functions are documented within the `.h` file.
+All functions are documented within the `fileutils.h` file.
 
-Unfortunately, I have not been able to test this library on non-Linux machines. If errors arise on Windows, please submit an issue or a ***pull request***! If something is shown to work on Windows, that information would also be very helpful!
+Unfortunately, I have not been able to test this library on non-Linux machines. If errors arise on Windows, please submit an issue or, even better, a ***pull request***! If something is shown to work on Windows, that information would also be very helpful!
 
 #### Compiler Flags
 
@@ -89,6 +91,31 @@ To use, copy the `fileutils.h` and `fileutils.c` files into your project folder 
 ``` c
 #include "fileutils.h"
 
+int res;
+
+/* General path / file functionality */
+char* current_working_directory = fs_cwd();
+fs_mkdir("path_of_new_dir", false);  /* do not recursively make the dirs */
+
+/* if the unknown path is a file, remove it! */
+if (fs_identify_path("unknown_path") == FS_FILE) {
+    fs_remove_file("unkown_path");
+}
+
+if (fs_rmdir_alt("path_to_non_empty_directory", true) == FS_NO_EXISTS) {
+    printf("Successfully removed the directory and all sub directories and files!");
+}
+
+/* parse and read a file */
+file_t f = f_init("path_to_file");
+printf("Base dir: %s\n", f_basedir(f));
+printf("Filename: %s\n", f_filename(f));
+printf("Extension: %s\n", f_extension(f));
+printf("File Size: %llu\n", f_filesize(f));
+/* read the file contents into a buffer */
+f_read_file(f);
+/* parse the file into lines */
+f_parse_lines(f);
 
 
 ```
