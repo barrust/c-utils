@@ -128,7 +128,7 @@ The bit array library is provided to allow for a drop in bit array. It uses the 
 
 #### Compiler Flags
 
-***-lm*** - The `bitarray` library requires the math flag; some compilers automatically include it, but if not, add `-lm`
+***NONE*** - There are no needed compiler flags for the `bitarray` library
 
 #### Usage
 
@@ -140,7 +140,7 @@ To use, copy the `bitarray.h` and `bitarray.c` files into your project folder an
 bitarray_t ba = ba_init(20000000);  // we want to track 20,000,000 items!
 
 for (int i = 0; i < 20000000; i++) {
-    if (...)  // whatever makes us want to set track this element
+    if (i % 5 == 0)  // whatever makes us want to set track this element
         ba_set_bit(ba, i);
 }
 
