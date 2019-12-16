@@ -101,6 +101,7 @@ MU_TEST(test_clear_bit) {
 
 MU_TEST(test_reset_bitarray) {
     bitarray_t ba = ba_init(128);
+    mu_assert_int_eq(16, ba_array_size(ba));  /* test the ceiling macro */
 
     int i;
     for (i = 0; i < ba_number_bits(ba); i++)
