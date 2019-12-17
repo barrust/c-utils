@@ -19,10 +19,17 @@ typedef struct __bitarray {
 } __bitarray;
 
 
+/* NOTE: This does zero error checking because it is always has a denominator
+         of 8 and the numerator is guaranteed to be positive
+   NOTE: This is close in timing to the math version when not using
+         compiler optimizations but can be faster when optimized */
+#define ceiling(n,d)  ((n / d) + (n % d > 0))
+
+
 bitarray_t ba_init(size_t bits) {
     bitarray_t ba = calloc(1, sizeof(bitarray));
     ba->num_bits = bits;
-    size_t num_chars = ceil(bits / 8.0);
+    size_t num_chars = ceiling(bits, 8);
     ba->num_chars = num_chars;
     /* the extra one is for the null byte! */
     ba->arr = calloc(num_chars + 1, sizeof(unsigned char));

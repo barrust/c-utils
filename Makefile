@@ -1,7 +1,7 @@
 TESTDIR=tests
 DISTDIR=dist
 SRCDIR=src
-CCFLAGS=-lm -Wall -Wpedantic -Winline
+CCFLAGS=-Wall -Wpedantic -Winline
 
 
 all: string bitarray fileutils
@@ -27,6 +27,6 @@ test: all
 
 clean:
 	rm -rf ./$(DISTDIR)/*
-	rm -rf ./*.gcno
-	rm -rf ./*.gcda
-	rm -rf ./*.gcov
+	rm -f ./*.gcno
+	rm -f ./*.gcda
+	rm -f ./*.gcov
