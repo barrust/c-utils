@@ -73,8 +73,10 @@ char* fs_resolve_path(const char* path);
 /*  Build and return the canonical absolute path to the file using the path
     and filename provided
     NOTE: Up to the caller to free the resulting memory
+    NOTE: Up to the caller to pass in an array large enough for the results "res"
 */
 char* fs_combine_filepath(const char* path, const char* filename);
+char* fs_combine_filepath_alt(const char* path, const char* filename, char* res);
 
 /*  Rename or move a file from current path to the new path
     Returns:
@@ -111,6 +113,15 @@ int fs_remove_file(const char* path);
 */
 int fs_mkdir(const char* path, bool recursive);
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode);
+
+/*  Return the raw mode including filetype information
+    Returns:
+        FS_NOT_VALID
+        FS_NO_EXISTS
+        FS_FAILURE
+        mode_t as int
+*/
+int fs_get_raw_mode(const char* path);
 
 /*  Retrieve the permissions of the file or directory at which path points
     Returns:

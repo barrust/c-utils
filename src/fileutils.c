@@ -94,24 +94,37 @@ char* fs_resolve_path(const char* path) {
 }
 
 char* fs_combine_filepath(const char* path, const char* filename) {
+    return fs_combine_filepath_alt(path, filename, NULL);
+}
+
+char* fs_combine_filepath_alt(const char* path, const char* filename, char* res) {
     if (path == NULL && filename == NULL)
         return NULL;  /* error case */
-    else if (path == NULL && filename != NULL)
-        return __str_duplicate(filename);
-    else if (path != NULL && filename == NULL)
-        return __str_duplicate(path);
+    else if (path == NULL && filename != NULL) {
+        if (res == NULL)
+            return __str_duplicate(filename);
+        return strcpy(res, filename);
+    }
+    else if (path != NULL && filename == NULL) {
+        if (res == NULL)
+            return __str_duplicate(path);
+        return strcpy(res, path);
+    }
 
     int p_len = strlen(path);
     int f_len = strlen(filename);
-    char* full_path = calloc(p_len + f_len + 2, sizeof(char)); /* 2 for / and NULL */
-    strcpy(full_path, path);
-    if (full_path[p_len - 1] == '/') {
+
+    if (res == NULL)
+        res = calloc(p_len + f_len + 2, sizeof(char)); /* 2 for / and NULL */
+
+    strcpy(res, path);
+    if (res[p_len - 1] == '/') {
         --p_len;
     }
-    full_path[p_len] = '/';
-    strcpy(full_path + 1 + p_len, filename);
+    res[p_len] = '/';
+    strcpy(res + 1 + p_len, filename);
 
-    return full_path;
+    return res;
 }
 
 char* fs_cwd() {
@@ -282,7 +295,7 @@ char** fs_list_dir(const char* path, int* items) {
     return __fs_list_dir(path, items);
 }
 
-int fs_get_permissions(const char* path) {
+int fs_get_raw_mode(const char* path) {
     if (path == NULL)
         return FS_NOT_VALID;
     struct stat stats;
@@ -291,7 +304,14 @@ int fs_get_permissions(const char* path) {
             return FS_NO_EXISTS;
         return FS_FAILURE;
     }
-    return stats.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+    return stats.st_mode;
+}
+
+int fs_get_permissions(const char* path) {
+    int t_mode = fs_get_raw_mode(path);
+    if (t_mode == FS_NOT_VALID || t_mode == FS_FAILURE || t_mode == FS_NO_EXISTS)
+        return t_mode;
+    return t_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
 }
 
 int fs_set_permissions(const char* path, mode_t mode) {
