@@ -14,6 +14,8 @@ static char* __str_snprintf(const char* fmt, ...);
 static char* __str_extract_substring(const char* s, size_t start, size_t length);
 static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
+static void  __sort(char** arr, int n);
+static int   __cmp_str(const void* a, const void* b);
 
 
 void test_setup(void) {
@@ -366,9 +368,10 @@ MU_TEST(test_list_dir) {
     int items;
     char** recs = fs_list_dir(test_dir, &items);
     mu_assert_int_eq(3, items);
+    __sort(recs, 3);
     mu_assert_string_eq(".gitkeep", recs[0]);
-    mu_assert_string_eq("test.txt", recs[1]);
-    mu_assert_string_eq("lvl2", recs[2]);
+    mu_assert_string_eq("lvl2", recs[1]);
+    mu_assert_string_eq("test.txt", recs[2]);
 
     int i;
     for(i = 0; i < items; i++)
@@ -604,9 +607,18 @@ static char* __str_duplicate(const char* s) {
     return buf;
 }
 
-static int   __make_test_file(char* s, size_t len, char c) {
+static int __make_test_file(char* s, size_t len, char c) {
     /* very specific filename changes... */
     s[len - 5] = c;
     fs_touch(s);
     return fs_identify_path(s);
+}
+
+// Function to sort the array
+void __sort(char** arr, int n) {
+    qsort(arr, n, sizeof(const char*), __cmp_str);
+}
+
+static int __cmp_str(const void* a, const void* b) {
+    return strcmp(*(const char**)a, *(const char**)b);
 }
