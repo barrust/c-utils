@@ -61,7 +61,7 @@ int ba_toggle_bit(bitarray_t ba, size_t bit);
 int ba_clear_bit(bitarray_t ba, size_t bit);
 
 /*  Reset the entire bitarray to 0 */
-int ba_reset_bitarray(bitarray_t ba);
+int ba_reset(bitarray_t ba);
 
 /*  Return a printable representation of the array as 0's and 1's;
     NOTE: It is up to the caller to free the memory */
