@@ -6,7 +6,7 @@
 ***	 Author: Tyler Barrus
 ***	 email:  barrust@gmail.com
 ***
-***	 Version: 0.1.2
+***	 Version: 0.1.0
 ***	 Purpose: Simple bit array library
 ***
 ***	 License: MIT 2019

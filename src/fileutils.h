@@ -6,7 +6,7 @@
 ***	 Author: Tyler Barrus
 ***	 email:  barrust@gmail.com
 ***
-***	 Version: 0.1.0
+***	 Version: 0.1.1
 ***	 Purpose: Simple file system library with utility functions
 ***
 ***	 License: MIT 2019
@@ -104,7 +104,8 @@ int fs_remove_file(const char* path);
 
 /*  Make the directory structure pointed to by path; recursively if desired
     Returns:
-        FS_EXISTS       - Path already exists or was created and now exists
+        FS_EXISTS       - Path already exists
+        FS_SUCCESS      - Path successfully created
         FS_FAILURE      - Unable to create a directory
         FS_NOT_VALID    - invalid path name
 */
@@ -119,6 +120,13 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode);
         mode_t as int
 */
 int fs_get_permissions(const char* path);
+
+/*  Set the permission of the file or directory
+    Returns:
+        FS_NOT_VALID
+        FS_SUCCESS
+        FS_FAILURE
+*/
 int fs_set_permissions(const char* path, mode_t mode);
 
 /*  Turn the permissions mode_t (int) into a printable format "drwxrwxrwx"
@@ -133,7 +141,7 @@ char* fs_mode_to_string(mode_t mode);
 char* fs_mode_to_string_alt(mode_t mode, char* res);
 
 /*  Turn a permissions string "drwxrwxrwx" into the mode flag (int) or
-    FS_INVALID_MODE if the provided string s does not contain enough
+    FS_INVALID_MODE if the provided string does not contain enough
     information or is invalid. */
 unsigned short fs_string_to_mode(const char* s);
 
@@ -141,8 +149,9 @@ unsigned short fs_string_to_mode(const char* s);
     files, use the `fs_rmdir_alt` function and set recursive to `true`.
     Returns:
         FS_NOT_VALID    - bad input
+        FS_NO_EXISTS    - directory already does not exist
         FS_FAILURE      - error, likely read/write access or change during operation
-        FS_NO_EXISTS    - on success, will report that the directory no longer exists
+        FS_SUCCESS      - on success signifies that the directory no longer exists
 */
 int fs_rmdir(const char* path);
 int fs_rmdir_alt(const char* path, bool recursive);

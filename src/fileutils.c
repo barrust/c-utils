@@ -152,7 +152,7 @@ int fs_touch_alt(const char* path, mode_t mode) {
         return FS_NOT_VALID;
 
     int pfd;
-    if ((pfd = open(path, O_CREAT | mode)) == -1) {
+    if ((pfd = open(path, O_CREAT, mode)) == -1) {
         close(pfd);
         return FS_FAILURE;
     }
@@ -221,7 +221,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
         *p = '/';
     }
     free(new_path);
-    return FS_EXISTS;
+    return FS_SUCCESS;
 }
 
 int fs_rmdir(const char* path) {
@@ -272,7 +272,7 @@ int fs_rmdir_alt(const char* path, bool recursive) {
         __free_double_array(paths, num_elms);
         fs_rmdir(path);
     }
-    return FS_NO_EXISTS;
+    return FS_SUCCESS;
 }
 
 char** fs_list_dir(const char* path, int* items) {
@@ -512,7 +512,7 @@ static int __fs_rmdir(const char* path) {
             return FS_NOT_EMPTY;
         return FS_FAILURE;
     }
-    return FS_NO_EXISTS;
+    return FS_SUCCESS;
 }
 
 static char** __fs_list_dir(const char* path, int* elms) {
