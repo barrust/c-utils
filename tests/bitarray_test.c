@@ -116,7 +116,7 @@ MU_TEST(test_reset_bitarray) {
 
     mu_assert_int_eq(0, errors);
 
-    int res = ba_reset_bitarray(ba);
+    int res = ba_reset(ba);
     mu_assert_int_eq(BIT_NOT_SET, res);
 
     errors = 0;
@@ -175,7 +175,7 @@ MU_TEST(test_number_bits_set) {
         ba_toggle_bit(ba, i);
     mu_assert_int_eq(20, ba_number_bits_set(ba));
 
-    ba_reset_bitarray(ba);
+    ba_reset(ba);
     mu_assert_int_eq(0, ba_number_bits_set(ba));
     ba_free(ba);
 }

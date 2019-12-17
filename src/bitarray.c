@@ -91,7 +91,7 @@ int ba_clear_bit(bitarray_t ba, size_t bit) {
 }
 
 
-int ba_reset_bitarray(bitarray_t ba) {
+int ba_reset(bitarray_t ba) {
     size_t i;
     for (i = 0; i < ba->num_chars; i++) {
         ba->arr[i] = 0;
