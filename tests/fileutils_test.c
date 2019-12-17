@@ -362,14 +362,54 @@ MU_TEST(test_rmdir_recursive) {
     free(tmp);
 }
 
+MU_TEST(test_list_dir) {
+    int items;
+    char** recs = fs_list_dir(test_dir, &items);
+    mu_assert_int_eq(3, items);
+    mu_assert_string_eq(".gitkeep", recs[0]);
+    mu_assert_string_eq("test.txt", recs[1]);
+    mu_assert_string_eq("lvl2", recs[2]);
+
+    int i;
+    for(i = 0; i < items; i++)
+        free(recs[i]);
+    free(recs);
+
+
+    /* test the error case */
+    char** val = fs_list_dir("./foo", &items);
+    mu_assert_string_eq(NULL, (void*)val);
+    mu_assert_int_eq(0, items);
+}
+
+MU_TEST(test_combine_filepath) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+
+    /* test error cases */
+    mu_assert_string_eq(NULL, fs_combine_filepath(NULL, NULL));
+    char* res = fs_combine_filepath(NULL, "test.txt");
+    mu_assert_string_eq("test.txt", res);
+    free(res);
+    res = fs_combine_filepath("./", NULL);
+    mu_assert_string_eq("./", res);
+    free(res);
+
+    /* test actuals */
+    res = fs_combine_filepath(test_dir, "test.txt");
+    mu_assert_string_eq(filepath, res);
+    free(res);
+    free(filepath);
+}
+
 /***************************************************************************
 *   file_t - usage
 ***************************************************************************/
 MU_TEST(test_file_t_init) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
     file_t f = f_init(filepath);
-    free(filepath);
+
     /* ensure things are correct! */
+    mu_assert_string_eq(filepath, f_absolute_path(f));  /* vad test, but this is already absolute */
     mu_assert_string_eq("test.txt", f_filename(f));
     mu_assert_string_eq(test_dir, f_basedir(f));
     mu_assert_string_eq("txt", f_extension(f));
@@ -381,7 +421,7 @@ MU_TEST(test_file_t_init) {
     mu_assert_int_eq(0 , f_number_lines(f));
     mu_assert_string_eq(NULL , f_buffer(f));
     mu_assert(f_lines(f) == NULL, "Expected lines to be NULL, if was not...");
-
+    free(filepath);
     f_free(f);
 }
 
@@ -459,6 +499,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_resolve_path_no_exist);
     MU_RUN_TEST(test_resolve_path_null);
 
+    /* combine filepath */
+    MU_RUN_TEST(test_combine_filepath);
+
     /* fs_identify_path */
     MU_RUN_TEST(test_identify_path);
 
@@ -490,6 +533,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_rmdir_errors);
     MU_RUN_TEST(test_rmdir_non_recursive);
     MU_RUN_TEST(test_rmdir_recursive);
+
+    /* list dir */
+    MU_RUN_TEST(test_list_dir);
 
     /***************************************************************************
     *   file_t

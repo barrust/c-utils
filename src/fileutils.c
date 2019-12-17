@@ -16,6 +16,7 @@ typedef struct __file_struct {
     char* basepath;
     char* filename;
     char* extension;
+    char* absolute_path;
     char* buffer;       /* this will hold the whole file and lines will index into it */
     char** lines;
 } __file_struct;
@@ -90,6 +91,27 @@ char* fs_resolve_path(const char* path) {
         new_path[len - 1] = '\0';
 
     return new_path;
+}
+
+char* fs_combine_filepath(const char* path, const char* filename) {
+    if (path == NULL && filename == NULL)
+        return NULL;  /* error case */
+    else if (path == NULL && filename != NULL)
+        return __str_duplicate(filename);
+    else if (path != NULL && filename == NULL)
+        return __str_duplicate(path);
+
+    int p_len = strlen(path);
+    int f_len = strlen(filename);
+    char* full_path = calloc(p_len + f_len + 2, sizeof(char)); /* 2 for / and NULL */
+    strcpy(full_path, path);
+    if (full_path[p_len - 1] == '/') {
+        --p_len;
+    }
+    full_path[p_len] = '/';
+    strcpy(full_path + 1 + p_len, filename);
+
+    return full_path;
 }
 
 char* fs_cwd() {
@@ -224,10 +246,7 @@ int fs_rmdir_alt(const char* path, bool recursive) {
         int i;
         for (i = 0; i < num_elms; i++) {
             /* TODO: This should be a function called "fs_combine_path" or something */
-            char tmp[1024] = {0};
-            strncpy(tmp, path, strlen(path));
-            tmp[strlen(path)] = '/';
-            strncpy(tmp + strlen(path) + 1, paths[i], strlen(paths[i]));
+            char* tmp = fs_combine_filepath(path, paths[i]);
 
             int type = fs_identify_path(tmp);
             if (type == FS_FILE) {
@@ -237,15 +256,16 @@ int fs_rmdir_alt(const char* path, bool recursive) {
                 if (val == FS_FAILURE) {
                     /* free the paths! */
                     __free_double_array(paths, num_elms);
-
+                    free(tmp);
                     return FS_FAILURE;
                 }
             } else {
                 /* free the paths! */
                 __free_double_array(paths, num_elms);
-
+                free(tmp);
                 return FS_FAILURE;  /* something went wrong; a symlink or something else was encountered... */
             }
+            free(tmp);
         }
 
         /* free the paths! */
@@ -253,6 +273,13 @@ int fs_rmdir_alt(const char* path, bool recursive) {
         fs_rmdir(path);
     }
     return FS_NO_EXISTS;
+}
+
+char** fs_list_dir(const char* path, int* items) {
+    *items = 0; /* set the easy default */
+    if (fs_identify_path(path) != FS_DIRECTORY)
+        return NULL;
+    return __fs_list_dir(path, items);
 }
 
 int fs_get_permissions(const char* path) {
@@ -342,6 +369,7 @@ file_t f_init(const char* filepath) {
     /* set the defaults */
     f->filename = NULL;
     f->extension = NULL;
+    f->absolute_path = NULL;
     f->filesize = 0;
     f->num_lines = 0;
     f->lines = NULL;
@@ -351,6 +379,7 @@ file_t f_init(const char* filepath) {
     char* path = NULL;
     __parse_file_info(filepath, &path, &f->filename);
     f->basepath = realpath(path, NULL);
+    f->absolute_path = fs_combine_filepath(f->basepath, f->filename);
     free(path);
     int ex_pos = __str_find_reverse(f->filename, '.');
     if (ex_pos != -1)
@@ -365,6 +394,7 @@ void f_free(file_t f) {
     free(f->basepath);
     free(f->filename);
     free(f->extension);
+    free(f->absolute_path);
     size_t i;
     for (i = 0; i < f->num_lines; i++)
         f->lines[i] = NULL;
@@ -375,6 +405,10 @@ void f_free(file_t f) {
 
 bool f_is_symlink(file_t f) {
     return f->is_symlink;
+}
+
+const char* f_absolute_path(file_t f) {
+    return f->absolute_path;
 }
 
 const char* f_basedir(file_t f) {

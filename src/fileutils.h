@@ -64,11 +64,17 @@ int fs_identify_path(const char* path);
     NOTE: Up to the user to free the resulting memory */
 char* fs_cwd();
 
-/*  Resolve the path provided by turning it into an absolute path
+/*  Resolve the path provided by turning it into an absolute path;
+    does not keep filename!
     NOTE: Up to the caller to free the resulting memory
     NOTE: This does not validate the resulting path! */
 char* fs_resolve_path(const char* path);
-char* fs_absolute_path(const char* path);
+
+/*  Build and return the canonical absolute path to the file using the path
+    and filename provided
+    NOTE: Up to the caller to free the resulting memory
+*/
+char* fs_combine_filepath(const char* path, const char* filename);
 
 /*  Rename or move a file from current path to the new path
     Returns:
@@ -131,7 +137,6 @@ char* fs_mode_to_string_alt(mode_t mode, char* res);
     information or is invalid. */
 unsigned short fs_string_to_mode(const char* s);
 
-
 /*  Remove the directory pointed to by path; to remove all sub-directories and
     files, use the `fs_rmdir_alt` function and set recursive to `true`.
     Returns:
@@ -142,7 +147,13 @@ unsigned short fs_string_to_mode(const char* s);
 int fs_rmdir(const char* path);
 int fs_rmdir_alt(const char* path, bool recursive);
 
-
+/*  List all the files and directories of the provided path. Items is a passed
+    by reference int that, on completion, will identify how many records are
+    returned. If error, items will be set to 0
+    Returns:
+        NULL if error or if path is not a directory
+*/
+char** fs_list_dir(const char* path, int* items);
 
 /*******************************************************************************
 *   Directory Functionality Encapsulation
@@ -172,6 +183,9 @@ file_t f_init(const char* filepath);
 void f_free(file_t f);
 
 bool f_is_symlink(file_t f);
+
+/*  Returns the absolute path of the file */
+const char* f_absolute_path(file_t f);
 
 /*  Returns the base directory (path) of the file */
 const char* f_basedir(file_t f);
