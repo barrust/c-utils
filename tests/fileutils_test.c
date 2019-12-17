@@ -240,7 +240,7 @@ MU_TEST(test_mkdir_errors) {
 MU_TEST(test_mkdir_non_recursive) {
     char* filepath = __str_snprintf("%s/test/", test_dir);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
-    mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath, false)); /* start with non-recursive; one level */
+    mu_assert_int_eq(FS_SUCCESS, fs_mkdir(filepath, false)); /* start with non-recursive; one level */
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
     int vals[] = {0744, 0764};
     mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
@@ -266,7 +266,7 @@ MU_TEST(test_mkdir_recursive) {
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath2));
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
 
-    mu_assert_int_eq(FS_EXISTS, fs_mkdir(filepath3, true));
+    mu_assert_int_eq(FS_SUCCESS, fs_mkdir(filepath3, true));
 
     /* ensure directories are now present */
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
@@ -402,6 +402,15 @@ MU_TEST(test_combine_filepath) {
     mu_assert_string_eq(filepath, res);
     free(res);
     free(filepath);
+
+    /* other permutations */
+    char tmp[1024] = {0};
+    fs_combine_filepath_alt("./test", NULL, tmp);
+    mu_assert_string_eq("./test", tmp);
+    fs_combine_filepath_alt(NULL, "./t", tmp);
+    mu_assert_string_eq("./t", tmp);
+    fs_combine_filepath_alt("./test/a/", "foo.txt", tmp);
+    mu_assert_string_eq("./test/a/foo.txt", tmp);
 }
 
 /***************************************************************************
