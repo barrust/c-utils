@@ -402,6 +402,15 @@ MU_TEST(test_combine_filepath) {
     mu_assert_string_eq(filepath, res);
     free(res);
     free(filepath);
+
+    /* other permutations */
+    char tmp[1024] = {0};
+    fs_combine_filepath_alt("./test", NULL, tmp);
+    mu_assert_string_eq("./test", tmp);
+    fs_combine_filepath_alt(NULL, "./t", tmp);
+    mu_assert_string_eq("./t", tmp);
+    fs_combine_filepath_alt("./test/a/", "foo.txt", tmp);
+    mu_assert_string_eq("./test/a/foo.txt", tmp);
 }
 
 /***************************************************************************
