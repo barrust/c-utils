@@ -9,7 +9,6 @@
 #define NUMBITS     150
 
 int main() {
-
     int i;
     char* b_str;
 
