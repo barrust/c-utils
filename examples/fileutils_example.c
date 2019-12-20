@@ -2,6 +2,8 @@
 *   Demonstrate some of the uses of the fileutils library by building out a
 *   directory structure, testing different pieces of information about the
 *   files, etc. and then removing the directories and files.
+*
+*   Use -v to include more debugging information
 *******************************************************************************/
 
 #include <stdio.h>
@@ -16,10 +18,20 @@
 static void write_data_to_file(const char* filename);
 
 
-int main() {
+int main(int argc, char const *argv[]) {
+
+    /* parse out verbose */
+    bool verbose = false;
+
+    if (argc == 2 && strcmp(argv[1], "-v") == 0) {
+        verbose = true;
+    }
+
+    printf("Verbosity: %s\n", verbose ? "true" : "false");
 
     char example_dir[1024] = {0};
     char tmp_dir[1024] = {0};
+    char sample[1024] = {0};
     char tmp_dir_2[1024] = {0};
 
     int len, i;
@@ -35,6 +47,7 @@ int main() {
     else
         fs_combine_filepath_alt(cwd, NULL, example_dir);
     printf("Fileutils:\tExamples Dir:    \t%s\n", example_dir);
+    free(cwd);
 
     /* make a directory structure in one shot */
     fs_combine_filepath_alt(example_dir, "a/b/c/d/e/f/g", tmp_dir);
@@ -48,20 +61,19 @@ int main() {
     assert(fs_identify_path(tmp_dir) == FS_DIRECTORY);
 
     /* touch some files */
-    fs_combine_filepath_alt(tmp_dir, "foo.txt", tmp_dir);
-    fs_touch(tmp_dir);
-    len = strlen(tmp_dir);
-    tmp_dir[len - 7] = '\0';
-    fs_combine_filepath_alt(tmp_dir, "bar.txt", tmp_dir);
-    fs_touch(tmp_dir);
+    fs_combine_filepath_alt(tmp_dir, "foo.txt", sample);
+    fs_touch(sample);
+    fs_combine_filepath_alt(tmp_dir, "bar.txt", sample);
+    fs_touch(sample);
 
     /* put some content in one of the files */
-    write_data_to_file(tmp_dir);
+    write_data_to_file(sample);
 
     /* use the file_t object */
     printf("***************************************************************\n");
     printf("Fileutils:\tInput Filename:   \t%s\n", tmp_dir);
-    file_t f = f_init(tmp_dir);
+    file_t f = f_init(sample);
+    assert(f != NULL);
     // print some quick stats:
     printf("Fileutils:\tBase Directory:   \t%s\n", f_basedir(f));
     printf("Fileutils:\tFilename:         \t%s\n", f_filename(f));
@@ -72,14 +84,17 @@ int main() {
     /* read the file into memory */
     f_read_file(f);
 
-    printf("\n%s\n", f_buffer(f));
+    if (verbose) {
+        printf("\n%s\n", f_buffer(f));
+    }
 
     /* parse the file into "lines" */
     f_parse_lines(f);
     printf("Fileutils:\tNumber of lines  \t%lu\n", f_number_lines(f));
-    for (i = 0; i < f_number_lines(f); i++)
-        printf("%s\n", f_lines(f)[i]);
-
+    if (verbose) {
+        for (i = 0; i < f_number_lines(f); i++)
+            printf("%s\n", f_lines(f)[i]);
+    }
     f_free(f);
 
 
