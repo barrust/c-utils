@@ -91,8 +91,13 @@ int s_find_any_reverse(const char* s, const char* s2);
 char* s_concat(const char* s1, const char* s2);
 
 /*  Append the contents of s2 onto s1; s1 must be dynamically allocated.
-    s1 will be expanded to include both s1 and s2. */
+    s1 will be expanded to include both s1 and s2.
+    NOTE:   To use s_append you must call like s1 = s_append(s1, s2) or memory
+            will be leaked.
+    NOTE:   To ensure that s1 is updated to point to the new location after
+            memory realloc, use s_append_alt(&s1, s2)*/
 char* s_append(char* s1, const char* s2);
+char* s_append_alt(char* (*s1), const char* s2);
 
 /*  Perform a standard case sensitive string compare */
 int s_cmp(const char* s1, const char* s2);

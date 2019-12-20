@@ -18,12 +18,12 @@ int main(int argc, char const *argv[]) {
     printf("Verbosity: %s\n", verbose ? "true" : "false");
     printf("\n***************************************************************\n");
 
-    char foo[2048] = " \t The quick\nbrown\tfox jumped  \t over  the  lazy  dog.\t\n\r\f\t   ";  /* will be well used... */
+    char* tmp = s_duplicate(" \t The quick\nbrown\tfox jumped  \t over  the  lazy  dog.\t\n\r\f\t   ");
 
-    if (verbose)
-        printf("Stringlib:\tOriginal String:\t[%s]\n", foo);
-
-    char* tmp = s_duplicate(foo);
+    if (verbose) {
+        printf("Stringlib:\tOriginal String:\t[%s]\n", tmp);
+        printf("String length: %lu\n", strlen(tmp));
+    }
 
     printf("Stringlib:\tStandardize Whitespace: \t[%s]\n", s_standardize_whitespace(tmp, ' '));
     s_trim(tmp);  /* this returns the number of chars trimmed */
@@ -31,8 +31,7 @@ int main(int argc, char const *argv[]) {
     printf("Stringlib:\tTo Uppercase:           \t[%s]\n", s_toupper(tmp));
     printf("Stringlib:\tTo Lowercase:           \t[%s]\n", s_tolower(tmp));
     printf("Stringlib:\tSingle Space:           \t[%s]\n", s_single_space(tmp));
-
-    printf("Stringlib:\tAppend:                 \t[%s]\n", s_append(tmp, " And nobody noticed!"));
+    printf("Stringlib:\tAppend:                 \t[%s]\n", s_append_alt(&tmp, " And nobody noticed!"));
 
     printf("\n***************************************************************\n");
 
@@ -52,6 +51,5 @@ int main(int argc, char const *argv[]) {
     printf("Stringlib: Found Any 'qbr'              Index:\t%d\n", s_find_any(tmp, "qbr"));
 
     printf("\n***************************************************************\n");
-
     free(tmp);
 }
