@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/barrust/c-utils/branch/master/graph/badge.svg)](https://codecov.io/gh/barrust/c-utils)
 
 
-This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but write as needed, usually differently each time and without unit tests.
+This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests.
 
 If there are other commonly used code that should be added, please add a feature request!
 
@@ -21,7 +21,11 @@ If there are other commonly used code that should be added, please add a feature
 
 ##### Unit tests
 
-Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully tested.
+Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully covered. Any help in getting as close to 100% coverage would be great!
+
+To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make`. Then you can execute the tests using `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, or `./dist/timing` executables.
+
+#### Issues
 
 If an unexpected outcome occurs, please submit an issue with a ***minimal code example*** that encapsulates the error.
 
@@ -35,7 +39,12 @@ A great issue would provide the following:
 > s_remove_unwanted_chars(test, "ti");  
 > ```
 
-To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make`. Then you can execute the tests using `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, or `./dist/timing` executables.
+#### Examples
+
+Examples output is provided in the `./examples` folder. You can compile these examples using `make examples`. They can be run using `./dist/ex_timing`, `./dist/ex_bitarray`, `./dist/ex_fileutils`, and `./dist/ex_stringlib`.
+
+Not all functionality is demonstrated for all libraries, but hopefully enough is present to help make using these libraries easier.
+
 
 ## stringlib
 
@@ -48,7 +57,6 @@ Documentation of each function is found in the `stringlib.h` file.
 #### Compiler Flags
 
 ***NONE*** - There are no needed compiler flags for the `stringlib` library
-
 
 #### Usage
 
@@ -71,6 +79,7 @@ pos = s_find_str_reverse(str, "ri"); // 21
 // remove unwanted characters
 s_remove_unwanted_chars(str, "tph"); // "Tis is a orrible sring o clean u... lease el!"
 ```
+
 
 ## fileutils
 
@@ -117,9 +126,8 @@ f_read_file(f);
 /* parse the file into lines */
 f_parse_lines(f);
 
-
+f_free(f);
 ```
-
 
 
 ## bitarray
