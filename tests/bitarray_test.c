@@ -103,7 +103,7 @@ MU_TEST(test_reset_bitarray) {
     bitarray_t ba = ba_init(128);
     mu_assert_int_eq(16, ba_array_size(ba));  /* test the ceiling macro */
 
-    int i;
+    size_t i;
     for (i = 0; i < ba_number_bits(ba); i++)
         ba_set_bit(ba, i);
 
@@ -129,7 +129,7 @@ MU_TEST(test_reset_bitarray) {
 
 MU_TEST(test_print_array) {
     bitarray_t ba = ba_init(25);
-    int i;
+    size_t i;
     for (i = 0; i < 25; i+=5)
         ba_set_bit(ba, i);
 
@@ -144,7 +144,7 @@ MU_TEST(test_print_array) {
 
 MU_TEST(test_toggle_bit) {
     bitarray_t ba = ba_init(20);
-    int i;
+    size_t i;
     for (i = 0; i < 10; i++)
         ba_set_bit(ba, i);
     char* res = ba_to_string(ba);
@@ -166,7 +166,7 @@ MU_TEST(test_toggle_bit) {
 
 MU_TEST(test_number_bits_set) {
     bitarray_t ba = ba_init(25);
-    int i;
+    size_t i;
     for (i = 0; i < 25; i+=5)
         ba_set_bit(ba, i);
     mu_assert_int_eq(5, ba_number_bits_set(ba));
@@ -198,7 +198,7 @@ MU_TEST_SUITE(test_suite) {
 }
 
 
-int main(int argc, char *argv[]) {
+int main() {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
     printf("Number failed tests: %d\n", minunit_fail);

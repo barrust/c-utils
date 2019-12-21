@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
     char sample[1024] = {0};
     char tmp_dir_2[1024] = {0};
 
-    int len, i;
+    size_t len, i;
 
 
     /*  find out current working directory and then get into the example folder

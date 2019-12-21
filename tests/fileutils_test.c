@@ -374,7 +374,7 @@ MU_TEST(test_list_dir) {
     mu_assert_string_eq("test.txt", recs[2]);
 
     int i;
-    for(i = 0; i < items; i++)
+    for (i = 0; i < items; i++)
         free(recs[i]);
     free(recs);
 
@@ -565,7 +565,7 @@ MU_TEST_SUITE(test_suite) {
 
 
 
-int main(int argc, char *argv[]) {
+int main() {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
     printf("Number failed tests: %d\n", minunit_fail);

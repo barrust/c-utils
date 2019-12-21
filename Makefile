@@ -2,10 +2,10 @@ TESTDIR=tests
 DISTDIR=dist
 SRCDIR=src
 EXAMPLEDIR=examples
-COMPFLAGS=-Wall -Wpedantic -Winline
+COMPFLAGS=-Wall -Wpedantic -Winline -Wextra
 
 
-all: libraries
+all: libraries examples
 	$(CC) $(STD) $(DISTDIR)/stringlib.o $(TESTDIR)/stringlib_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/strlib
 	$(CC) $(STD) $(TESTDIR)/timing_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/timing
 	$(CC) $(STD) $(DISTDIR)/bitarray-lib.o $(TESTDIR)/bitarray_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/bitarray

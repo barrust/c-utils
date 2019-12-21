@@ -44,7 +44,7 @@ size_t ba_array_size(bitarray_t ba);
 size_t ba_number_bits(bitarray_t ba);
 
 /*  Property access to the actual bit array in an unmodifing form */
-const unsigned char* const ba_get_bitarray(bitarray_t ba);
+const unsigned char* ba_get_bitarray(bitarray_t ba);
 
 /*  Set bit `bit` to 1 */
 int ba_set_bit(bitarray_t ba, size_t bit);
