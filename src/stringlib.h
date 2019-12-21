@@ -3,17 +3,17 @@
 
 /*******************************************************************************
 ***
-***	 Author: Tyler Barrus
-***	 email:  barrust@gmail.com
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
 ***
-***	 Version: 0.1.1
-***	 Purpose: Single source of common string functions in C
+***  Version: 0.1.1
+***  Purpose: Single source of common string functions in C
 ***
-***	 License: MIT 2019
+***  License: MIT 2019
 ***
-***	 URL: https://github.com/barrust/c-utils
+***  URL: https://github.com/barrust/c-utils
 ***
-***	 Usage:
+***  Usage:
 ***     char* str = s_duplicate("This \t is a \n test!  ");
 ***     s_single_space(str); // "This is a test!"
 ***     int pos = s_find_any(str, "!a"); // 8

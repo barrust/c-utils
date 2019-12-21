@@ -3,17 +3,17 @@
 
 /*******************************************************************************
 ***
-***	 Author: Tyler Barrus
-***	 email:  barrust@gmail.com
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
 ***
-***	 Version: 0.1.0
-***	 Purpose: Simple bit array library
+***  Version: 0.1.0
+***  Purpose: Simple bit array library
 ***
-***	 License: MIT 2019
+***  License: MIT 2019
 ***
-***	 URL: https://github.com/barrust/c-utils
+***  URL: https://github.com/barrust/c-utils
 ***
-***	 Usage:
+***  Usage:
 ***     bitarray_t b = ba_initialize(1000);  // bits are 0 based array
 ***     ba_set_bit(b, 150);
 ***

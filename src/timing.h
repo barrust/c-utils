@@ -3,26 +3,26 @@
 
 /*******************************************************************************
 ***
-***	 Author: Tyler Barrus
-***	 email:  barrust@gmail.com
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
 ***
-***	 Version: 1.0.4
-***	 Purpose: Provide a simple format to gather timing information
+***  Version: 1.0.4
+***  Purpose: Provide a simple format to gather timing information
 ***
-***	 License: MIT 2015
+***  License: MIT 2015
 ***
-***	 Original URL: https://github.com/barrust/timing-c
+***  Original URL: https://github.com/barrust/timing-c
 ***  New URL: https://github.com/barrust/c-utils
 ***
-***	 Usage:
-***		 Timing t;
-***		 timing_start(&t);
-***		 // code to time here
-***		 timing_end(&t);
-***		 printf("code completed in %f seconds\n", t.timing_double);
-***		 char *pretty_output = format_time_diff(&t);
-***		 printf("code completed in %s (HH:MM:SS.MS.MLS)\n", pretty_output);
-***		 free(pretty_output);
+***  Usage:
+***     Timing t;
+***     timing_start(&t);
+***     // code to time here
+***     timing_end(&t);
+***     printf("code completed in %f seconds\n", t.timing_double);
+***     char *pretty_output = format_time_diff(&t);
+***     printf("code completed in %s (HH:MM:SS.MS.MLS)\n", pretty_output);
+***     free(pretty_output);
 ***
 *******************************************************************************/
 
