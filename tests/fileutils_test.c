@@ -512,6 +512,7 @@ MU_TEST(test_dir_init_fail) {
     dir_t d = d_init(filepath);
     mu_assert_string_eq(NULL, (void*)d);
     free(filepath);
+    d_free(d);
 }
 
 
@@ -528,6 +529,18 @@ MU_TEST(test_dir_update_list) {
     mu_assert_string_eq("lvl2", recs[1]);
     mu_assert_string_eq("new_file.txt", recs[2]);
     mu_assert_string_eq("test.txt", recs[3]);
+
+    recs = d_sub_dirs(d);
+    mu_assert_int_eq(1, d_num_sub_dirs(d));
+    __sort(recs, d_num_sub_dirs(d));
+    mu_assert_string_eq("lvl2", recs[0]);
+
+    recs = d_sub_files(d);
+    mu_assert_int_eq(3, d_num_sub_files(d));
+    __sort(recs, d_num_sub_files(d));
+    mu_assert_string_eq(".gitkeep", recs[0]);
+    mu_assert_string_eq("new_file.txt", recs[1]);
+    mu_assert_string_eq("test.txt", recs[2]);
 
     fs_remove_file(newfile); /* keep local test folder clean; */
     free(newfile);

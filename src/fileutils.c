@@ -23,9 +23,13 @@ typedef struct __file_struct {
 
 
 typedef struct __dir_struct {
+    int num_subitems;
+    int num_subdirs;
+    int num_subfiles;
     char* full_path;
     char** subitems;
-    int num_subitems;
+    char** subdirs;
+    char** subfiles;
 } __dir_struct;
 
 
@@ -519,16 +523,34 @@ dir_t d_init(const char* path) {
 
     dir_t d = calloc(1, sizeof(dir_struct));
     d->full_path = fs_resolve_path(path);
-    d->subitems = fs_list_dir(d->full_path, &d->num_subitems);
+    d->num_subitems = 0;
+    d->num_subfiles = 0;
+    d->num_subdirs = 0;
+    d->subitems = NULL;
+    d->subdirs = NULL;
+    d->subfiles = NULL;
 
+    d_update_list(d);
     return d;
 }
 
 void d_free(dir_t d) {
+    if (d == NULL)
+        return;
+
     int i;
+    for (i = 0; i < d->num_subdirs; i++)
+        d->subdirs[i] = NULL;
+    free(d->subdirs);
+
+    for (i = 0; i < d->num_subfiles; i++)
+        d->subfiles[i] = NULL;
+    free(d->subfiles);
+
     for (i = 0; i < d->num_subitems; i++)
         free(d->subitems[i]);
     free(d->subitems);
+
     free(d->full_path);
     free(d);
 }
@@ -546,17 +568,63 @@ int d_update_list(dir_t d) {
     char** new_ls = fs_list_dir(d->full_path, &tmp);
     if (new_ls == NULL)
         return FS_FAILURE;
+
     int i;
+    /* make sure previously pulled information is free */
     for (i = 0; i < d->num_subitems; i++)
         free(d->subitems[i]);
     free(d->subitems);
+    free(d->subdirs);
+    free(d->subfiles);
+
+    /* now pull everything */
     d->num_subitems = tmp;
     d->subitems = new_ls;
+    /* now parse into different types */
+    d->num_subdirs = 0;
+    d->num_subfiles = 0;
+    d->subfiles = calloc(d->num_subitems, sizeof(char*));
+    d->subdirs = calloc(d->num_subitems, sizeof(char*));
+
+    char full_path[2048] = {0};
+    for (i = 0; i < d->num_subitems; i++) {
+        fs_combine_filepath_alt(d->full_path, d->subitems[i], full_path);
+        if (fs_identify_path(full_path) == FS_DIRECTORY) {
+            /* place it into the directory list */
+            d->subdirs[d->num_subdirs++] = d->subitems[i];
+        } else {
+            /* place it into the files list */
+            d->subfiles[d->num_subfiles++] = d->subitems[i];
+        }
+    }
+
+    /* reduce the memory needed for subfiles and subdirs */
+    char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs + 1));
+    d->subdirs = t;
+    char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles + 1));
+    d->subfiles = s;
+
     return FS_SUCCESS;
 }
 
 int d_num_subitems(dir_t d) {
     return d->num_subitems;
+}
+
+char** d_sub_dirs(dir_t d) {
+    return d->subdirs;
+}
+
+int d_num_sub_dirs(dir_t d) {
+    return d->num_subdirs;
+}
+
+char** d_sub_files(dir_t d) {
+    return d->subfiles;
+}
+
+int d_num_sub_files(dir_t d) {
+    return d->num_subfiles;
 }
 
 

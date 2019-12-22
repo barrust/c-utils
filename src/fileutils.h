@@ -193,6 +193,14 @@ int d_num_subitems(dir_t d);
 
 int d_update_list(dir_t d);
 
+char** d_sub_dirs(dir_t d);
+
+int d_num_sub_dirs(dir_t d);
+
+char** d_sub_files(dir_t d);
+
+int d_num_sub_files(dir_t d);
+
 /*******************************************************************************
 *   File Functionality Encapsulation
 *******************************************************************************/
