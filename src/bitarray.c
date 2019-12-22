@@ -47,7 +47,7 @@ size_t ba_number_bits(bitarray_t ba) {
 }
 
 
-const unsigned char* const ba_get_bitarray(bitarray_t ba) {
+const unsigned char* ba_get_bitarray(bitarray_t ba) {
     return ba->arr;
 }
 
@@ -91,7 +91,7 @@ int ba_clear_bit(bitarray_t ba, size_t bit) {
 }
 
 
-int ba_reset_bitarray(bitarray_t ba) {
+int ba_reset(bitarray_t ba) {
     size_t i;
     for (i = 0; i < ba->num_chars; i++) {
         ba->arr[i] = 0;
@@ -102,7 +102,7 @@ int ba_reset_bitarray(bitarray_t ba) {
 
 char* ba_to_string(bitarray_t ba) {
     char* res = calloc(ba->num_bits + 1, sizeof(char));
-    int i;
+    size_t i;
     for (i = 0; i < ba->num_bits; i++)
         res[i] = (CHECK_BIT(ba->arr, i) != 0) ? '1' : '0';
     return res;

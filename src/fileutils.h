@@ -3,17 +3,17 @@
 
 /*******************************************************************************
 ***
-***	 Author: Tyler Barrus
-***	 email:  barrust@gmail.com
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
 ***
-***	 Version: 0.1.1
-***	 Purpose: Simple file system library with utility functions
+***  Version: 0.1.1
+***  Purpose: Simple file system library with utility functions
 ***
-***	 License: MIT 2019
+***  License: MIT 2019
 ***
-***	 URL: https://github.com/barrust/c-utils
+***  URL: https://github.com/barrust/c-utils
 ***
-***	 Usage:
+***  Usage:
 ***     file_t f = f_init(filepath);
 ***     f_parse_lines(f);
 ***     // print all lines from file

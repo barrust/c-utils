@@ -3,17 +3,17 @@
 
 /*******************************************************************************
 ***
-***	 Author: Tyler Barrus
-***	 email:  barrust@gmail.com
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
 ***
-***	 Version: 0.1.0
-***	 Purpose: Simple bit array library
+***  Version: 0.1.0
+***  Purpose: Simple bit array library
 ***
-***	 License: MIT 2019
+***  License: MIT 2019
 ***
-***	 URL: https://github.com/barrust/c-utils
+***  URL: https://github.com/barrust/c-utils
 ***
-***	 Usage:
+***  Usage:
 ***     bitarray_t b = ba_initialize(1000);  // bits are 0 based array
 ***     ba_set_bit(b, 150);
 ***
@@ -44,7 +44,7 @@ size_t ba_array_size(bitarray_t ba);
 size_t ba_number_bits(bitarray_t ba);
 
 /*  Property access to the actual bit array in an unmodifing form */
-const unsigned char* const ba_get_bitarray(bitarray_t ba);
+const unsigned char* ba_get_bitarray(bitarray_t ba);
 
 /*  Set bit `bit` to 1 */
 int ba_set_bit(bitarray_t ba, size_t bit);
@@ -61,7 +61,7 @@ int ba_toggle_bit(bitarray_t ba, size_t bit);
 int ba_clear_bit(bitarray_t ba, size_t bit);
 
 /*  Reset the entire bitarray to 0 */
-int ba_reset_bitarray(bitarray_t ba);
+int ba_reset(bitarray_t ba);
 
 /*  Return a printable representation of the array as 0's and 1's;
     NOTE: It is up to the caller to free the memory */

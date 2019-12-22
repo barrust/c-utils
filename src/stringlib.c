@@ -299,15 +299,20 @@ int s_find_alt_any(const char*s, const char* s2, int idx) {
 
 
 char* s_append(char* s1, const char* s2) {
-    size_t len =  strlen(s2);
-    char* res = realloc(s1, strlen(s1) + len + 1);
-    strcat(res, s2);
-    /* set s1 pointer to the res pointer */
-    s1 = res;
-    res = NULL;
+    s1 = s_append_alt(&s1, s2);
     return s1;
 }
 
+
+char* s_append_alt(char* (*s1), const char* s2) {
+    size_t len =  strlen(s2);
+    char* res = realloc(*s1, strlen(*s1) + len + 1);
+    strcat(res, s2);
+    /* set s1 pointer to the res pointer */
+    *s1 = res;
+    res = NULL;
+    return *s1;
+}
 
 char* s_concat(const char* s1, const char* s2) {
     char* ret = s_duplicate(s1);
