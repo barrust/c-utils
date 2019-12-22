@@ -151,7 +151,7 @@ MU_TEST(test_toggle_bit) {
     mu_assert_string_eq("11111111110000000000", res);
     free(res);
 
-    for(i = 0; i < 20; i++)
+    for (i = 0; i < 20; i++)
         ba_toggle_bit(ba, i);
     res = ba_to_string(ba);
     mu_assert_string_eq("00000000001111111111", res);

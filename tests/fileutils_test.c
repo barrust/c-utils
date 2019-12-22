@@ -492,6 +492,48 @@ MU_TEST(test_file_t_parse_lines) {
 
 
 
+/***************************************************************************
+*   dir_t - usage
+***************************************************************************/
+MU_TEST(test_dir_t_init) {
+    dir_t d = d_init(test_dir_rel);
+    mu_assert_int_eq(3, d_num_subitems(d));
+    mu_assert_string_eq(test_dir, d_fullpath(d));
+    char** recs = d_list_dir(d);
+    __sort(recs, d_num_subitems(d));
+    mu_assert_string_eq(".gitkeep", recs[0]);
+    mu_assert_string_eq("lvl2", recs[1]);
+    mu_assert_string_eq("test.txt", recs[2]);
+    d_free(d);
+}
+
+MU_TEST(test_dir_init_fail) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    dir_t d = d_init(filepath);
+    mu_assert_string_eq(NULL, (void*)d);
+    free(filepath);
+}
+
+
+MU_TEST(test_dir_update_list) {
+    dir_t d = d_init(test_dir_rel);
+    /* now that everything is updated, let us add a new file... */
+    char* newfile = __str_snprintf("%s/new_file.txt", d_fullpath(d));
+    fs_touch(newfile);
+
+    d_update_list(d);
+    char** recs = d_list_dir(d);
+    __sort(recs, d_num_subitems(d));
+    mu_assert_string_eq(".gitkeep", recs[0]);
+    mu_assert_string_eq("lvl2", recs[1]);
+    mu_assert_string_eq("new_file.txt", recs[2]);
+    mu_assert_string_eq("test.txt", recs[3]);
+
+    fs_remove_file(newfile); /* keep local test folder clean; */
+    free(newfile);
+    d_free(d);
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -560,7 +602,9 @@ MU_TEST_SUITE(test_suite) {
     /***************************************************************************
     *   directory_t
     ***************************************************************************/
-
+    MU_RUN_TEST(test_dir_t_init);
+    MU_RUN_TEST(test_dir_init_fail);
+    MU_RUN_TEST(test_dir_update_list);
 }
 
 

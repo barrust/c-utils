@@ -22,6 +22,12 @@ typedef struct __file_struct {
 } __file_struct;
 
 
+typedef struct __dir_struct {
+    char* full_path;
+    char** subitems;
+    int num_subitems;
+} __dir_struct;
+
 
 /* private functions */
 static char*   __str_duplicate(const char* s);
@@ -506,8 +512,52 @@ char** f_parse_lines(file_t f) {
 /*******************************************************************************
 *   Directory Objects
 *******************************************************************************/
+dir_t d_init(const char* path) {
+    if (fs_identify_path(path) != FS_DIRECTORY) {
+        return NULL;  /* error state */
+    }
 
+    dir_t d = calloc(1, sizeof(dir_struct));
+    d->full_path = fs_resolve_path(path);
+    d->subitems = fs_list_dir(d->full_path, &d->num_subitems);
 
+    return d;
+}
+
+void d_free(dir_t d) {
+    int i;
+    for (i = 0; i < d->num_subitems; i++)
+        free(d->subitems[i]);
+    free(d->subitems);
+    free(d->full_path);
+    free(d);
+}
+
+const char* d_fullpath(dir_t d) {
+    return d->full_path;
+}
+
+char** d_list_dir(dir_t d) {
+    return d->subitems;
+}
+
+int d_update_list(dir_t d) {
+    int tmp = 0;
+    char** new_ls = fs_list_dir(d->full_path, &tmp);
+    if (new_ls == NULL)
+        return FS_FAILURE;
+    int i;
+    for (i = 0; i < d->num_subitems; i++)
+        free(d->subitems[i]);
+    free(d->subitems);
+    d->num_subitems = tmp;
+    d->subitems = new_ls;
+    return FS_SUCCESS;
+}
+
+int d_num_subitems(dir_t d) {
+    return d->num_subitems;
+}
 
 
 /*******************************************************************************

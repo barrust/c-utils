@@ -30,6 +30,9 @@
 typedef struct __file_struct file_struct;
 typedef struct __file_struct *file_t;
 
+typedef struct __dir_struct dir_struct;
+typedef struct __dir_struct *dir_t;
+
 
 #define FS_INVALID_MODE     65535
 #define FS_NOT_VALID        -10
@@ -178,13 +181,17 @@ char** fs_list_dir(const char* path, int* items);
 /*******************************************************************************
 *   Directory Functionality Encapsulation
 *******************************************************************************/
-/* int d_is_directory(const char* path); */
+dir_t d_init(const char* path);
 
-/* int d_mkdir(const char* path, int recursive); */
+void d_free(dir_t d);
 
-/* char* d_list_dir(const char* path); */
+const char* d_fullpath(dir_t d);
 
-/* char* d_resolve_directory(const char* path); */
+char** d_list_dir(dir_t d);
+
+int d_num_subitems(dir_t d);
+
+int d_update_list(dir_t d);
 
 /*******************************************************************************
 *   File Functionality Encapsulation
