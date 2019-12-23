@@ -14,8 +14,6 @@ static char* __str_snprintf(const char* fmt, ...);
 static char* __str_extract_substring(const char* s, size_t start, size_t length);
 static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
-static void  __sort(char** arr, int n);
-static int   __cmp_str(const void* a, const void* b);
 
 
 void test_setup(void) {
@@ -368,7 +366,6 @@ MU_TEST(test_list_dir) {
     int items;
     char** recs = fs_list_dir(test_dir, &items);
     mu_assert_int_eq(3, items);
-    __sort(recs, 3);
     mu_assert_string_eq(".gitkeep", recs[0]);
     mu_assert_string_eq("lvl2", recs[1]);
     mu_assert_string_eq("test.txt", recs[2]);
@@ -497,10 +494,9 @@ MU_TEST(test_file_t_parse_lines) {
 ***************************************************************************/
 MU_TEST(test_dir_t_init) {
     dir_t d = d_init(test_dir_rel);
-    mu_assert_int_eq(3, d_num_subitems(d));
+    mu_assert_int_eq(3, d_num_items(d));
     mu_assert_string_eq(test_dir, d_fullpath(d));
     char** recs = d_list_dir(d);
-    __sort(recs, d_num_subitems(d));
     mu_assert_string_eq(".gitkeep", recs[0]);
     mu_assert_string_eq("lvl2", recs[1]);
     mu_assert_string_eq("test.txt", recs[2]);
@@ -524,20 +520,17 @@ MU_TEST(test_dir_update_list) {
 
     d_update_list(d);
     char** recs = d_list_dir(d);
-    __sort(recs, d_num_subitems(d));
     mu_assert_string_eq(".gitkeep", recs[0]);
     mu_assert_string_eq("lvl2", recs[1]);
     mu_assert_string_eq("new_file.txt", recs[2]);
     mu_assert_string_eq("test.txt", recs[3]);
 
-    recs = d_sub_dirs(d);
-    mu_assert_int_eq(1, d_num_sub_dirs(d));
-    __sort(recs, d_num_sub_dirs(d));
+    recs = d_dirs(d);
+    mu_assert_int_eq(1, d_num_dirs(d));
     mu_assert_string_eq("lvl2", recs[0]);
 
-    recs = d_sub_files(d);
-    mu_assert_int_eq(3, d_num_sub_files(d));
-    __sort(recs, d_num_sub_files(d));
+    recs = d_files(d);
+    mu_assert_int_eq(3, d_num_files(d));
     mu_assert_string_eq(".gitkeep", recs[0]);
     mu_assert_string_eq("new_file.txt", recs[1]);
     mu_assert_string_eq("test.txt", recs[2]);
@@ -678,13 +671,4 @@ static int __make_test_file(char* s, size_t len, char c) {
     s[len - 5] = c;
     fs_touch(s);
     return fs_identify_path(s);
-}
-
-// Function to sort the array
-void __sort(char** arr, int n) {
-    qsort(arr, n, sizeof(const char*), __cmp_str);
-}
-
-static int __cmp_str(const void* a, const void* b) {
-    return strcmp(*(const char**)a, *(const char**)b);
 }

@@ -6,7 +6,7 @@
 ***  Author: Tyler Barrus
 ***  email:  barrust@gmail.com
 ***
-***  Version: 0.1.1
+***  Version: 0.1.2
 ***  Purpose: Simple file system library with utility functions
 ***
 ***  License: MIT 2019
@@ -189,17 +189,17 @@ const char* d_fullpath(dir_t d);
 
 char** d_list_dir(dir_t d);
 
-int d_num_subitems(dir_t d);
+int d_num_items(dir_t d);
 
 int d_update_list(dir_t d);
 
-char** d_sub_dirs(dir_t d);
+char** d_dirs(dir_t d);
 
-int d_num_sub_dirs(dir_t d);
+int d_num_dirs(dir_t d);
 
-char** d_sub_files(dir_t d);
+char** d_files(dir_t d);
 
-int d_num_sub_files(dir_t d);
+int d_num_files(dir_t d);
 
 /*******************************************************************************
 *   File Functionality Encapsulation

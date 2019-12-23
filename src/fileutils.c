@@ -42,6 +42,7 @@ static int     __str_find_any(const char* s, const char* s2);
 static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
 static void    __free_double_array(char** arr, size_t num_elms);
+static int __cmp_str(const void* a, const void* b);
 /* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
@@ -539,6 +540,7 @@ void d_free(dir_t d) {
         return;
 
     int i;
+
     for (i = 0; i < d->num_subdirs; i++)
         d->subdirs[i] = NULL;
     free(d->subdirs);
@@ -547,9 +549,7 @@ void d_free(dir_t d) {
         d->subfiles[i] = NULL;
     free(d->subfiles);
 
-    for (i = 0; i < d->num_subitems; i++)
-        free(d->subitems[i]);
-    free(d->subitems);
+    __free_double_array(d->subitems, d->num_subitems);
 
     free(d->full_path);
     free(d);
@@ -571,9 +571,7 @@ int d_update_list(dir_t d) {
 
     int i;
     /* make sure previously pulled information is free */
-    for (i = 0; i < d->num_subitems; i++)
-        free(d->subitems[i]);
-    free(d->subitems);
+    __free_double_array(d->subitems, d->num_subitems);
     free(d->subdirs);
     free(d->subfiles);
 
@@ -607,23 +605,23 @@ int d_update_list(dir_t d) {
     return FS_SUCCESS;
 }
 
-int d_num_subitems(dir_t d) {
+int d_num_items(dir_t d) {
     return d->num_subitems;
 }
 
-char** d_sub_dirs(dir_t d) {
+char** d_dirs(dir_t d) {
     return d->subdirs;
 }
 
-int d_num_sub_dirs(dir_t d) {
+int d_num_dirs(dir_t d) {
     return d->num_subdirs;
 }
 
-char** d_sub_files(dir_t d) {
+char** d_files(dir_t d) {
     return d->subfiles;
 }
 
-int d_num_sub_files(dir_t d) {
+int d_num_files(dir_t d) {
     return d->num_subfiles;
 }
 
@@ -686,6 +684,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
         paths = tmp;
     }
     *elms = el_num;
+    qsort(paths, el_num, sizeof(const char*), __cmp_str);
     return paths;
 }
 
@@ -797,4 +796,8 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
     *filepath = __str_extract_substring(full_filepath, 0, slash_loc + 1);
     *filename = __str_extract_substring(full_filepath, slash_loc + 1, pathlen);
     return;
+}
+
+static int __cmp_str(const void* a, const void* b) {
+    return strcmp(*(const char**)a, *(const char**)b);
 }
