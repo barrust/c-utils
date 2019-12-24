@@ -540,6 +540,30 @@ MU_TEST(test_dir_update_list) {
     d_free(d);
 }
 
+MU_TEST(test_dir_fullpaths) {
+    dir_t d = d_init(test_dir_rel);
+    char** items = d_items_full_path(d);
+
+    mu_assert_int_eq(3, d_num_items(d));
+    mu_assert_string_eq(test_dir, d_fullpath(d));
+
+    char tmp[2048] = {0};
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, ".gitkeep", tmp), items[0]);
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "lvl2", tmp), items[1]);
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "test.txt", tmp), items[2]);
+
+    char** files = d_files_full_path(d);
+    mu_assert_int_eq(2, d_num_files(d));
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, ".gitkeep", tmp), files[0]);
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "test.txt", tmp), files[1]);
+
+    char** dirs = d_dirs_full_path(d);
+    mu_assert_int_eq(1, d_num_dirs(d));
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "lvl2", tmp), dirs[0]);
+
+    d_free(d);
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -611,6 +635,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_dir_t_init);
     MU_RUN_TEST(test_dir_init_fail);
     MU_RUN_TEST(test_dir_update_list);
+    MU_RUN_TEST(test_dir_fullpaths);
 }
 
 

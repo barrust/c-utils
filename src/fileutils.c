@@ -622,13 +622,13 @@ int d_update_list(dir_t d) {
     }
 
     /* reduce the memory needed for subfiles and subdirs */
-    char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs + 1));
+    char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs));
     d->subdirs = t;
-    char** q = realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs + 1));
+    char** q = realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs));
     d->subdirs_fullpath = q;
-    char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles + 1));
+    char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles));
     d->subfiles = s;
-    char** w = realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles+ 1));
+    char** w = realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles));
     d->subfiles_fullpath = w;
 
     return FS_SUCCESS;
@@ -658,6 +658,13 @@ char** d_items_full_path(dir_t d) {
     return d->subitems_fullpath;
 }
 
+char** d_files_full_path(dir_t d) {
+    return d->subfiles_fullpath;
+}
+
+char** d_dirs_full_path(dir_t d) {
+    return d->subdirs_fullpath;
+}
 
 /*******************************************************************************
 *   PRIVATE FUNCTIONS
