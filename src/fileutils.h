@@ -201,6 +201,14 @@ char** d_files(dir_t d);
 
 int d_num_files(dir_t d);
 
+/*  Return a list of strings that contain the full filepath to the item (file,
+    or directory);
+    NOTE: It is up to the caller to free the allocated memory!
+*/
+char** d_items_full_path(dir_t d);
+char** d_files_full_path(dir_t d);
+char** d_dirs_full_path(dir_t d);
+
 /*******************************************************************************
 *   File Functionality Encapsulation
 *******************************************************************************/

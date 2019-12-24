@@ -30,6 +30,9 @@ typedef struct __dir_struct {
     char** subitems;
     char** subdirs;
     char** subfiles;
+    char** subitems_fullpath;
+    char** subdirs_fullpath;
+    char** subfiles_fullpath;
 } __dir_struct;
 
 
@@ -269,7 +272,6 @@ int fs_rmdir_alt(const char* path, bool recursive) {
 
         int i;
         for (i = 0; i < num_elms; i++) {
-            /* TODO: This should be a function called "fs_combine_path" or something */
             char* tmp = fs_combine_filepath(path, paths[i]);
 
             int type = fs_identify_path(tmp);
@@ -528,8 +530,11 @@ dir_t d_init(const char* path) {
     d->num_subfiles = 0;
     d->num_subdirs = 0;
     d->subitems = NULL;
+    d->subitems_fullpath = NULL;
     d->subdirs = NULL;
+    d->subdirs_fullpath = NULL;
     d->subfiles = NULL;
+    d->subfiles_fullpath = NULL;
 
     d_update_list(d);
     return d;
@@ -545,11 +550,20 @@ void d_free(dir_t d) {
         d->subdirs[i] = NULL;
     free(d->subdirs);
 
+    for (i = 0; i < d->num_subdirs; i++)
+        d->subdirs_fullpath[i] = NULL;
+    free(d->subdirs_fullpath);
+
     for (i = 0; i < d->num_subfiles; i++)
         d->subfiles[i] = NULL;
     free(d->subfiles);
 
+    for (i = 0; i < d->num_subfiles; i++)
+        d->subfiles_fullpath[i] = NULL;
+    free(d->subfiles_fullpath);
+
     __free_double_array(d->subitems, d->num_subitems);
+    __free_double_array(d->subitems_fullpath, d->num_subitems);
 
     free(d->full_path);
     free(d);
@@ -572,8 +586,11 @@ int d_update_list(dir_t d) {
     int i;
     /* make sure previously pulled information is free */
     __free_double_array(d->subitems, d->num_subitems);
+    __free_double_array(d->subitems_fullpath, d->num_subitems);
     free(d->subdirs);
+    free(d->subdirs_fullpath);
     free(d->subfiles);
+    free(d->subfiles_fullpath);
 
     /* now pull everything */
     d->num_subitems = tmp;
@@ -581,26 +598,38 @@ int d_update_list(dir_t d) {
     /* now parse into different types */
     d->num_subdirs = 0;
     d->num_subfiles = 0;
+    d->subitems_fullpath = calloc(d->num_subitems, sizeof(char*));
     d->subfiles = calloc(d->num_subitems, sizeof(char*));
+    d->subfiles_fullpath = calloc(d->num_subitems, sizeof(char*));
     d->subdirs = calloc(d->num_subitems, sizeof(char*));
+    d->subdirs_fullpath = calloc(d->num_subitems, sizeof(char*));
 
     char full_path[2048] = {0};
     for (i = 0; i < d->num_subitems; i++) {
         fs_combine_filepath_alt(d->full_path, d->subitems[i], full_path);
+        d->subitems_fullpath[i] = __str_duplicate(full_path);
         if (fs_identify_path(full_path) == FS_DIRECTORY) {
             /* place it into the directory list */
-            d->subdirs[d->num_subdirs++] = d->subitems[i];
+            d->subdirs[d->num_subdirs] = d->subitems[i];
+            d->subdirs_fullpath[d->num_subdirs] = d->subitems_fullpath[i];
+            ++d->num_subdirs;
         } else {
             /* place it into the files list */
-            d->subfiles[d->num_subfiles++] = d->subitems[i];
+            d->subfiles[d->num_subfiles] = d->subitems[i];
+            d->subfiles_fullpath[d->num_subfiles] = d->subitems_fullpath[i];
+            ++d->num_subfiles;
         }
     }
 
     /* reduce the memory needed for subfiles and subdirs */
     char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs + 1));
     d->subdirs = t;
+    char** q = realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs + 1));
+    d->subdirs_fullpath = q;
     char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles + 1));
     d->subfiles = s;
+    char** w = realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles+ 1));
+    d->subfiles_fullpath = w;
 
     return FS_SUCCESS;
 }
@@ -623,6 +652,10 @@ char** d_files(dir_t d) {
 
 int d_num_files(dir_t d) {
     return d->num_subfiles;
+}
+
+char** d_items_full_path(dir_t d) {
+    return d->subitems_fullpath;
 }
 
 
