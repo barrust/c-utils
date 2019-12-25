@@ -1,6 +1,6 @@
 /*******************************************************************************
-*   Example of using the timing library to see which version of a ceiling for
-*   a ceil function is comparable to the math.h ceil function in speed
+*   Example of using the timing library to see which version of a ceil function
+*   is comparable to the math.h ceil function in speed, assuming -O3 used
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>

@@ -181,29 +181,44 @@ char** fs_list_dir(const char* path, int* items);
 /*******************************************************************************
 *   Directory Functionality Encapsulation
 *******************************************************************************/
+/*  Iniialize the dir_t object and pull information about the directory pointed
+    to by path
+    Returns:
+        dir_t   - Allocated memory with all members set except for reading the
+                  directory into memory
+        NULL    - If path is invalid or is not a directory
+*/
 dir_t d_init(const char* path);
 
+/*  Free the memory held by the dir_t object */
 void d_free(dir_t d);
 
+/*  Returns the full path of the directory */
 const char* d_fullpath(dir_t d);
 
+/*  Returns an array of c strings of all items in the directory */
 char** d_list_dir(dir_t d);
 
+/*  Returns the number of items in the directory */
 int d_num_items(dir_t d);
 
+/*  Update the listing of items in the directory */
 int d_update_list(dir_t d);
 
+/*  Returns an array of c strings of all directories in the directory */
 char** d_dirs(dir_t d);
 
+/*  Returns the number of sub directories in the directory */
 int d_num_dirs(dir_t d);
 
+/*  Returns an array of c strings of all files/symlinks in the directory */
 char** d_files(dir_t d);
 
+/*  Returns the number of files/symlinks in the directory */
 int d_num_files(dir_t d);
 
 /*  Return a list of strings that contain the full filepath to the item (file,
     or directory);
-    NOTE: It is up to the caller to free the allocated memory!
 */
 char** d_items_full_path(dir_t d);
 char** d_files_full_path(dir_t d);
@@ -225,6 +240,7 @@ file_t f_init(const char* filepath);
 /*  Free the memory held by the file_t object */
 void f_free(file_t f);
 
+/*  Returns true if the file is a symlink */
 bool f_is_symlink(file_t f);
 
 /*  Returns the absolute path of the file */
