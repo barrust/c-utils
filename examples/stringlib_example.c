@@ -1,4 +1,7 @@
-
+/*******************************************************************************
+*   Use the stringlib library to make some common modifications to a standard,
+*   un-formatted string.
+*******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -14,8 +14,6 @@ static char* __str_snprintf(const char* fmt, ...);
 static char* __str_extract_substring(const char* s, size_t start, size_t length);
 static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
-static void  __sort(char** arr, int n);
-static int   __cmp_str(const void* a, const void* b);
 
 
 void test_setup(void) {
@@ -368,7 +366,6 @@ MU_TEST(test_list_dir) {
     int items;
     char** recs = fs_list_dir(test_dir, &items);
     mu_assert_int_eq(3, items);
-    __sort(recs, 3);
     mu_assert_string_eq(".gitkeep", recs[0]);
     mu_assert_string_eq("lvl2", recs[1]);
     mu_assert_string_eq("test.txt", recs[2]);
@@ -492,6 +489,81 @@ MU_TEST(test_file_t_parse_lines) {
 
 
 
+/***************************************************************************
+*   dir_t - usage
+***************************************************************************/
+MU_TEST(test_dir_t_init) {
+    dir_t d = d_init(test_dir_rel);
+    mu_assert_int_eq(3, d_num_items(d));
+    mu_assert_string_eq(test_dir, d_fullpath(d));
+    char** recs = d_list_dir(d);
+    mu_assert_string_eq(".gitkeep", recs[0]);
+    mu_assert_string_eq("lvl2", recs[1]);
+    mu_assert_string_eq("test.txt", recs[2]);
+    d_free(d);
+}
+
+MU_TEST(test_dir_init_fail) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    dir_t d = d_init(filepath);
+    mu_assert_string_eq(NULL, (void*)d);
+    free(filepath);
+    d_free(d);
+}
+
+
+MU_TEST(test_dir_update_list) {
+    dir_t d = d_init(test_dir_rel);
+    /* now that everything is updated, let us add a new file... */
+    char* newfile = __str_snprintf("%s/new_file.txt", d_fullpath(d));
+    fs_touch(newfile);
+
+    d_update_list(d);
+    char** recs = d_list_dir(d);
+    mu_assert_string_eq(".gitkeep", recs[0]);
+    mu_assert_string_eq("lvl2", recs[1]);
+    mu_assert_string_eq("new_file.txt", recs[2]);
+    mu_assert_string_eq("test.txt", recs[3]);
+
+    recs = d_dirs(d);
+    mu_assert_int_eq(1, d_num_dirs(d));
+    mu_assert_string_eq("lvl2", recs[0]);
+
+    recs = d_files(d);
+    mu_assert_int_eq(3, d_num_files(d));
+    mu_assert_string_eq(".gitkeep", recs[0]);
+    mu_assert_string_eq("new_file.txt", recs[1]);
+    mu_assert_string_eq("test.txt", recs[2]);
+
+    fs_remove_file(newfile); /* keep local test folder clean; */
+    free(newfile);
+    d_free(d);
+}
+
+MU_TEST(test_dir_fullpaths) {
+    dir_t d = d_init(test_dir_rel);
+    char** items = d_items_full_path(d);
+
+    mu_assert_int_eq(3, d_num_items(d));
+    mu_assert_string_eq(test_dir, d_fullpath(d));
+
+    char tmp[2048] = {0};
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, ".gitkeep", tmp), items[0]);
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "lvl2", tmp), items[1]);
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "test.txt", tmp), items[2]);
+
+    char** files = d_files_full_path(d);
+    mu_assert_int_eq(2, d_num_files(d));
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, ".gitkeep", tmp), files[0]);
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "test.txt", tmp), files[1]);
+
+    char** dirs = d_dirs_full_path(d);
+    mu_assert_int_eq(1, d_num_dirs(d));
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "lvl2", tmp), dirs[0]);
+
+    d_free(d);
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -560,7 +632,10 @@ MU_TEST_SUITE(test_suite) {
     /***************************************************************************
     *   directory_t
     ***************************************************************************/
-
+    MU_RUN_TEST(test_dir_t_init);
+    MU_RUN_TEST(test_dir_init_fail);
+    MU_RUN_TEST(test_dir_update_list);
+    MU_RUN_TEST(test_dir_fullpaths);
 }
 
 
@@ -621,13 +696,4 @@ static int __make_test_file(char* s, size_t len, char c) {
     s[len - 5] = c;
     fs_touch(s);
     return fs_identify_path(s);
-}
-
-// Function to sort the array
-void __sort(char** arr, int n) {
-    qsort(arr, n, sizeof(const char*), __cmp_str);
-}
-
-static int __cmp_str(const void* a, const void* b) {
-    return strcmp(*(const char**)a, *(const char**)b);
 }

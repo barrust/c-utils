@@ -22,6 +22,19 @@ typedef struct __file_struct {
 } __file_struct;
 
 
+typedef struct __dir_struct {
+    int num_subitems;
+    int num_subdirs;
+    int num_subfiles;
+    char* full_path;
+    char** subitems;
+    char** subdirs;
+    char** subfiles;
+    char** subitems_fullpath;
+    char** subdirs_fullpath;
+    char** subfiles_fullpath;
+} __dir_struct;
+
 
 /* private functions */
 static char*   __str_duplicate(const char* s);
@@ -32,6 +45,7 @@ static int     __str_find_any(const char* s, const char* s2);
 static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
 static void    __free_double_array(char** arr, size_t num_elms);
+static int __cmp_str(const void* a, const void* b);
 /* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
@@ -258,7 +272,6 @@ int fs_rmdir_alt(const char* path, bool recursive) {
 
         int i;
         for (i = 0; i < num_elms; i++) {
-            /* TODO: This should be a function called "fs_combine_path" or something */
             char* tmp = fs_combine_filepath(path, paths[i]);
 
             int type = fs_identify_path(tmp);
@@ -506,9 +519,152 @@ char** f_parse_lines(file_t f) {
 /*******************************************************************************
 *   Directory Objects
 *******************************************************************************/
+dir_t d_init(const char* path) {
+    if (fs_identify_path(path) != FS_DIRECTORY) {
+        return NULL;  /* error state */
+    }
 
+    dir_t d = calloc(1, sizeof(dir_struct));
+    d->full_path = fs_resolve_path(path);
+    d->num_subitems = 0;
+    d->num_subfiles = 0;
+    d->num_subdirs = 0;
+    d->subitems = NULL;
+    d->subitems_fullpath = NULL;
+    d->subdirs = NULL;
+    d->subdirs_fullpath = NULL;
+    d->subfiles = NULL;
+    d->subfiles_fullpath = NULL;
 
+    d_update_list(d);
+    return d;
+}
 
+void d_free(dir_t d) {
+    if (d == NULL)
+        return;
+
+    int i;
+
+    for (i = 0; i < d->num_subdirs; i++)
+        d->subdirs[i] = NULL;
+    free(d->subdirs);
+
+    for (i = 0; i < d->num_subdirs; i++)
+        d->subdirs_fullpath[i] = NULL;
+    free(d->subdirs_fullpath);
+
+    for (i = 0; i < d->num_subfiles; i++)
+        d->subfiles[i] = NULL;
+    free(d->subfiles);
+
+    for (i = 0; i < d->num_subfiles; i++)
+        d->subfiles_fullpath[i] = NULL;
+    free(d->subfiles_fullpath);
+
+    __free_double_array(d->subitems, d->num_subitems);
+    __free_double_array(d->subitems_fullpath, d->num_subitems);
+
+    free(d->full_path);
+    free(d);
+}
+
+const char* d_fullpath(dir_t d) {
+    return d->full_path;
+}
+
+char** d_list_dir(dir_t d) {
+    return d->subitems;
+}
+
+int d_update_list(dir_t d) {
+    int tmp = 0;
+    char** new_ls = fs_list_dir(d->full_path, &tmp);
+    if (new_ls == NULL)
+        return FS_FAILURE;
+
+    int i;
+    /* make sure previously pulled information is free */
+    __free_double_array(d->subitems, d->num_subitems);
+    __free_double_array(d->subitems_fullpath, d->num_subitems);
+    free(d->subdirs);
+    free(d->subdirs_fullpath);
+    free(d->subfiles);
+    free(d->subfiles_fullpath);
+
+    /* now pull everything */
+    d->num_subitems = tmp;
+    d->subitems = new_ls;
+    /* now parse into different types */
+    d->num_subdirs = 0;
+    d->num_subfiles = 0;
+    d->subitems_fullpath = calloc(d->num_subitems, sizeof(char*));
+    d->subfiles = calloc(d->num_subitems, sizeof(char*));
+    d->subfiles_fullpath = calloc(d->num_subitems, sizeof(char*));
+    d->subdirs = calloc(d->num_subitems, sizeof(char*));
+    d->subdirs_fullpath = calloc(d->num_subitems, sizeof(char*));
+
+    char full_path[2048] = {0};
+    for (i = 0; i < d->num_subitems; i++) {
+        fs_combine_filepath_alt(d->full_path, d->subitems[i], full_path);
+        d->subitems_fullpath[i] = __str_duplicate(full_path);
+        if (fs_identify_path(full_path) == FS_DIRECTORY) {
+            /* place it into the directory list */
+            d->subdirs[d->num_subdirs] = d->subitems[i];
+            d->subdirs_fullpath[d->num_subdirs] = d->subitems_fullpath[i];
+            ++d->num_subdirs;
+        } else {
+            /* place it into the files list */
+            d->subfiles[d->num_subfiles] = d->subitems[i];
+            d->subfiles_fullpath[d->num_subfiles] = d->subitems_fullpath[i];
+            ++d->num_subfiles;
+        }
+    }
+
+    /* reduce the memory needed for subfiles and subdirs */
+    char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs));
+    d->subdirs = t;
+    char** q = realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs));
+    d->subdirs_fullpath = q;
+    char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles));
+    d->subfiles = s;
+    char** w = realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles));
+    d->subfiles_fullpath = w;
+
+    return FS_SUCCESS;
+}
+
+int d_num_items(dir_t d) {
+    return d->num_subitems;
+}
+
+char** d_dirs(dir_t d) {
+    return d->subdirs;
+}
+
+int d_num_dirs(dir_t d) {
+    return d->num_subdirs;
+}
+
+char** d_files(dir_t d) {
+    return d->subfiles;
+}
+
+int d_num_files(dir_t d) {
+    return d->num_subfiles;
+}
+
+char** d_items_full_path(dir_t d) {
+    return d->subitems_fullpath;
+}
+
+char** d_files_full_path(dir_t d) {
+    return d->subfiles_fullpath;
+}
+
+char** d_dirs_full_path(dir_t d) {
+    return d->subdirs_fullpath;
+}
 
 /*******************************************************************************
 *   PRIVATE FUNCTIONS
@@ -568,6 +724,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
         paths = tmp;
     }
     *elms = el_num;
+    qsort(paths, el_num, sizeof(const char*), __cmp_str);
     return paths;
 }
 
@@ -679,4 +836,8 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
     *filepath = __str_extract_substring(full_filepath, 0, slash_loc + 1);
     *filename = __str_extract_substring(full_filepath, slash_loc + 1, pathlen);
     return;
+}
+
+static int __cmp_str(const void* a, const void* b) {
+    return strcmp(*(const char**)a, *(const char**)b);
 }
