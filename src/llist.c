@@ -11,10 +11,6 @@ typedef struct __linked_list {
 } linked_list;
 
 
-/*  PRIVATE FUNCTIONS */
-
-
-
 llist_t ll_init() {
     llist_t l = calloc(1, sizeof(linked_list));
     l->head = NULL;

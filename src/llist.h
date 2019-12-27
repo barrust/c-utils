@@ -1,12 +1,42 @@
 #ifndef BARRUST_LINKED_LIST_H__
 #define BARRUST_LINKED_LIST_H__
 
+/*******************************************************************************
+***
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
+***
+***  Version: 0.1.0
+***  Purpose: Generic singly linked list implementation
+***
+***  License: MIT 2019
+***
+***  URL: https://github.com/barrust/c-utils
+***
+***  Usage:
+***     #include "llist.h"
+***     llist_t l = ll_init();
+***     int i;
+***     for (i = 0; i < 5; i++) {
+***         int* t = calloc(1, sizeof(int));
+***         *t = i;
+***         ll_append(l, t);
+***     }
+***     // loop over the linked list
+***     ll_node* n = ll_first_node(l);
+***     while (n != NULL) {
+***         // do something!
+***         n = n->next;
+***     }
+***     ll_free_alt(l, true);
+***
+*******************************************************************************/
 
 typedef struct __linked_list llist;
 typedef struct __linked_list *llist_t;
 
 
-#define LL_SUCCESS          0
+#define LL_SUCCESS           0
 #define LL_FAILURE          -1
 
 

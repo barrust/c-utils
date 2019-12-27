@@ -26,6 +26,16 @@ MU_TEST(test_default_setup) {
 
 
 /*******************************************************************************
+*   Test Free-ing
+*******************************************************************************/
+MU_TEST(test_freeing) {
+    llist_t a = ll_init();
+    mu_assert_int_eq(0, ll_num_elements(l));
+    ll_free(a);
+}
+
+
+/*******************************************************************************
 *   Test appending elements
 *******************************************************************************/
 MU_TEST(test_append) {
@@ -168,7 +178,17 @@ MU_TEST(test_remove_first_element) {
         mu_assert_int_eq(w++, *val);
         n = n->next;
     }
+}
 
+MU_TEST(test_remove_alt) {
+    /* remove alt free's the memory if desired */
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        ll_append(l, t);
+    }
+    ll_remove_alt(l, 0, true);  /* remember it is 0 based */
 }
 
 MU_TEST(test_remove_error) {
@@ -193,6 +213,9 @@ MU_TEST_SUITE(test_suite) {
     /* setup */
     MU_RUN_TEST(test_default_setup);
 
+    /* free */
+    MU_RUN_TEST(test_freeing);
+
     /* insert */
     MU_RUN_TEST(test_append);
     MU_RUN_TEST(test_insert_beginning);
@@ -202,6 +225,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_remove_last_element);
     MU_RUN_TEST(test_remove_mid_element);
     MU_RUN_TEST(test_remove_first_element);
+    MU_RUN_TEST(test_remove_alt);
     MU_RUN_TEST(test_remove_error);
 }
 
