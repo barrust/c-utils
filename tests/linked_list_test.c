@@ -37,7 +37,7 @@ MU_TEST(test_append) {
     }
 
     int j = 0;
-    node* n = ll_first_node(l);
+    ll_node* n = ll_first_node(l);
     while (n != NULL) {
         int* val = (int*)n->data;
         mu_assert_int_eq(j++, *val);
@@ -61,7 +61,7 @@ MU_TEST(test_insert_beginning) {
     *q = 15;
     ll_insert(l, q, 0); // insert at the beginning
 
-    node* n = ll_first_node(l);
+    ll_node* n = ll_first_node(l);
     mu_assert_int_eq(15, *(int*)n->data);
     mu_assert_int_eq(6, ll_num_elements(l));
 
@@ -87,7 +87,7 @@ MU_TEST(test_insert_mid) {
     ll_insert(l, q, 3); // insert somewhere in the middle
     mu_assert_int_eq(6, ll_num_elements(l));
 
-    node* n = ll_first_node(l);
+    ll_node* n = ll_first_node(l);
     n = n->next->next;
     mu_assert_int_eq(15, *(int*)n->data);
 }
@@ -110,7 +110,7 @@ MU_TEST(test_remove_last_element) {
     mu_assert_int_eq(4, *(int*)res);
 
     int w = 0;
-    node* n = ll_first_node(l);
+    ll_node* n = ll_first_node(l);
     while(n != NULL) {
         int* val = (int*)n->data;
         mu_assert_int_eq(w++, *val);
@@ -135,7 +135,7 @@ MU_TEST(test_remove_mid_element) {
 
 
     int w = 0;
-    node* n = ll_first_node(l);
+    ll_node* n = ll_first_node(l);
     while(n != NULL) {
         int* val = (int*)n->data;
         if (w < 1)
@@ -162,7 +162,7 @@ MU_TEST(test_remove_first_element) {
     free(res);
 
     int w = 1; /* 0 should have been removed! */
-    node* n = ll_first_node(l);
+    ll_node* n = ll_first_node(l);
     while(n != NULL) {
         int* val = (int*)n->data;
         mu_assert_int_eq(w++, *val);

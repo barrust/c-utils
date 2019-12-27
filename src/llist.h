@@ -10,10 +10,10 @@ typedef struct __linked_list *llist_t;
 #define LL_FAILURE          -1
 
 
-typedef struct __node {
+typedef struct __ll_node {
     void* data;
-    struct __node* next;
-} node;
+    struct __ll_node* next;
+} ll_node;
 
 /*  Initialize a linked list
     Returns:
@@ -33,7 +33,7 @@ void ll_free_alt(llist_t l, bool free_data);
 size_t ll_num_elements(llist_t l);
 
 /*  Return the head node from the linked list */
-node* ll_first_node(llist_t l);
+ll_node* ll_first_node(llist_t l);
 
 /*  Insert a new node to the end of the linked list */
 int ll_append(llist_t l, void* data);

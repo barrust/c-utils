@@ -6,7 +6,7 @@
 
 
 typedef struct __linked_list {
-    node* head;
+    ll_node* head;
     size_t elms;
 } linked_list;
 
@@ -27,11 +27,11 @@ void ll_free(llist_t l) {
 }
 
 void ll_free_alt(llist_t l, bool free_data) {
-    node* n = l->head;
+    ll_node* n = l->head;
     while (n != NULL) {
         if (free_data == true)
             free(n->data);
-        node* t = n->next;
+        ll_node* t = n->next;
         free(n);
         n = t;
     }
@@ -42,14 +42,14 @@ size_t ll_num_elements(llist_t l) {
     return l->elms;
 }
 
-node* ll_first_node(llist_t l) {
+ll_node* ll_first_node(llist_t l) {
     if (l->elms == 0)
         return NULL;
     return l->head;
 }
 
 int ll_append(llist_t l, void* data) {
-    node* n = calloc(1, sizeof(node));
+    ll_node* n = calloc(1, sizeof(ll_node));
     if (n == NULL)
         return LL_FAILURE;
 
@@ -61,8 +61,8 @@ int ll_append(llist_t l, void* data) {
         ++l->elms;
         return LL_SUCCESS;
     }
-    node* q = l->head;
-    node* t = l->head;
+    ll_node* q = l->head;
+    ll_node* t = l->head;
     while (q != NULL) {
         t = q;
         q = q->next;
@@ -75,7 +75,7 @@ int ll_append(llist_t l, void* data) {
 int ll_insert(llist_t l, void* data, size_t idx) {
     if (idx >= l->elms)
         return LL_FAILURE;
-    node* t = calloc(1, sizeof(node));
+    ll_node* t = calloc(1, sizeof(ll_node));
     t->data = data;
 
     if (idx == 0) {
@@ -87,8 +87,8 @@ int ll_insert(llist_t l, void* data, size_t idx) {
 
     // printf("idx: %d\n", (int)idx);
 
-    node* n = l->head;
-    node* trail = NULL;
+    ll_node* n = l->head;
+    ll_node* trail = NULL;
     size_t i;
     for (i = 1; i < idx; i++) {
         trail = n;
@@ -106,7 +106,7 @@ void* ll_remove(llist_t l, size_t idx) {
         return NULL;
     }
 
-    node* ret = l->head;
+    ll_node* ret = l->head;
     if (idx == 0) {
         l->head = ret->next;
         --l->elms;
@@ -114,7 +114,7 @@ void* ll_remove(llist_t l, size_t idx) {
         free(ret);
         return data;
     }
-    node* t = NULL;
+    ll_node* t = NULL;
     size_t i;
     for (i = 0; i < idx; i++) {
         t = ret;
