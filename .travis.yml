@@ -87,7 +87,7 @@ script:
   - ./dist/strlib
   - ./dist/timing
   - ./dist/linkedlist
-  - ./dist/doublylinkedlist
+  - ./dist/doublelinkedlist
   - if [ $TRAVIS_OS_NAME == linux ]; then cppcheck --error-exitcode=1 --enable=warning,performance,information,style ./src/ ; fi
   - gcov ./dist/*.gcno
 
