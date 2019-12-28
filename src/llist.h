@@ -52,11 +52,12 @@ typedef struct __ll_node {
 */
 llist_t ll_init();
 
-/*  Free the data from the linked list; does not free the data element */
+/*  Free the data from the linked list
+    NOTE: does not free the data element */
 void ll_free(llist_t l);
 
-/*  Free the data from the linked list where free_data determines if the data
-    is freed using malloc */
+/*  Free the data from the linked list;
+    NOTE: to free the data, set free_data to true */
 void ll_free_alt(llist_t l, bool free_data);
 
 /*  Returns the number of nodes in the linked list */

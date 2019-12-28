@@ -81,8 +81,6 @@ int ll_insert(llist_t l, void* data, size_t idx) {
         return LL_SUCCESS;
     }
 
-    // printf("idx: %d\n", (int)idx);
-
     ll_node* n = l->head;
     ll_node* trail = NULL;
     size_t i;
