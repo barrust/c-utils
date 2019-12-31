@@ -404,6 +404,22 @@ MU_TEST(test_remove_last_neg) {
     }
 }
 
+MU_TEST(test_remove_only_elm) {
+    int i;
+    for (i = 0; i < 1; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+    int* val = (int*) dll_remove(l, 0);
+    mu_assert_int_eq(0, *val);
+    mu_assert_int_eq(0, dll_num_elements(l));
+    free(val);
+
+    mu_assert_string_eq(NULL, (void*)dll_first_node(l));
+    mu_assert_string_eq(NULL, (void*)dll_last_node(l));
+}
+
 MU_TEST(test_remove_alt) {
     /* remove alt free's the memory if desired */
     int i;
@@ -461,6 +477,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_remove_last_neg);
     MU_RUN_TEST(test_remove_alt);
     MU_RUN_TEST(test_remove_error_neg);
+    MU_RUN_TEST(test_remove_only_elm);
 }
 
 

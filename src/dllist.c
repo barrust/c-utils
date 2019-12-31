@@ -139,7 +139,15 @@ void* dll_remove(dllist_t l, int idx) {
 
     void* ret;
     dll_node* n;
-    if (idx == 0) { /* handle edge cases */
+    if (l->elms == 1) { /* this is the oddest edge case */
+        n = l->head;
+        ret = n->data;
+        l->head = NULL;
+        l->tail = NULL;
+        --l->elms;
+        free(n);
+        return ret;
+    } else if (idx == 0) { /* handle edge cases */
         n = l->head;
         ret = n->data;
         l->head = l->head->next;
