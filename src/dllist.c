@@ -74,13 +74,11 @@ int dll_append(dllist_t l, void* data) {
 }
 
 int dll_insert(dllist_t l, void * data, int idx) {
-    if (idx > 0 && (unsigned int)idx >= l->elms)
-        return DLL_FAILURE;
     if (idx < 0 && idx <= (-1 * (int)l->elms))
         return DLL_FAILURE;
 
     if (idx < 0)
-        idx = l->elms + idx;
+        idx = l->elms + idx + 1;  /* adding 1 makes -1 like 0 from the tail */
 
     /* setup the node to add */
     dll_node* n = calloc(1, sizeof(dll_node));
@@ -97,7 +95,7 @@ int dll_insert(dllist_t l, void * data, int idx) {
         l->head = n;
         ++(l->elms);
         return DLL_SUCCESS;
-    } else if (idx == ((int)l->elms - 1)) {
+    } else if (idx >= (int)l->elms) {
         l->tail->next = n;
         n->prev = l->tail; /* we want the tail to point to the end */
         l->tail = n;
@@ -133,9 +131,7 @@ void dll_remove_alt(dllist_t l, size_t idx, bool free_data) {
 }
 
 void* dll_remove(dllist_t l, int idx) {
-    if (idx > 0 && (unsigned int)idx >= l->elms)
-        return NULL;
-    if (idx < 0 && idx <= (-1 * (int)l->elms))
+    if (idx < 0 && (idx * -1) >= (int)l->elms)
         return NULL;
 
     if (idx < 0)
@@ -151,7 +147,7 @@ void* dll_remove(dllist_t l, int idx) {
         --l->elms;
         free(n);
         return ret;
-    } else if (idx == (int)(l->elms - 1)) {
+    } else if (idx >= (int)(l->elms - 1)) {
         n = l->tail;
         ret = n->data;
         l->tail = n->prev;

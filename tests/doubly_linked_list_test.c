@@ -4,6 +4,22 @@
 #include "minunit.h"
 #include "../src/dllist.h"
 
+
+/* private test function - uncomment if needed! */
+/*
+static void printlist(dllist_t l) {
+    int i = 0;
+    dll_node* n = dll_first_node(l);
+    printf("\n");
+    while (n != NULL) {
+        int* val = (int*) n->data;
+        printf("idx: %d\tval: %d\n", i++, *val);
+        n = n->next;
+    }
+}
+*/
+
+
 dllist_t l;
 
 void test_setup(void) {
@@ -107,7 +123,7 @@ MU_TEST(test_insert_end) {
     }
     int* q = calloc(1, sizeof(int));
     *q = 15;
-    dll_insert(l, q, 4); /* insert at the end of the */
+    dll_insert(l, q, 5); /* insert at the end of the list (like append) */
     dll_node* n = dll_last_node(l);
     mu_assert_int_eq(15, *(int*)n->data);
     mu_assert_string_eq(NULL, (void*)n->next);
@@ -178,6 +194,21 @@ MU_TEST(test_insert_negative) {
     mu_assert_string_eq(NULL, (void*)n->next);
 }
 
+MU_TEST(test_insert_error) {
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+
+    int* q = calloc(1, sizeof(int));
+    *q = 15;
+    int res = dll_insert(l, q, -6);
+    free(q);
+    mu_assert_int_eq(DLL_FAILURE, res);
+}
+
 
 /*******************************************************************************
 *   Test removing elements
@@ -193,6 +224,7 @@ MU_TEST(test_remove_last_element) {
     int* val = (int*)dll_remove(l, 4);  /* 0 based */
     mu_assert_int_eq(4, *val);
     mu_assert_int_eq(4, dll_num_elements(l));
+    free(val);
 
     int w = 0;
     dll_node* n = dll_first_node(l);
@@ -218,10 +250,10 @@ MU_TEST(test_remove_first_element) {
         *t = i;
         dll_append(l, t);
     }
-
     int* val = (int*)dll_remove(l, 0);  /* 0 based */
     mu_assert_int_eq(0, *val);
     mu_assert_int_eq(4, dll_num_elements(l));
+    free(val);
 
     int w = 1;
     dll_node* n = dll_first_node(l);
@@ -240,7 +272,7 @@ MU_TEST(test_remove_first_element) {
     }
 }
 
-MU_TEST(test_remove_early_mid_element) {
+MU_TEST(test_remove_early_element) {
     int i;
     for (i = 0; i < 10; i++) {
         int* t = calloc(1, sizeof(int));
@@ -250,6 +282,9 @@ MU_TEST(test_remove_early_mid_element) {
 
     int* val = (int*)dll_remove(l, 3);  /* 0 based */
     mu_assert_int_eq(2, *val);
+    mu_assert_int_eq(9, dll_num_elements(l));
+    free(val);
+
     int w = 0;
     dll_node* n = dll_first_node(l);
     while (n != NULL) {
@@ -271,7 +306,7 @@ MU_TEST(test_remove_early_mid_element) {
     }
 }
 
-MU_TEST(test_remove_early_late_element) {
+MU_TEST(test_remove_late_element) {
     int i;
     for (i = 0; i < 10; i++) {
         int* t = calloc(1, sizeof(int));
@@ -281,6 +316,9 @@ MU_TEST(test_remove_early_late_element) {
 
     int* val = (int*)dll_remove(l, 8);  /* 0 based */
     mu_assert_int_eq(7, *val);
+    mu_assert_int_eq(9, dll_num_elements(l));
+    free(val);
+
     int w = 0;
     dll_node* n = dll_first_node(l);
     while (n != NULL) {
@@ -300,6 +338,95 @@ MU_TEST(test_remove_early_late_element) {
         mu_assert_int_eq(w--, *val);
         n = n->prev;
     }
+}
+
+MU_TEST(test_remove_late_element_neg) {
+    int i;
+    for (i = 0; i < 10; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+    int* val = (int*)dll_remove(l, -2);
+    // printlist(l);
+    mu_assert_int_eq(7, *val);
+    mu_assert_int_eq(9, dll_num_elements(l));
+    free(val);
+
+    int w = 0;
+    dll_node* n = dll_first_node(l);
+    while (n != NULL) {
+        val = (int*)n->data;
+        if (w == 7)
+            ++w;
+        mu_assert_int_eq(w++, *val);
+        n = n->next;
+    }
+
+    n = dll_last_node(l);
+    w = 9;
+    while (n != NULL) {
+        val = (int*)n->data;
+        if (w == 7)
+            --w;
+        mu_assert_int_eq(w--, *val);
+        n = n->prev;
+    }
+}
+
+MU_TEST(test_remove_last_neg) {
+    int i;
+    for (i = 0; i < 10; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+    int* val = (int*)dll_remove(l, -1);
+    // printlist(l);
+    mu_assert_int_eq(9, *val);
+    mu_assert_int_eq(9, dll_num_elements(l));
+    free(val);
+
+    int w = 0;
+    dll_node* n = dll_first_node(l);
+    while (n != NULL) {
+        val = (int*)n->data;
+        mu_assert_int_eq(w++, *val);
+        n = n->next;
+    }
+
+    n = dll_last_node(l);
+    w = 8;
+    while (n != NULL) {
+        val = (int*)n->data;
+        mu_assert_int_eq(w--, *val);
+        n = n->prev;
+    }
+}
+
+MU_TEST(test_remove_alt) {
+    /* remove alt free's the memory if desired */
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+    dll_remove_alt(l, 0, true);  /* remember it is 0 based */
+}
+
+
+MU_TEST(test_remove_error_neg) {
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+    mu_assert_int_eq(5, dll_num_elements(l));
+
+    void* res = dll_remove(l, -5);  /* remember it is 0 based so this is out of bounds */
+    mu_assert_string_eq(NULL, res);
 }
 
 /*******************************************************************************
@@ -323,12 +450,17 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_insert_first_half);
     MU_RUN_TEST(test_insert_second_half);
     MU_RUN_TEST(test_insert_negative);
+    MU_RUN_TEST(test_insert_error);
 
     /* remove */
-    MU_RUN_TEST(test_remove_last_element);
     MU_RUN_TEST(test_remove_first_element);
-    MU_RUN_TEST(test_remove_early_mid_element);
-    MU_RUN_TEST(test_remove_early_late_element);
+    MU_RUN_TEST(test_remove_last_element);
+    MU_RUN_TEST(test_remove_early_element);
+    MU_RUN_TEST(test_remove_late_element);
+    MU_RUN_TEST(test_remove_late_element_neg);
+    MU_RUN_TEST(test_remove_last_neg);
+    MU_RUN_TEST(test_remove_alt);
+    MU_RUN_TEST(test_remove_error_neg);
 }
 
 
