@@ -48,10 +48,11 @@ dll_node* dll_last_node(dllist_t l);
 /*  Insert a new node to the end of the doubly linked list */
 int dll_append(dllist_t l, void* data);
 
+/*  Insert a new node at the position pointed to by `idx` */
 int dll_insert(dllist_t l, void * data, int idx);
 
-// void* dll_remove(dllist_t l, size_t idx);
-// void dll_remove_alt(dllist_t l, size_t idx, bool free_data);
+void* dll_remove(dllist_t l, int idx);
+void dll_remove_alt(dllist_t l, size_t idx, bool free_data);
 
 
 #endif

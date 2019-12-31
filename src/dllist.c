@@ -79,6 +79,9 @@ int dll_insert(dllist_t l, void * data, int idx) {
     if (idx < 0 && idx <= (-1 * (int)l->elms))
         return DLL_FAILURE;
 
+    if (idx < 0)
+        idx = l->elms + idx;
+
     /* setup the node to add */
     dll_node* n = calloc(1, sizeof(dll_node));
     if (n == NULL)
@@ -96,7 +99,7 @@ int dll_insert(dllist_t l, void * data, int idx) {
         return DLL_SUCCESS;
     } else if (idx == ((int)l->elms - 1)) {
         l->tail->next = n;
-        n->prev = l->tail;
+        n->prev = l->tail; /* we want the tail to point to the end */
         l->tail = n;
         ++(l->elms);
         return DLL_SUCCESS;
@@ -121,4 +124,61 @@ int dll_insert(dllist_t l, void * data, int idx) {
     n->next->prev = n;
     n->prev = t;
     return DLL_SUCCESS;
+}
+
+void dll_remove_alt(dllist_t l, size_t idx, bool free_data) {
+    void* ret = dll_remove(l, idx);
+    if (free_data == true)
+        free(ret);
+}
+
+void* dll_remove(dllist_t l, int idx) {
+    if (idx > 0 && (unsigned int)idx >= l->elms)
+        return NULL;
+    if (idx < 0 && idx <= (-1 * (int)l->elms))
+        return NULL;
+
+    if (idx < 0)
+        idx = l->elms + idx;
+
+    void* ret;
+    dll_node* n;
+    if (idx == 0) { /* handle edge cases */
+        n = l->head;
+        ret = n->data;
+        l->head = l->head->next;
+        l->head->prev = NULL;
+        --l->elms;
+        free(n);
+        return ret;
+    } else if (idx == (int)(l->elms - 1)) {
+        n = l->tail;
+        ret = n->data;
+        l->tail = n->prev;
+        n->prev->next = NULL;
+        --l->elms;
+        free(n);
+        return ret;
+    }
+
+    int i;
+    if (idx <= (int)l->elms / 2) {
+        n = dll_first_node(l);
+        for (i = 1; i < idx; i++)
+            n = n->next;
+    } else {
+        /* start from the tail and go backwards! */
+        int stop = l->elms - idx;
+        n = dll_last_node(l);
+        for (i = 0; i < stop; i++)
+            n = n->prev;
+    }
+
+    /* mode the nodes before and after's pointers around */
+    n->prev->next = n->next;
+    n->next->prev = n->prev;
+    ret = n->data;
+    --l->elms;
+    free(n);
+    return ret;
 }

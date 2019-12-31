@@ -104,7 +104,7 @@ MU_TEST(test_insert_mid) {
 
 
 /*******************************************************************************
-*   Test inserting elements
+*   Test removing elements
 *******************************************************************************/
 MU_TEST(test_remove_last_element) {
     int i;
