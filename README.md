@@ -12,6 +12,8 @@ If there are other commonly used code that should be added, please add a feature
 * [stringlib](#stringlib)
 * [fileutils](#fileutils)
 * [bitarray](#bitarray)
+* [linked list](#linkedlist)
+* [doubly linked list](#doublylinkedlist)
 * [timing-c](#timing-c)
 
 ##### Recommended External Libraries
@@ -165,6 +167,98 @@ ba_reset_bitarray(ba); // all the bits are set to 0
 
 // free all the memory!
 ba_free(ba);
+```
+
+
+## linkedlist
+
+This library adds a generic linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list.
+
+All functions are documented within the `llist.h` file.
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `linked list` library
+
+#### Usage
+
+To use, simply copy the `llist.h` and `llist.c` files into your project and include it where needed.
+
+``` c
+#include "llist.h"
+
+llist_t l = ll_init();
+
+
+int i;
+for (i = 0; i < 1000; i++) {
+    int* t = calloc(1, sizeof(int));
+    *t = rand() % 100000;
+    ll_append(l, t);
+}
+
+i = 0;
+ll_node node;
+ll_traverse(l, node) {
+    int val = *(int*)node->data;
+    printf("idx: %d\tval: %d\n", i++, val);
+}
+
+// or iterate the old fashion way
+node = ll_first_node(l);
+while (node != NULL) {
+    int val = *(int*)node->data;
+    printf("idx: %d\tval: %d\n", i++, val);
+    node = node->next;
+}
+
+ll_free_alt(l, true); // even free the data field
+```
+
+
+## doublylinkedlist
+
+This library adds a generic doubly linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list.
+
+All functions are documented within the `dllist.h` file.
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `doubly linked list` library
+
+#### Usage
+
+To use, simply copy the `dllist.h` and `dllist.c` files into your project and include it where needed.
+
+``` c
+#include "dllist.h"
+
+dllist_t l = dll_init();
+
+
+int i;
+for (i = 0; i < 1000; i++) {
+    int* t = calloc(1, sizeof(int));
+    *t = rand() % 100000;
+    dll_append(l, t);
+}
+
+i = 0;
+dll_node node;
+dll_traverse(l, node) {
+    int val = *(int*)node->data;
+    printf("idx: %d\tval: %d\n", i++, val);
+}
+
+// or iterate the old fashion way in reverse (or dll_reverse_traverse)
+node = dll_last_node(l);
+while (node != NULL) {
+    int val = *(int*)node->data;
+    printf("idx: %d\tval: %d\n", i++, val);
+    node = node->prev;
+}
+
+dll_free_alt(l, true); // even free the data field
 ```
 
 

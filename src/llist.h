@@ -32,6 +32,9 @@
 ***
 *******************************************************************************/
 
+#include <stdbool.h>
+
+
 typedef struct __linked_list llist;
 typedef struct __linked_list *llist_t;
 
@@ -74,8 +77,9 @@ int ll_insert(llist_t l, void* data, size_t idx);
 
 /*  Remove a node that at the position `idx` */
 void* ll_remove(llist_t l, size_t idx);
-void ll_remove_alt(llist_t l, size_t idx, bool free_data);
+void  ll_remove_alt(llist_t l, size_t idx, bool free_data);
 
-
+/*  Traverse the list easily using the following macros */
+#define ll_traverse(l, node)        for (node = ll_first_node(l); node != NULL; node = node->next)
 
 #endif  /* BARRUST_LINKED_LIST_H__ */

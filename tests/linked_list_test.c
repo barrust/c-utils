@@ -36,6 +36,26 @@ MU_TEST(test_freeing) {
 
 
 /*******************************************************************************
+*   Test traversing elements
+*******************************************************************************/
+MU_TEST(test_traverse) {
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        ll_append(l, t);
+    }
+
+    int j = 0;
+    ll_node* n;
+    ll_traverse(l, n) {
+        int* val = (int*)n->data;
+        mu_assert_int_eq(j++, *val);
+    }
+}
+
+
+/*******************************************************************************
 *   Test appending elements
 *******************************************************************************/
 MU_TEST(test_append) {
@@ -215,6 +235,9 @@ MU_TEST_SUITE(test_suite) {
 
     /* free */
     MU_RUN_TEST(test_freeing);
+
+    /* traverse */
+    MU_RUN_TEST(test_traverse);
 
     /* insert */
     MU_RUN_TEST(test_append);

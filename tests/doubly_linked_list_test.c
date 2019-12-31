@@ -53,6 +53,34 @@ MU_TEST(test_freeing) {
 
 
 /*******************************************************************************
+*   Test Traversing the list using macros
+*******************************************************************************/
+MU_TEST(test_traverse) {
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+
+    int j = 0;
+    dll_node* n;
+    /* forward traverse */
+    dll_traverse(l, n) {
+        int* val = (int*)n->data;
+        mu_assert_int_eq(j++, *val);
+    }
+
+    j = 4;
+    /* reverse traverse */
+    dll_reverse_traverse(l, n) {
+        int* val = (int*)n->data;
+        mu_assert_int_eq(j--, *val);
+    }
+}
+
+
+/*******************************************************************************
 *   Test appending elements
 *******************************************************************************/
 MU_TEST(test_append) {
@@ -456,6 +484,9 @@ MU_TEST_SUITE(test_suite) {
 
     /* free */
     MU_RUN_TEST(test_freeing);
+
+    /* traverse */
+    MU_RUN_TEST(test_traverse);
 
     /* append */
     MU_RUN_TEST(test_append);
