@@ -5,7 +5,8 @@
 *
 *   NOTE: One can make a stake using the data structure by making a macro for
 *   pop and push to ensure that one always pushes to the front (0) and pops
-*   from the front.
+*   from the front. A stack (LIFO) is best implemented using a singly linked
+*   list that always does all work from the head node.
 *
 *   Use -v to include more debugging information
 *******************************************************************************/
@@ -68,6 +69,7 @@ int main(int argc, char const *argv[]) {
         if (verbose) {
             printf("point: %d\tx: %d\ty: %d\tz: %d\n", cnt++, w->x, w->y, w->z);
         }
+        free(w); /* it was pop'd but not yet free'd */
     }
 
     assert(0 == ll_num_elements(l));

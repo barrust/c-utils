@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "dllist.h"
 
 
@@ -77,6 +78,9 @@ int dll_insert(dllist_t l, void * data, int idx) {
     if (idx < 0 && idx <= (-1 * (int)l->elms))
         return DLL_FAILURE;
 
+    if (idx == -1)  /* ensure we check for num elms, etc */
+        return dll_append(l, data);
+
     if (idx < 0)
         idx = l->elms + idx + 1;  /* adding 1 makes -1 like 0 from the tail */
 
@@ -121,6 +125,7 @@ int dll_insert(dllist_t l, void * data, int idx) {
     t->next = n;
     n->next->prev = n;
     n->prev = t;
+    ++(l->elms);
     return DLL_SUCCESS;
 }
 

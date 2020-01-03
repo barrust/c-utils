@@ -222,6 +222,23 @@ MU_TEST(test_insert_negative) {
     mu_assert_string_eq(NULL, (void*)n->next);
 }
 
+MU_TEST(test_insert_negative_mid) {
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        dll_append(l, t);
+    }
+
+    int* q = calloc(1, sizeof(int));
+    *q = 15;
+    dll_insert(l, q, -2); /* insert in the second half, using a negatvie index */
+
+    dll_node* n = dll_last_node(l)->prev;
+    mu_assert_int_eq(15, *(int*)n->data);
+    mu_assert_string_eq((void*)dll_last_node(l), (void*)n->next);
+}
+
 MU_TEST(test_insert_error) {
     int i;
     for (i = 0; i < 5; i++) {
@@ -497,6 +514,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_insert_first_half);
     MU_RUN_TEST(test_insert_second_half);
     MU_RUN_TEST(test_insert_negative);
+    MU_RUN_TEST(test_insert_negative_mid);
     MU_RUN_TEST(test_insert_error);
 
     /* remove */
