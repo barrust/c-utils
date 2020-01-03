@@ -75,6 +75,6 @@ int main(int argc, char const *argv[]) {
     assert(0 == ll_num_elements(l));
 
     ll_free_alt(l, true);
-
+    printf("Completed successfully!\n");
     return 0;
 }

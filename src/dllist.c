@@ -75,11 +75,13 @@ int dll_append(dllist_t l, void* data) {
 }
 
 int dll_insert(dllist_t l, void * data, int idx) {
+    /*  first, ensure we handle appending to the end, no matter the number of
+        elements already present */
+    if (idx == -1)
+        return dll_append(l, data);
+
     if (idx < 0 && idx <= (-1 * (int)l->elms))
         return DLL_FAILURE;
-
-    if (idx == -1)  /* ensure we check for num elms, etc */
-        return dll_append(l, data);
 
     if (idx < 0)
         idx = l->elms + idx + 1;  /* adding 1 makes -1 like 0 from the tail */

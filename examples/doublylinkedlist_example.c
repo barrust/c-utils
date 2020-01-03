@@ -49,7 +49,7 @@ int main(int argc, char const *argv[]) {
         p->gender = rand() % 2 == 0 ? 'm' : 'f';
         p->height = rand() % 7 + 1;
         p->id = i;
-        if (dll_append(l, p) == DLL_FAILURE) { /* we want to append to the end each time */
+        if (dll_insert(l, p, -1) == DLL_FAILURE) { /* we want to append to the end each time */
             printf("Failed to allocate memory!\n");
         }
 
@@ -79,7 +79,6 @@ int main(int argc, char const *argv[]) {
 
     dll_free(l);
 
-    if (verbose)
-        printf("Completed successfully!\n");
+    printf("Completed successfully!\n");
     return 0;
 }
