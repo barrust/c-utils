@@ -69,8 +69,6 @@ int ll_append(llist_t l, void* data) {
 }
 
 int ll_insert(llist_t l, void* data, size_t idx) {
-    if (idx >= l->elms)
-        return LL_FAILURE;
     ll_node* t = calloc(1, sizeof(ll_node));
     t->data = data;
 
@@ -85,6 +83,8 @@ int ll_insert(llist_t l, void* data, size_t idx) {
     ll_node* trail = NULL;
     size_t i;
     for (i = 1; i < idx; i++) {
+        if (n->next == NULL)
+            break;
         trail = n;
         n = n->next;
     }

@@ -122,6 +122,20 @@ MU_TEST(test_insert_mid) {
     mu_assert_int_eq(15, *(int*)n->data);
 }
 
+MU_TEST(test_insert_end_to_large) {
+    int i;
+    for (i = 0; i < 5; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        ll_append(l, t);
+    }
+
+    int* q = calloc(1, sizeof(int));
+    *q = 15;
+    ll_insert(l, q, 7); // insert somewhere after the end...
+    mu_assert_int_eq(6, ll_num_elements(l));
+}
+
 
 /*******************************************************************************
 *   Test removing elements
@@ -243,6 +257,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_append);
     MU_RUN_TEST(test_insert_beginning);
     MU_RUN_TEST(test_insert_mid);
+    MU_RUN_TEST(test_insert_end_to_large);
 
     /* remove */
     MU_RUN_TEST(test_remove_last_element);
