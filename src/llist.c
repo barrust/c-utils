@@ -56,47 +56,43 @@ int ll_insert(llist_t l, void* data, size_t idx) {
     if (l->elms == 0 || idx == 0) {
         t->next = l->head;
         l->head = t;
-        ++l->elms;
-        return LL_SUCCESS;
+    } else {
+        ll_node* n = l->head;
+        size_t i = 1;
+        while (n->next != NULL) {
+            if (i++ == idx)
+                break;
+            n = n->next;
+        }
+        t->next = n->next;
+        n->next = t;
     }
 
-    ll_node* n = l->head;
-    size_t i = 1;
-    while (n->next != NULL) {
-        if (i++ == idx)
-            break;
-        n = n->next;
-    }
-    t->next = n->next;
-    n->next = t;
-    ++l->elms;
+    ++(l->elms);
     return LL_SUCCESS;
 }
 
 void* ll_remove(llist_t l, size_t idx) {
-    if (idx >= l->elms) {
+    if (idx >= l->elms)
         return NULL;
-    }
 
     ll_node* ret = l->head;
     if (idx == 0) {
         l->head = ret->next;
-        --l->elms;
-        void* data = ret->data;
-        free(ret);
-        return data;
+    } else {
+        ll_node* t = NULL;
+        size_t i;
+        for (i = 0; i < idx; i++) {
+            t = ret;
+            ret = ret->next;
+        }
+        /* update the trailing "next" */
+        t->next = ret->next;
     }
-    ll_node* t = NULL;
-    size_t i;
-    for (i = 0; i < idx; i++) {
-        t = ret;
-        ret = ret->next;
-    }
-    /* update the trailing "next" */
-    t->next = ret->next;
+
     void* data = ret->data;
     free(ret);
-    --l->elms;
+    --(l->elms);
     return data;
 }
 

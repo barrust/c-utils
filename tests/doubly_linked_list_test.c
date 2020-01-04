@@ -62,6 +62,7 @@ MU_TEST(test_traverse) {
         *t = i;
         dll_append(l, t);
     }
+    mu_assert_int_eq(5, dll_num_elements(l));
 
     int j = 0;
     dll_node* n;
