@@ -45,34 +45,15 @@ ll_node* ll_first_node(llist_t l) {
 }
 
 int ll_append(llist_t l, void* data) {
-    ll_node* n = calloc(1, sizeof(ll_node));
-    if (n == NULL)
-        return LL_FAILURE;
-
-    n->data = data; /* no copying; required by the user */
-    n->next = NULL;
-    /* now we need to place it at the end of the list... or at the beginning! */
-    if (l->elms == 0) {
-        l->head = n;
-        ++l->elms;
-        return LL_SUCCESS;
-    }
-    ll_node* q = l->head;
-    ll_node* t = l->head;
-    while (q != NULL) {
-        t = q;
-        q = q->next;
-    }
-    t->next = n;
-    ++l->elms;
-    return LL_SUCCESS;
+    return ll_insert(l, data, l->elms + 1);
 }
 
 int ll_insert(llist_t l, void* data, size_t idx) {
     ll_node* t = calloc(1, sizeof(ll_node));
     t->data = data;
+    t->next = NULL;
 
-    if (idx == 0) {
+    if (l->elms == 0 || idx == 0) {
         t->next = l->head;
         l->head = t;
         ++l->elms;
@@ -80,17 +61,14 @@ int ll_insert(llist_t l, void* data, size_t idx) {
     }
 
     ll_node* n = l->head;
-    ll_node* trail = NULL;
-    size_t i;
-    for (i = 1; i < idx; i++) {
-        if (n->next == NULL)
+    size_t i = 1;
+    while (n->next != NULL) {
+        if (i++ == idx)
             break;
-        trail = n;
         n = n->next;
     }
-    trail->next = t;
-    t->next = n;
-
+    t->next = n->next;
+    n->next = t;
     ++l->elms;
     return LL_SUCCESS;
 }

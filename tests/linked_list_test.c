@@ -16,6 +16,20 @@ void test_teardown(void) {
 }
 
 
+/* private test function - uncomment if needed! */
+/*
+static void printlist(llist_t l) {
+    int i = 0;
+    ll_node* n = ll_first_node(l);
+    printf("\n");
+    while (n != NULL) {
+        int* val = (int*) n->data;
+        printf("idx: %d\tval: %d\n", i++, *val);
+        n = n->next;
+    }
+}
+*/
+
 /*******************************************************************************
 *   Test the setup
 *******************************************************************************/
@@ -93,6 +107,7 @@ MU_TEST(test_insert_beginning) {
 
     ll_node* n = ll_first_node(l);
     mu_assert_int_eq(15, *(int*)n->data);
+    mu_assert_int_eq(0, *(int*)n->next->data);
     mu_assert_int_eq(6, ll_num_elements(l));
 
     int w = 0;
@@ -114,7 +129,8 @@ MU_TEST(test_insert_mid) {
 
     int* q = calloc(1, sizeof(int));
     *q = 15;
-    ll_insert(l, q, 3); // insert somewhere in the middle
+    ll_insert(l, q, 2); // insert somewhere in the middle
+    // printlist(l);
     mu_assert_int_eq(6, ll_num_elements(l));
 
     ll_node* n = ll_first_node(l);
@@ -214,6 +230,21 @@ MU_TEST(test_remove_first_element) {
     }
 }
 
+MU_TEST(test_remove_final_element) {
+    /* do something here! */
+    int i;
+    for (i = 0; i < 1; i++) {
+        int* t = calloc(1, sizeof(int));
+        *t = i;
+        ll_append(l, t);
+    }
+
+    void* res = ll_remove(l, 0); /* the only element */
+    mu_assert_int_eq(0, ll_num_elements(l));
+    mu_assert_int_eq(0, *(int*)res);
+    free(res);
+}
+
 MU_TEST(test_remove_alt) {
     /* remove alt free's the memory if desired */
     int i;
@@ -264,6 +295,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_remove_mid_element);
     MU_RUN_TEST(test_remove_first_element);
     MU_RUN_TEST(test_remove_alt);
+    MU_RUN_TEST(test_remove_final_element);
     MU_RUN_TEST(test_remove_error);
 }
 
