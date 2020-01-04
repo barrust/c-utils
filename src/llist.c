@@ -50,6 +50,9 @@ int ll_append(llist_t l, void* data) {
 
 int ll_insert(llist_t l, void* data, size_t idx) {
     ll_node* t = calloc(1, sizeof(ll_node));
+    if (t == NULL)
+        return LL_FAILURE;
+
     t->data = data;
     t->next = NULL;
 

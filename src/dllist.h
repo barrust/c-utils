@@ -32,9 +32,7 @@
 ***
 *******************************************************************************/
 
-
 #include <stdbool.h>
-
 
 
 typedef struct __doubly_linked_list dllist;
