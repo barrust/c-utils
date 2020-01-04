@@ -6,7 +6,7 @@
 ***  Author: Tyler Barrus
 ***  email:  barrust@gmail.com
 ***
-***  Version: 0.1.0
+***  Version: 0.1.1
 ***  Purpose: Generic singly linked list implementation
 ***
 ***  License: MIT 2019

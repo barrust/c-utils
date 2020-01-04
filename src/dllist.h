@@ -6,7 +6,7 @@
 ***  Author: Tyler Barrus
 ***  email:  barrust@gmail.com
 ***
-***  Version: 0.1.0
+***  Version: 0.1.1
 ***  Purpose: Generic doubly linked list implementation
 ***
 ***  License: MIT 2019
@@ -32,9 +32,7 @@
 ***
 *******************************************************************************/
 
-
 #include <stdbool.h>
-
 
 
 typedef struct __doubly_linked_list dllist;

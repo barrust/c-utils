@@ -45,80 +45,57 @@ ll_node* ll_first_node(llist_t l) {
 }
 
 int ll_append(llist_t l, void* data) {
-    ll_node* n = calloc(1, sizeof(ll_node));
-    if (n == NULL)
-        return LL_FAILURE;
-
-    n->data = data; /* no copying; required by the user */
-    n->next = NULL;
-    /* now we need to place it at the end of the list... or at the beginning! */
-    if (l->elms == 0) {
-        l->head = n;
-        ++l->elms;
-        return LL_SUCCESS;
-    }
-    ll_node* q = l->head;
-    ll_node* t = l->head;
-    while (q != NULL) {
-        t = q;
-        q = q->next;
-    }
-    t->next = n;
-    ++l->elms;
-    return LL_SUCCESS;
+    return ll_insert(l, data, l->elms + 1);
 }
 
 int ll_insert(llist_t l, void* data, size_t idx) {
-    if (idx >= l->elms)
-        return LL_FAILURE;
     ll_node* t = calloc(1, sizeof(ll_node));
-    t->data = data;
+    if (t == NULL)
+        return LL_FAILURE;
 
-    if (idx == 0) {
+    t->data = data;
+    t->next = NULL;
+
+    if (l->elms == 0 || idx == 0) {
         t->next = l->head;
         l->head = t;
-        ++l->elms;
-        return LL_SUCCESS;
+    } else {
+        ll_node* n = l->head;
+        size_t i = 1;
+        while (n->next != NULL) {
+            if (i++ == idx)
+                break;
+            n = n->next;
+        }
+        t->next = n->next;
+        n->next = t;
     }
 
-    ll_node* n = l->head;
-    ll_node* trail = NULL;
-    size_t i;
-    for (i = 1; i < idx; i++) {
-        trail = n;
-        n = n->next;
-    }
-    trail->next = t;
-    t->next = n;
-
-    ++l->elms;
+    ++(l->elms);
     return LL_SUCCESS;
 }
 
 void* ll_remove(llist_t l, size_t idx) {
-    if (idx >= l->elms) {
+    if (idx >= l->elms)
         return NULL;
-    }
 
     ll_node* ret = l->head;
     if (idx == 0) {
         l->head = ret->next;
-        --l->elms;
-        void* data = ret->data;
-        free(ret);
-        return data;
+    } else {
+        ll_node* t = NULL;
+        size_t i;
+        for (i = 0; i < idx; i++) {
+            t = ret;
+            ret = ret->next;
+        }
+        /* update the trailing "next" */
+        t->next = ret->next;
     }
-    ll_node* t = NULL;
-    size_t i;
-    for (i = 0; i < idx; i++) {
-        t = ret;
-        ret = ret->next;
-    }
-    /* update the trailing "next" */
-    t->next = ret->next;
+
     void* data = ret->data;
     free(ret);
-    --l->elms;
+    --(l->elms);
     return data;
 }
 
