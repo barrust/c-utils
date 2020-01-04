@@ -72,7 +72,7 @@ int dll_insert(dllist_t l, void * data, int idx) {
         l->head = n;
         l->tail = n;
     } else if (idx == 0) { /* first node */
-        n->next = (l->head);
+        n->next = l->head;
         n->next->prev = n;
         l->head = n;
     } else if (idx >= (int)l->elms) { /* last node */
