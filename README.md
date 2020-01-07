@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/barrust/c-utils/branch/master/graph/badge.svg)](https://codecov.io/gh/barrust/c-utils)
 
 
-This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests.
+This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests. The goal is to provide a single place to store each of these libraries and to provide unit tests. 
 
 If there are other commonly used code or data-structures that should be added, please add a feature request!
 
@@ -43,9 +43,9 @@ A great issue would provide the following:
 
 #### Examples
 
-Examples output is provided in the `./examples` folder. You can compile these examples using `make examples`. They can be run using `./dist/ex_timing`, `./dist/ex_bitarray`, `./dist/ex_fileutils`, and `./dist/ex_stringlib`.
+Example programs are provided in the `./examples` folder. You can compile these examples using `make examples`. They can be run using `./dist/ex_timing`, `./dist/ex_bitarray`, `./dist/ex_fileutils`, `./dist/ex_stringlib`, `./dist/ex_linkedlist`, and `./dist/ex_doublylinkedlist`.
 
-Not all functionality is demonstrated for all libraries, but hopefully enough is present to help make using these libraries easier.
+Not all functionality is demonstrated for all libraries, but hopefully enough is present to help make using these libraries easier. All functionality for each library is documented in the `.h` files. 
 
 
 ## stringlib
@@ -89,7 +89,7 @@ The file utils library provides utility functions to deal with basic file system
 
 All functions are documented within the `fileutils.h` file.
 
-Unfortunately, I have not been able to test this library on non-Linux machines. If errors arise on Windows, please submit an issue or, even better, a ***pull request***! If something is shown to work on Windows, that information would also be very helpful!
+Unfortunately, I have not been able to test this library on Windows machines. If errors arise on Windows, please submit an issue or, even better, a ***pull request***! If something is shown to work on Windows, that information would also be very helpful!
 
 #### Compiler Flags
 
@@ -134,7 +134,7 @@ f_free(f);
 
 ## bitarray
 
-The bit array library is provided to allow for a drop in bit array. It uses the smallest binary size possible for the array (`char`) to reduce the few extra bits needed if using an int (8 bits per element vs 32). It also tracks how many bits were desired and how many elements were used to hold the bit array.
+The bit array library is provided to allow for a drop in bit array. It uses the smallest binary size possible for the array (`char`) to reduce the few extra bits needed compared to using an int (8 bits per element vs 32). It also tracks how many bits were desired and how many elements were used to hold the bit array.
 
 #### Compiler Flags
 
