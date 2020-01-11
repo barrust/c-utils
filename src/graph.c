@@ -87,6 +87,14 @@ int g_free(graph_t g) {
     return GRAPH_SUCCESS;
 }
 
+unsigned int g_num_vertices(graph_t g) {
+    return g->num_verts;
+}
+
+unsigned int g_num_edges(graph_t g) {
+    return g->num_edges;
+}
+
 vertex_t g_add_vertex(graph_t g, void* metadata) {
     vertex_t v = calloc(1, sizeof(Vertex));
     if (v == NULL)
@@ -132,9 +140,11 @@ vertex_t g_remove_vertex(graph_t g, unsigned int id) {
 
 edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata) {
 
-    /* some tests to make sure src and dest are valid */
-    if (src > g->_prev_vert_id || dest > g->_prev_vert_id)
+    /*  some tests to make sure src and dest are valid;
+        need to make sure they are still present too */
+    if (src > g->_prev_vert_id || dest > g->_prev_vert_id || g->verts[src] == NULL || g->verts[dest] == NULL)
         return NULL;
+
     edge_t e = calloc(1, sizeof(Edge));
     if (e == NULL)
         return NULL;

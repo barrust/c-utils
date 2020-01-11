@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../src/graph.h"
 #include "minunit.h"
 
@@ -10,10 +11,18 @@ void test_setup(void) {
 }
 
 void test_teardown(void) {
-    g_free(g, true);
+    g_free(g);
     g = NULL;
 }
 
+
+/*******************************************************************************
+*   Test the setup
+*******************************************************************************/
+MU_TEST(test_default_setup) {
+    mu_assert_int_eq(0, g_num_edges(g));
+    mu_assert_int_eq(0, g_num_vertices(g));
+}
 
 
 
@@ -22,6 +31,8 @@ void test_teardown(void) {
 *******************************************************************************/
 MU_TEST_SUITE(test_suite) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+
+    MU_RUN_TEST(test_default_setup);
 }
 
 

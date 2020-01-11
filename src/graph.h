@@ -14,6 +14,10 @@ graph_t g_init();
 
 int g_free(graph_t g);
 
+unsigned int g_num_vertices(graph_t g);
+
+unsigned int g_num_edges(graph_t g);
+
 vertex_t g_add_vertex(graph_t g, void* metadata);
 
 vertex_t g_remove_vertex(graph_t g, unsigned int id);
