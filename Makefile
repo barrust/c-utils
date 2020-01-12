@@ -5,7 +5,7 @@ EXAMPLEDIR=examples
 COMPFLAGS=-Wall -Wpedantic -Winline -Wextra
 
 
-all: libraries examples
+all: libraries examples test
 
 libraries: string bitarray fileutils linkedlist doublylinkedlist graph
 
