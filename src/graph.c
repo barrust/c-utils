@@ -103,6 +103,10 @@ unsigned int g_num_edges(graph_t g) {
     return g->num_edges;
 }
 
+unsigned int g_verticies_inserted(graph_t g) {
+    return g->_prev_vert_id;
+}
+
 vertex_t g_get_vertex(graph_t g, unsigned int id) {
     if (id > g->_prev_vert_id)
         return NULL;

@@ -159,6 +159,64 @@ MU_TEST(test_edges_growth) {
     mu_assert_int_eq(3999, g_num_edges(g));
 }
 
+MU_TEST(test_edge_add_error) {
+    __add_verticies(g, 5);
+    edge_t e = g_add_edge(g, 0, 5, NULL); /* this should return NULL since dest is too large*/
+    mu_assert_string_eq(NULL, (char*)e);
+    e = g_add_edge(g, 6, 0, NULL);
+    mu_assert_string_eq(NULL, (char*)e);
+
+    /* now remove a vertex and try to add an edge to it */
+    vertex_t v = g_remove_vertex(g, 0);
+    g_vertex_free(v);
+    e = g_add_edge(g, 0, 1, NULL);
+    mu_assert_string_eq(NULL, (char*)e);
+    e = g_add_edge(g, 1, 0, NULL);
+    mu_assert_string_eq(NULL, (char*)e);
+}
+
+MU_TEST(test_edge_remove_error) {
+    __add_verticies(g, 5);
+    g_add_edge(g, 0, 4, NULL);
+    g_add_edge(g, 1, 4, NULL);
+    g_add_edge(g, 2, 4, NULL);
+    g_add_edge(g, 3, 4, NULL);
+
+    edge_t e = g_remove_edge(g, 5);
+    mu_assert_string_eq(NULL, (char*)e);
+
+    e = g_remove_edge(g, 3); /* this should be fine */
+    g_edge_free(e);
+    e = g_remove_edge(g, 3); /* now we should get a NULL back */
+    mu_assert_string_eq(NULL, (char*)e);
+}
+
+
+/*******************************************************************************
+*   Test iterating over the verticies
+*******************************************************************************/
+MU_TEST(test_iterate_verticies_all_there) {
+    __add_verticies(g, 5);
+    unsigned int i;
+    vertex_t v;
+    g_iterate_verticies(g,v,i) {
+        mu_assert_int_eq(i, *(int*)g_vertex_metadata(v));
+    }
+}
+
+MU_TEST(test_iterate_verticies_some_removed) {
+    __add_verticies(g, 5);
+
+    vertex_t t = g_remove_vertex(g, 2);
+    g_vertex_free(t);
+
+    unsigned int i;
+    vertex_t v;
+    g_iterate_verticies(g,v,i) {
+        mu_assert_int_eq(i, *(int*)g_vertex_metadata(v));
+    }
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -178,6 +236,11 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_remove_edges);
     MU_RUN_TEST(test_remove_edges_src);
     MU_RUN_TEST(test_edges_growth);
+    MU_RUN_TEST(test_edge_add_error);
+    MU_RUN_TEST(test_edge_remove_error);
+
+    MU_RUN_TEST(test_iterate_verticies_all_there);
+    MU_RUN_TEST(test_iterate_verticies_some_removed);
 }
 
 

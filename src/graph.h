@@ -20,6 +20,8 @@ unsigned int g_num_vertices(graph_t g);
 
 unsigned int g_num_edges(graph_t g);
 
+unsigned int g_verticies_inserted(graph_t g);
+
 vertex_t g_add_vertex(graph_t g, void* metadata);
 vertex_t g_vertex_add(graph_t g, void* metadata);  /* which one is better? */
 
@@ -63,5 +65,9 @@ void* g_edge_metadata(edge_t e);
 
 void g_edge_free(edge_t e);
 void g_edge_free_alt(edge_t e, bool free_metadata);
+
+
+#define g_iterate_verticies(g, v, i)     for (i = 0; i < g_verticies_inserted(g); i++) if ((v = g_get_vertex(g, i)) != NULL)
+
 
 #endif  /* BARRUST_GRAPH_H__ */
