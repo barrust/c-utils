@@ -123,9 +123,15 @@ vertex_t g_add_vertex(graph_t g, void* metadata) {
     if (id > g->_max_verts) {
         /* need to expand the verts! */
         unsigned int new_num_verts = g->_max_verts * 2; /* double */
-        vertex_t* tmp = realloc(g->verts, new_num_verts * sizeof(vertex_t));
+        vertex_t* tmp = realloc(g->verts, (new_num_verts + 1) * sizeof(vertex_t));
         g->_max_verts = new_num_verts;
         g->verts = tmp;
+
+        /* ensure everything in the new memory space is NULL if not used */
+        unsigned int i;
+        for (i = g->_prev_vert_id - 1; i < g->_max_verts; i++) {
+            g->verts[i] = NULL;
+        }
     }
     v->id = id;
     v->metadata = metadata;
@@ -175,9 +181,15 @@ edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata
     if (id > g->_max_edges) {
         /* need to expand the edges! */
         unsigned int new_num_edges = g->_max_edges * 2; /* double */
-        edge_t* tmp = realloc(g->edges, new_num_edges * sizeof(edge_t));
+        edge_t* tmp = realloc(g->edges, (new_num_edges + 1) * sizeof(edge_t));
         g->_max_edges = new_num_edges;
         g->edges = tmp;
+
+        /* ensure everything in the new memory space is NULL if not used */
+        unsigned int i;
+        for (i = g->_prev_edge_id - 1; i < g->_max_edges; i++) {
+            g->edges[i] = NULL;
+        }
     }
     e->id = id;
     e->src = src;

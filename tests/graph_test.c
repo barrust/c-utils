@@ -74,6 +74,11 @@ MU_TEST(test_remove_verticies) {
     mu_assert_int_eq(1, g_num_vertices(g));  /* it shouldn't change the num verticies */
 }
 
+MU_TEST(test_verticies_growth) {
+    __add_verticies(g, 4000); /* add 4000 verticies! */
+    mu_assert_int_eq(4000, g_num_vertices(g));
+}
+
 
 /*******************************************************************************
 *   Test adding and removing edges
@@ -117,6 +122,8 @@ MU_TEST(test_remove_edges) {
 }
 
 MU_TEST(test_remove_edges_src) {
+    /*  this tests removing a vertex and ensuring that all the edges it was
+        attached to are also removed */
     __add_verticies(g, 15);
     mu_assert_int_eq(15, g_num_vertices(g));
 
@@ -127,14 +134,29 @@ MU_TEST(test_remove_edges_src) {
     g_add_edge(g, 0, 5, __str_duplicate("0-5"));
     g_add_edge(g, 0, 6, __str_duplicate("0-6"));
     g_add_edge(g, 14, 0, __str_duplicate("15-0"));
+
     /* not attached edges */
     g_add_edge(g, 1, 10, __str_duplicate("1-10"));
 
     mu_assert_int_eq(8, g_num_edges(g));
-    vertex_t v = g_remove_vertex(g, 0);
+    vertex_t v = g_get_vertex(g, 0);
+
+    mu_assert_int_eq(6, g_vertex_num_edges_out(v));
+    mu_assert_int_eq(1, g_vertex_num_edges_in(v));
+
+    v = g_remove_vertex(g, 0);
     mu_assert_int_eq(14, g_num_vertices(g));
     mu_assert_int_eq(1, g_num_edges(g));
     g_vertex_free(v);
+}
+
+MU_TEST(test_edges_growth) {
+    __add_verticies(g, 4000); /* add 4000 verticies! */
+    unsigned int i;
+    for (i = 1; i < g_num_vertices(g); i++) {
+        g_add_edge(g, i - 1, i, NULL);
+    }
+    mu_assert_int_eq(3999, g_num_edges(g));
 }
 
 
@@ -149,11 +171,13 @@ MU_TEST_SUITE(test_suite) {
     /* add & remove verticies */
     MU_RUN_TEST(test_add_verticies);
     MU_RUN_TEST(test_remove_verticies);
+    MU_RUN_TEST(test_verticies_growth);
 
     /* add & remove edges */
     MU_RUN_TEST(test_add_edges);
     MU_RUN_TEST(test_remove_edges);
     MU_RUN_TEST(test_remove_edges_src);
+    MU_RUN_TEST(test_edges_growth);
 }
 
 
