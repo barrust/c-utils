@@ -51,6 +51,8 @@ void* g_vertex_metadata(vertex_t v);
 void g_vertex_free(vertex_t v);
 void g_vertex_free_alt(vertex_t v, bool free_metadata);
 
+edge_t g_vertex_edge(vertex_t v, unsigned int id);
+
 /*******************************************************************************
 *   Edge Properties / Functions
 *******************************************************************************/
@@ -67,7 +69,7 @@ void g_edge_free(edge_t e);
 void g_edge_free_alt(edge_t e, bool free_metadata);
 
 
-#define g_iterate_verticies(g, v, i)     for (i = 0; i < g_verticies_inserted(g); i++) if ((v = g_get_vertex(g, i)) != NULL)
-
+#define g_iterate_verticies(g, v, i)    for (i = 0; i < g_verticies_inserted(g); i++) if ((v = g_get_vertex(g, i)) != NULL)
+#define g_iterate_edges(v, e, i)     for (i = 0; i < 16; i++) if ((e = g_vertex_edge(v, i)) != NULL)
 
 #endif  /* BARRUST_GRAPH_H__ */

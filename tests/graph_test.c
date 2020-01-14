@@ -18,6 +18,7 @@ void test_teardown(void) {
 /* private functions */
 static char* __str_duplicate(const char* s);
 static void  __add_verticies(graph_t g, int num);
+static void  __add_edge(graph_t g, unsigned int src, unsigned int dest, int val);
 
 
 /*******************************************************************************
@@ -217,6 +218,69 @@ MU_TEST(test_iterate_verticies_some_removed) {
     }
 }
 
+MU_TEST(test_iterate_edges) {
+    __add_verticies(g, 5);
+    __add_edge(g, 0, 1, 0);
+    __add_edge(g, 0, 2, 1);
+    __add_edge(g, 0, 3, 2);
+    __add_edge(g, 0, 4, 3);
+
+    unsigned int i, j = 0;
+    edge_t e;
+    vertex_t v = g_get_vertex(g, 0);
+    g_iterate_edges(v, e, i) {
+        mu_assert_int_eq(i, *(int*)g_edge_metadata(e));
+        ++j;
+    }
+    mu_assert_int_eq(4, j);
+}
+
+MU_TEST(test_iterate_edges_some_removed) {
+    __add_verticies(g, 5);
+    __add_edge(g, 0, 1, 0);
+    __add_edge(g, 0, 2, 1);
+    __add_edge(g, 0, 3, 2);
+    __add_edge(g, 0, 4, 3);
+
+    edge_t t = g_remove_edge(g, 1);
+    g_edge_free(t);
+    t = g_remove_edge(g, 2);
+    g_edge_free(t);
+    unsigned int i, j = 0;
+    edge_t e;
+    vertex_t v = g_get_vertex(g, 0);
+    /* wierd test, but should be true since we should have vals 0 and 3 left */
+    g_iterate_edges(v, e, i) {
+        mu_assert_int_eq(i * 3, *(int*)g_edge_metadata(e));
+        ++j;
+    }
+    mu_assert_int_eq(2, j);
+}
+
+MU_TEST(test_iterate_edges_some_removed_add_back) {
+    __add_verticies(g, 5);
+    __add_edge(g, 0, 1, 0);
+    __add_edge(g, 0, 2, 1);
+    __add_edge(g, 0, 3, 2);
+    __add_edge(g, 0, 4, 3);
+
+    edge_t t = g_remove_edge(g, 1);
+    g_edge_free(t);
+    t = g_remove_edge(g, 2);
+    g_edge_free(t);
+
+    __add_edge(g, 0, 4, 6); /* this function just turns the last int into a pointer for metadata */
+    unsigned int i, j = 0;
+    edge_t e;
+    vertex_t v = g_get_vertex(g, 0);
+    /* wierd test, but should be true since we should have vals 0, 3, and 6 left */
+    g_iterate_edges(v, e, i) {
+        mu_assert_int_eq(i * 3, *(int*)g_edge_metadata(e));
+        ++j;
+    }
+    mu_assert_int_eq(3, j);
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -239,8 +303,12 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_edge_add_error);
     MU_RUN_TEST(test_edge_remove_error);
 
+    /* Iteration tests */
     MU_RUN_TEST(test_iterate_verticies_all_there);
     MU_RUN_TEST(test_iterate_verticies_some_removed);
+    MU_RUN_TEST(test_iterate_edges);
+    MU_RUN_TEST(test_iterate_edges_some_removed);
+    MU_RUN_TEST(test_iterate_edges_some_removed_add_back);
 }
 
 
@@ -271,4 +339,10 @@ static void  __add_verticies(graph_t g, int num) {
         *q = i;
         g_add_vertex(g, q);
     }
+}
+
+static void __add_edge(graph_t g, unsigned int src, unsigned int dest, int val) {
+    int* q = calloc(1, sizeof(int));
+    *q = val;
+    g_add_edge(g, src, dest, q);
 }

@@ -20,7 +20,9 @@ typedef struct __vertex_node {
     unsigned int id;
     unsigned int num_edges_in;
     unsigned int num_edges_out;
+    unsigned int _max_edges;
     void* metadata; /* use this to hold name, other wanted information, etc */
+    edge_t* edges;
 } Vertex;
 
 typedef struct __edge_node{
@@ -139,6 +141,8 @@ vertex_t g_add_vertex(graph_t g, void* metadata) {
     }
     v->id = id;
     v->metadata = metadata;
+    v->_max_edges = 16; /* some starting point */
+    v->edges = calloc(v->_max_edges, sizeof(edge_t));
     g->verts[id] = v;
     ++(g->num_verts);
     return v;
@@ -181,6 +185,8 @@ edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata
     edge_t e = calloc(1, sizeof(Edge));
     if (e == NULL)
         return NULL;
+
+    unsigned int i;
     unsigned int id = (g->_prev_edge_id)++;
     if (id > g->_max_edges) {
         /* need to expand the edges! */
@@ -190,7 +196,6 @@ edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata
         g->edges = tmp;
 
         /* ensure everything in the new memory space is NULL if not used */
-        unsigned int i;
         for (i = g->_prev_edge_id - 1; i < g->_max_edges; i++) {
             g->edges[i] = NULL;
         }
@@ -201,7 +206,17 @@ edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata
     e->metadata = metadata;
 
     /* need to increment the in and out information for the verticies */
-    ++(g->verts[src]->num_edges_out);
+    vertex_t v_src = g->verts[src];
+    unsigned int outs = (v_src->num_edges_out)++;
+    if (v_src->_max_edges < outs) {
+        v_src->_max_edges *= 2;
+        edge_t* tmp = realloc(v_src->edges, (v_src->_max_edges + 1) * sizeof(edge_t));
+        v_src->edges = tmp;
+        for (i = v_src->num_edges_out; i < v_src->_max_edges; i++)
+            v_src->edges[i] = NULL;
+    }
+
+    v_src->edges[outs] = e;
     ++(g->verts[dest]->num_edges_in);
     ++(g->num_edges);
     g->edges[id] = e;
@@ -216,6 +231,19 @@ edge_t g_remove_edge(graph_t g, unsigned int id) {
     g->edges[id] = NULL;
     --(g->num_edges);
 
+    /*  find the correct location in the src and set to NULL
+        but move the last one to fill it's spot */
+    unsigned int i;
+    vertex_t v = g->verts[e->src];
+    for (i = 0; i < v->num_edges_out; i++) {
+        if (e == v->edges[i]) {
+            v->edges[i] = v->edges[v->num_edges_out - 1];
+            v->edges[v->num_edges_out - 1] = NULL;
+            break;
+        }
+    }
+    --(v->num_edges_out);
+    --((g->verts[e->dest])->num_edges_in);
     return e;
 }
 
@@ -239,6 +267,13 @@ void* g_vertex_metadata(vertex_t v) {
     return v->metadata;
 }
 
+edge_t g_vertex_edge(vertex_t v, unsigned int id) {
+    if (id > v->_max_edges)
+        return NULL;
+    return v->edges[id];
+}
+
+
 void g_vertex_free(vertex_t v) {
     g_vertex_free_alt(v, true);
 }
@@ -246,6 +281,8 @@ void g_vertex_free_alt(vertex_t v, bool free_metadata) {
     v->id = 0;
     v->num_edges_in = 0;
     v->num_edges_out = 0;
+    v->_max_edges = 0;
+    free(v->edges);
     if (free_metadata == true)
         free(v->metadata);
     free(v);
