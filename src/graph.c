@@ -52,8 +52,8 @@ graph_t g_init_alt(unsigned int size) {
     g->_max_verts = size;
     g->_max_edges = size;
 
-    g->verts = calloc(g->_max_verts, sizeof(Vertex));
-    g->edges = calloc(g->_max_edges, sizeof(Edge));
+    g->verts = calloc(g->_max_verts, sizeof(vertex_t));
+    g->edges = calloc(g->_max_edges, sizeof(edge_t));
 
     unsigned int i;
     for (i = 0; i < g->_max_edges; i++) {
@@ -126,10 +126,10 @@ vertex_t g_add_vertex(graph_t g, void* metadata) {
     if (v == NULL)
         return NULL;
     unsigned int id = (g->_prev_vert_id)++;
-    if (id > g->_max_verts) {
+    if (id >= g->_max_verts) {
         /* need to expand the verts! */
         unsigned int new_num_verts = g->_max_verts * 2; /* double */
-        vertex_t* tmp = realloc(g->verts, (new_num_verts + 1) * sizeof(vertex_t));
+        vertex_t* tmp = realloc(g->verts, new_num_verts * sizeof(vertex_t));
         g->_max_verts = new_num_verts;
         g->verts = tmp;
 
@@ -143,6 +143,8 @@ vertex_t g_add_vertex(graph_t g, void* metadata) {
     v->metadata = metadata;
     v->_max_edges = 16; /* some starting point */
     v->edges = calloc(v->_max_edges, sizeof(edge_t));
+    v->num_edges_out = 0;
+    v->num_edges_in = 0;
     g->verts[id] = v;
     ++(g->num_verts);
     return v;
@@ -188,10 +190,10 @@ edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata
 
     unsigned int i;
     unsigned int id = (g->_prev_edge_id)++;
-    if (id > g->_max_edges) {
+    if (id >= g->_max_edges) {
         /* need to expand the edges! */
         unsigned int new_num_edges = g->_max_edges * 2; /* double */
-        edge_t* tmp = realloc(g->edges, (new_num_edges + 1) * sizeof(edge_t));
+        edge_t* tmp = realloc(g->edges, new_num_edges * sizeof(edge_t));
         g->_max_edges = new_num_edges;
         g->edges = tmp;
 
@@ -208,12 +210,14 @@ edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata
     /* need to increment the in and out information for the verticies */
     vertex_t v_src = g->verts[src];
     unsigned int outs = (v_src->num_edges_out)++;
-    if (v_src->_max_edges < outs) {
-        v_src->_max_edges *= 2;
-        edge_t* tmp = realloc(v_src->edges, (v_src->_max_edges + 1) * sizeof(edge_t));
+    if (outs >= v_src->_max_edges) {
+        unsigned int new_num_edges = g->_max_edges * 2; /* double */
+        edge_t* tmp = realloc(v_src->edges, new_num_edges * sizeof(edge_t));
+        for (i = outs; i < new_num_edges; i++)
+            tmp[i] = NULL;
+        v_src->_max_edges = new_num_edges;
         v_src->edges = tmp;
-        for (i = v_src->num_edges_out; i < v_src->_max_edges; i++)
-            v_src->edges[i] = NULL;
+        tmp = NULL;
     }
 
     v_src->edges[outs] = e;

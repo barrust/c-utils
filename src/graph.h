@@ -70,6 +70,6 @@ void g_edge_free_alt(edge_t e, bool free_metadata);
 
 
 #define g_iterate_verticies(g, v, i)    for (i = 0; i < g_verticies_inserted(g); i++) if ((v = g_get_vertex(g, i)) != NULL)
-#define g_iterate_edges(v, e, i)     for (i = 0; i < 16; i++) if ((e = g_vertex_edge(v, i)) != NULL)
+#define g_iterate_edges(v, e, i)     for (i = 0; i < g_vertex_num_edges_out(v); i++) if ((e = g_vertex_edge(v, i)) != NULL)
 
 #endif  /* BARRUST_GRAPH_H__ */

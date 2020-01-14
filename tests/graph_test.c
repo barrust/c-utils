@@ -235,6 +235,25 @@ MU_TEST(test_iterate_edges) {
     mu_assert_int_eq(4, j);
 }
 
+MU_TEST(test_iterate_edges_large) {
+    __add_verticies(g, 5);
+    unsigned int i, j = 0;
+    for (i = 0; i < 65; i++) { /* add 64 edges to the same vertex */
+        __add_edge(g, 0, i % 5, i);
+    }
+
+
+    mu_assert_int_eq(65, g_num_edges(g));
+
+    edge_t e;
+    vertex_t v = g_get_vertex(g, 0);
+    g_iterate_edges(v, e, i) {
+        // mu_assert_int_eq(i, *(int*)g_edge_metadata(e));
+        ++j;
+    }
+    mu_assert_int_eq(65, j);
+}
+
 MU_TEST(test_iterate_edges_some_removed) {
     __add_verticies(g, 5);
     __add_edge(g, 0, 1, 0);
@@ -307,6 +326,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_iterate_verticies_all_there);
     MU_RUN_TEST(test_iterate_verticies_some_removed);
     MU_RUN_TEST(test_iterate_edges);
+    MU_RUN_TEST(test_iterate_edges_large);
     MU_RUN_TEST(test_iterate_edges_some_removed);
     MU_RUN_TEST(test_iterate_edges_some_removed_add_back);
 }
