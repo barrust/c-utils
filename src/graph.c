@@ -109,19 +109,19 @@ unsigned int g_verticies_inserted(graph_t g) {
     return g->_prev_vert_id;
 }
 
-vertex_t g_get_vertex(graph_t g, unsigned int id) {
+vertex_t g_vertex_get(graph_t g, unsigned int id) {
     if (id > g->_prev_vert_id)
         return NULL;
     return g->verts[id];
 }
 
-edge_t g_get_edge(graph_t g, unsigned int id) {
+edge_t g_edge_get(graph_t g, unsigned int id) {
     if (id > g->_prev_edge_id)
         return NULL;
     return g->edges[id];
 }
 
-vertex_t g_add_vertex(graph_t g, void* metadata) {
+vertex_t g_vertex_add(graph_t g, void* metadata) {
     vertex_t v = calloc(1, sizeof(Vertex));
     if (v == NULL)
         return NULL;
@@ -150,11 +150,11 @@ vertex_t g_add_vertex(graph_t g, void* metadata) {
     return v;
 }
 
-vertex_t g_remove_vertex(graph_t g, unsigned int id) {
-    return g_remove_vertex_alt(g, id, true);
+vertex_t g_vertex_remove(graph_t g, unsigned int id) {
+    return g_vertex_remove_alt(g, id, true);
 }
 
-vertex_t g_remove_vertex_alt(graph_t g, unsigned int id, bool free_edge_metadata) {
+vertex_t g_vertex_remove_alt(graph_t g, unsigned int id, bool free_edge_metadata) {
     if (id > g->_prev_vert_id || g->verts[id] == NULL)
         return NULL;
     vertex_t v = g->verts[id];
@@ -166,7 +166,7 @@ vertex_t g_remove_vertex_alt(graph_t g, unsigned int id, bool free_edge_metadata
         if (e == NULL)
             continue;
         if (e->src == id || e->dest == id) {
-            e = g_remove_edge(g, i);
+            e = g_edge_remove(g, i);
             g_edge_free_alt(e, free_edge_metadata);
         }
     }
@@ -178,7 +178,7 @@ vertex_t g_remove_vertex_alt(graph_t g, unsigned int id, bool free_edge_metadata
     return v;
 }
 
-edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata) {
+edge_t g_edge_add(graph_t g, unsigned int src, unsigned int dest, void* metadata) {
     /*  some tests to make sure src and dest are valid;
         need to make sure they are still present too */
     if (src > g->_prev_vert_id || dest > g->_prev_vert_id || g->verts[src] == NULL || g->verts[dest] == NULL)
@@ -228,7 +228,7 @@ edge_t g_add_edge(graph_t g, unsigned int src, unsigned int dest, void* metadata
     return e;
 }
 
-edge_t g_remove_edge(graph_t g, unsigned int id) {
+edge_t g_edge_remove(graph_t g, unsigned int id) {
     if (id > g->_prev_edge_id || g->edges[id] == NULL)
         return NULL;
     edge_t e = g->edges[id];
@@ -271,16 +271,16 @@ void* g_vertex_metadata(vertex_t v) {
     return v->metadata;
 }
 
-edge_t g_vertex_edge(vertex_t v, unsigned int id) {
-    if (id > v->_max_edges)
+edge_t g_vertex_edge(vertex_t v, unsigned int idx) {
+    if (idx > v->_max_edges)
         return NULL;
-    return v->edges[id];
+    return v->edges[idx];
 }
-
 
 void g_vertex_free(vertex_t v) {
     g_vertex_free_alt(v, true);
 }
+
 void g_vertex_free_alt(vertex_t v, bool free_metadata) {
     v->id = 0;
     v->num_edges_in = 0;

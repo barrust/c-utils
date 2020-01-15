@@ -16,20 +16,20 @@ int main(int argc, char const *argv[]) {
     graph_t g = g_init();
 
     /* I don't have any metadata... for now */
-    vertex_t v0 = g_add_vertex(g, NULL); assert(g_vertex_id(v0) == 0);
-    vertex_t v1 = g_add_vertex(g, NULL); assert(g_vertex_id(v1) == 1);
-    vertex_t v2 = g_add_vertex(g, NULL); assert(g_vertex_id(v2) == 2);
-    vertex_t v3 = g_add_vertex(g, NULL); assert(g_vertex_id(v3) == 3);
-    vertex_t v4 = g_add_vertex(g, NULL); assert(g_vertex_id(v4) == 4);
-    vertex_t v5 = g_add_vertex(g, NULL); assert(g_vertex_id(v5) == 5);
+    vertex_t v0 = g_vertex_add(g, NULL); assert(g_vertex_id(v0) == 0);
+    vertex_t v1 = g_vertex_add(g, NULL); assert(g_vertex_id(v1) == 1);
+    vertex_t v2 = g_vertex_add(g, NULL); assert(g_vertex_id(v2) == 2);
+    vertex_t v3 = g_vertex_add(g, NULL); assert(g_vertex_id(v3) == 3);
+    vertex_t v4 = g_vertex_add(g, NULL); assert(g_vertex_id(v4) == 4);
+    vertex_t v5 = g_vertex_add(g, NULL); assert(g_vertex_id(v5) == 5);
 
     /* set the edges in a directed circle! */
-    edge_t e0 = g_add_edge(g, 0, 1, NULL);
-    edge_t e1 = g_add_edge(g, 1, 2, NULL);
-    edge_t e2 = g_add_edge(g, 2, 3, NULL);
-    edge_t e3 = g_add_edge(g, 3, 4, NULL);
-    edge_t e4 = g_add_edge(g, 4, 5, NULL);
-    edge_t e5 = g_add_edge(g, 5, 0, NULL);  /* this should cause an error */
+    edge_t e0 = g_edge_add(g, 0, 1, NULL);
+    edge_t e1 = g_edge_add(g, 1, 2, NULL);
+    edge_t e2 = g_edge_add(g, 2, 3, NULL);
+    edge_t e3 = g_edge_add(g, 3, 4, NULL);
+    edge_t e4 = g_edge_add(g, 4, 5, NULL);
+    edge_t e5 = g_edge_add(g, 5, 0, NULL);  /* this should cause an error */
 
 
     /* we could do some tests here... */
