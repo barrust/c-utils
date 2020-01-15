@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/barrust/c-utils/branch/master/graph/badge.svg)](https://codecov.io/gh/barrust/c-utils)
 
 
-This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests. The goal is to provide a single place to store each of these libraries and to provide unit tests. 
+This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests. The goal is to provide a single place to store each of these libraries and to provide unit tests.
 
 If there are other commonly used code or data-structures that should be added, please add a feature request!
 
@@ -14,6 +14,7 @@ If there are other commonly used code or data-structures that should be added, p
 * [bitarray](#bitarray)
 * [linked list](#linkedlist)
 * [doubly linked list](#doublylinkedlist)
+* [graph](#graph)
 * [timing-c](#timing-c)
 
 ##### Recommended External Libraries
@@ -23,21 +24,21 @@ If there are other commonly used code or data-structures that should be added, p
 
 ##### Unit tests
 
-Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully covered. Any help in getting as close to 100% coverage would be great!
+Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully covered. Any help in getting as close to 100% coverage would be much appreciated!
 
-To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make`. Then you can execute the tests using `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, or `./dist/timing` executables.
+To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make test`. Then you can execute the tests using the executables `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, `./dist/graph`, or `./dist/timing`.
 
 #### Issues
 
-If an unexpected outcome occurs, please submit an issue with a ***minimal code example*** that encapsulates the error.
+If an unexpected outcome occurs, please submit an issue on github. Please also provide a ***minimal code example*** that encapsulates the error.
 
-A great issue would provide the following:
-> s_remove_unwanted_chars does shows duplicate entries after removal.
+A great [issue](https://github.com/barrust/c-utils/issues) would provide the following:
+> s_remove_unwanted_chars shows duplicate entries after removal.
 > ``` c
 > char* test[] = "This is a test";
 > // expect "Ths s a es"
 > // get "Ths s a esest"
-> // Notice the extra `est`; likely due to not erasing
+> // Notice the extra `est`; likely due to not erasing the trailing chars
 > s_remove_unwanted_chars(test, "ti");  
 > ```
 
@@ -45,7 +46,7 @@ A great issue would provide the following:
 
 Example programs are provided in the `./examples` folder. You can compile these examples using `make examples`. They can be run using `./dist/ex_timing`, `./dist/ex_bitarray`, `./dist/ex_fileutils`, `./dist/ex_stringlib`, `./dist/ex_linkedlist`, and `./dist/ex_doublylinkedlist`.
 
-Not all functionality is demonstrated for all libraries, but hopefully enough is present to help make using these libraries easier. All functionality for each library is documented in the `.h` files. 
+Not all functionality is demonstrated for all libraries, but hopefully enough is present to help make using these libraries easier. All functionality for each library is documented in the `.h` files.
 
 
 ## stringlib
@@ -259,6 +260,55 @@ while (node != NULL) {
 }
 
 dll_free_alt(l, true); // even free the data field
+```
+
+## graph
+
+This library adds a directed graph implementation that allows for any data type to be used for vertex or edge metadata. It tracks all the verticies and edges inserted into the graph and helps ensure that there are no dangling edges. Macros are provided to allow for iterating over vertcies or over the edges that emanate from the vertex.
+
+All functions are documented within the `graph.h` file.
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `graph` library
+
+#### Usage
+
+To use, simply copy the `graph.h` and `graph.c` files into your project and include it where needed.
+
+``` c
+#include "graph.h"
+
+graph_t g = g_init();
+
+// add some verticies
+g_vertex_add(g, "Washington D.C.");
+g_vertex_add(g, "Raleigh NC");
+g_vertex_add(g, "Boston, Mass");
+g_vertex_add(g, "Cincinati, OH");
+
+// add edges
+g_edge_add(g, 0, 1, "250 miles"); // washington to raliegh
+g_edge_add(g, 0, 2, "150 miles"); // washington to boston
+g_edge_add(g, 0, 3, "300 miles"); // washington to cincinati
+g_edge_add(g, 1, 3, "500 miles"); // raliegh to cincinati
+g_edge_add(g, 2, 3, "400 miles"); // boston to cincinati
+
+// iterate over the verticies
+vertex_t v;
+unsigned int i, j;
+g_iterate_verticies(g, v, i) {
+    printf("idx: %d\tcity: %s\n", i, g_vertex_metadata(v));
+
+    // iterate over the edges!
+    edge_t e;
+    g_iterate_edges(v, e, j) {
+        vertex_t dest = g_vertex_get(g_edge_dest(e));
+        printf("\tto: %s\tdistance: %s\n", g_vertex_metadata(dest), g_edge_metadata(e));
+    }
+}
+
+g_free_alt(g, false);
 ```
 
 

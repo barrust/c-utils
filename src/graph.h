@@ -1,13 +1,36 @@
 #ifndef BARRUST_GRAPH_H__
 #define BARRUST_GRAPH_H__
 
+/*******************************************************************************
+***
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
+***
+***  Version: 0.1.0
+***  Purpose: Directed graph library
+***
+***  License: MIT 2020
+***
+***  URL: https://github.com/barrust/c-utils
+***
+***  Usage:
+***     graph_t g = g_init();
+***     g_vertex_add(g, "a");
+***     g_vertex_add(g, "b");
+***
+***     g_edge_add(g, 0, 1, "test");
+***
+***     unsigned int i;
+***     vertex_t v;
+***     g_iterate_verticies(g, v, i) {
+***         printf("vertex id: %d\tmetadata: %s\n", g_vertex_id(v), (char*)g_vertex_metadata(v));
+***     }
+***     g_free(g);
+*******************************************************************************/
+
 typedef struct __graph* graph_t;
 typedef struct __vertex_node* vertex_t;
 typedef struct __edge_node* edge_t;
-
-
-#define GRAPH_SUCCESS    0
-#define GRAPH_FAILURE   -1
 
 /*  Initialize the graph either using the default start size or based on the
     passed in size parameter */
