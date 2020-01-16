@@ -40,8 +40,8 @@ graph_t g_init_alt(unsigned int size);
 /*  Free the graph and all edges & verticies; defaults to free'ing the metadata
     property for both. Use the g_free_alt version if the metadata is not
     malloc'd memory */
-int g_free(graph_t g);
-int g_free_alt(graph_t g, bool free_metadata);
+void g_free(graph_t g);
+void g_free_alt(graph_t g, bool free_metadata);
 
 /*  Return the number of verticies currently in the graph */
 unsigned int g_num_vertices(graph_t g);

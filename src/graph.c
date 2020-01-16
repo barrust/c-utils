@@ -64,11 +64,11 @@ graph_t g_init_alt(unsigned int size) {
     return g;
 }
 
-int g_free(graph_t g) {
-    return g_free_alt(g, true);
+void g_free(graph_t g) {
+    g_free_alt(g, true);
 }
 
-int g_free_alt(graph_t g, bool free_metadata) {
+void g_free_alt(graph_t g, bool free_metadata) {
     unsigned int i;
     for (i = 0; i < g->_max_edges; i++) {
         edge_t e = g->edges[i];
@@ -94,7 +94,6 @@ int g_free_alt(graph_t g, bool free_metadata) {
     g->_prev_edge_id = 0;
 
     free(g);
-    return GRAPH_SUCCESS;
 }
 
 unsigned int g_num_vertices(graph_t g) {
