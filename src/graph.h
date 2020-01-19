@@ -97,6 +97,10 @@ unsigned int g_vertex_num_edges_out(vertex_t v);
 /*  Get the number metadata of the provided vertex */
 void* g_vertex_metadata(vertex_t v);
 
+/*  Update the metadata for the vertex with the passed in data;
+    NOTE: it is up to the caller to free the original metadata, if necessary */
+void g_vertex_metadata_update(vertex_t v, void* metadata);
+
 /*  Free the provided vertex; defaults to calling free on the metadata; use
     the g_vertex_free_alt() and set free_metadata to false to not */
 void g_vertex_free(vertex_t v);
@@ -122,11 +126,19 @@ unsigned int g_edge_dest(edge_t e);
 /* Get the metadata for the provided edge */
 void* g_edge_metadata(edge_t e);
 
+/*  Update the metadata for the edge with the passed in data;
+    NOTE: it is up to the caller to free the original metadata, if necessary */
+void g_edge_metadata_update(edge_t e, void* metadata);
+
 /*  Free the provided edge; defaults to calling free on the metadata; use
     the g_edge_free_alt() and set free_metadata to false to not */
 void g_edge_free(edge_t e);
 void g_edge_free_alt(edge_t e, bool free_metadata);
 
+
+/*******************************************************************************
+*
+*******************************************************************************/
 /*  Macro to easily iterate over all the verticies in the graph
     NOTE:
         g   -   The graph
@@ -141,5 +153,9 @@ void g_edge_free_alt(edge_t e, bool free_metadata);
         i   -   An unsigned int that will be modified during the loop */
 #define g_iterate_edges(v, e, i)        for (i = 0; i < g_vertex_num_edges_out(v); i++) if ((e = g_vertex_edge(v, i)) != NULL)
 
+
+
+// unsigned int* g_depth_first_search(graph_t g, vertex_t v);
+// unsigned int* g_breadth_first_search(graph_t g, vertex_t v);
 
 #endif  /* BARRUST_GRAPH_H__ */

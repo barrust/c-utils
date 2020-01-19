@@ -270,6 +270,10 @@ void* g_vertex_metadata(vertex_t v) {
     return v->metadata;
 }
 
+void g_vertex_metadata_update(vertex_t v, void* metadata) {
+    v->metadata = metadata;
+}
+
 edge_t g_vertex_edge(vertex_t v, unsigned int idx) {
     if (idx > v->_max_edges)
         return NULL;
@@ -309,6 +313,10 @@ unsigned int g_edge_dest(edge_t e) {
 
 void* g_edge_metadata(edge_t e) {
     return e->metadata;
+}
+
+void g_edge_metadata_update(edge_t e, void* metadata) {
+    e->metadata = metadata;
 }
 
 void g_edge_free(edge_t e) {
