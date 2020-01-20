@@ -40,7 +40,7 @@ int main(int argc, char const *argv[]) {
     vertex_t v;
     unsigned int i;
 
-    /* add the verticies */
+    /* add the vertices */
     __add_city_as_vertex(g, "New York", 40.7128, 74.0060);
     __add_city_as_vertex(g, "Washington D.C.", 38.9072, 77.0369);
     __add_city_as_vertex(g, "Cleveland", 41.4993, 81.6944);
@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]) {
     __add_city_as_vertex(g, "Los Angeles", 34.0522, 118.2437);
     __add_city_as_vertex(g, "San Fransisco", 37.7749, 122.4194);
 
-    /* add edges between the verticies */
+    /* add edges between the vertices */
     __add_highway_as_edge(g, 0, 1, 227);    /* NY - DC */
     __add_highway_as_edge(g, 1, 0, 227);    /* DC - NY */
     __add_highway_as_edge(g, 1, 2, 371);    /* DC - Cleveland */
@@ -73,19 +73,19 @@ int main(int argc, char const *argv[]) {
 
     printf("Breadth First Search; starting at New York: \n");
     unsigned int* bfs = __breadth_first_search(g, g_vertex_get(g, 0));
-    for (i = 0; i < g_verticies_inserted(g); i++) {
+    for (i = 0; i < g_vertices_inserted(g); i++) {
         printf("%d, ", bfs[i]);
     }
     printf("\n");
 
-    for (i = 0; i < g_verticies_inserted(g); i++) {
+    for (i = 0; i < g_vertices_inserted(g); i++) {
         v = g_vertex_get(g, bfs[i]);
         city* c = g_vertex_metadata(v);
         __print_city(c);
     }
 
     /* free things */
-    g_iterate_verticies(g, v, i) {
+    g_iterate_vertices(g, v, i) {
         city* c = g_vertex_metadata(v);
         /*__print_city(c); */
         __free_city(c);
@@ -143,11 +143,11 @@ static char* __str_duplicate(const char* s) {
 #define CHECK_BIT(A, k)     (A[((k) / 8)] &   (1 << ((k) % 8)))
 
 unsigned int* __breadth_first_search(graph_t g, vertex_t start) {
-    unsigned int* ret = calloc(g_verticies_inserted(g), sizeof(unsigned int));
+    unsigned int* ret = calloc(g_vertices_inserted(g), sizeof(unsigned int));
 
     /*  Use a bitarray to track which nodes we have visited
         NOTE: this is not always correct, but it will work since it is larger! */
-    char* bitarray = calloc(g_verticies_inserted(g) / 8 + 1, sizeof(char));
+    char* bitarray = calloc(g_vertices_inserted(g) / 8 + 1, sizeof(char));
     unsigned int id = g_vertex_id(start);
     SET_BIT(bitarray, id);
 

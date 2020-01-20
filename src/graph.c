@@ -104,7 +104,7 @@ unsigned int g_num_edges(graph_t g) {
     return g->num_edges;
 }
 
-unsigned int g_verticies_inserted(graph_t g) {
+unsigned int g_vertices_inserted(graph_t g) {
     return g->_prev_vert_id;
 }
 
@@ -206,7 +206,7 @@ edge_t g_edge_add(graph_t g, unsigned int src, unsigned int dest, void* metadata
     e->dest = dest;
     e->metadata = metadata;
 
-    /* need to increment the in and out information for the verticies */
+    /* need to increment the in and out information for the vertices */
     vertex_t v_src = g->verts[src];
     unsigned int outs = (v_src->num_edges_out)++;
     if (outs >= v_src->_max_edges) {

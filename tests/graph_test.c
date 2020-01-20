@@ -17,7 +17,7 @@ void test_teardown(void) {
 
 /* private functions */
 static char* __str_duplicate(const char* s);
-static void  __add_verticies(graph_t g, int num);
+static void  __add_vertices(graph_t g, int num);
 static void  __add_edge(graph_t g, unsigned int src, unsigned int dest, int val);
 
 
@@ -31,9 +31,9 @@ MU_TEST(test_default_setup) {
 
 
 /*******************************************************************************
-*   Test adding and removing verticies
+*   Test adding and removing vertices
 *******************************************************************************/
-MU_TEST(test_add_verticies) {
+MU_TEST(test_add_vertices) {
     mu_assert_int_eq(0, g_num_vertices(g));
     vertex_t v = g_vertex_add(g, __str_duplicate("this is a test"));
     mu_assert_int_eq(1, g_num_vertices(g));
@@ -49,7 +49,7 @@ MU_TEST(test_add_verticies) {
     mu_assert_string_eq("d3-football", g_vertex_metadata(v));
 }
 
-MU_TEST(test_remove_verticies) {
+MU_TEST(test_remove_vertices) {
     mu_assert_int_eq(0, g_num_vertices(g));
     g_vertex_add(g, __str_duplicate("this is a test"));
     g_vertex_add(g, __str_duplicate("d3-football"));
@@ -72,16 +72,16 @@ MU_TEST(test_remove_verticies) {
     /* check that something removed is clean! */
     v = g_vertex_remove(g, 0);
     mu_assert_string_eq(NULL, (char*)v);
-    mu_assert_int_eq(1, g_num_vertices(g));  /* it shouldn't change the num verticies */
+    mu_assert_int_eq(1, g_num_vertices(g));  /* it shouldn't change the num vertices */
 }
 
-MU_TEST(test_verticies_growth) {
-    __add_verticies(g, 4000); /* add 4000 verticies! */
+MU_TEST(test_vertices_growth) {
+    __add_vertices(g, 4000); /* add 4000 vertices! */
     mu_assert_int_eq(4000, g_num_vertices(g));
 }
 
 MU_TEST(test_updating_vertex_metadata) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     vertex_t v = g_vertex_get(g, 0);
     int* metadata = g_vertex_metadata(v);
     mu_assert_int_eq(0, *metadata);
@@ -92,7 +92,7 @@ MU_TEST(test_updating_vertex_metadata) {
 }
 
 MU_TEST(test_get_vertex_errors) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     mu_assert_string_eq(NULL, (char*)g_vertex_get(g, 10));
 }
 
@@ -101,7 +101,7 @@ MU_TEST(test_get_vertex_errors) {
 *   Test adding and removing edges
 *******************************************************************************/
 MU_TEST(test_add_edges) {
-    __add_verticies(g, 15);
+    __add_vertices(g, 15);
     mu_assert_int_eq(15, g_num_vertices(g));
 
     g_edge_add(g, 0, 1, __str_duplicate("1"));
@@ -119,7 +119,7 @@ MU_TEST(test_add_edges) {
 }
 
 MU_TEST(test_remove_edges) {
-    __add_verticies(g, 15);
+    __add_vertices(g, 15);
     mu_assert_int_eq(15, g_num_vertices(g));
 
     g_edge_add(g, 0, 1, __str_duplicate("1"));
@@ -141,7 +141,7 @@ MU_TEST(test_remove_edges) {
 MU_TEST(test_remove_edges_src) {
     /*  this tests removing a vertex and ensuring that all the edges it was
         attached to are also removed */
-    __add_verticies(g, 15);
+    __add_vertices(g, 15);
     mu_assert_int_eq(15, g_num_vertices(g));
 
     g_edge_add(g, 0, 1, __str_duplicate("0-1"));
@@ -168,7 +168,7 @@ MU_TEST(test_remove_edges_src) {
 }
 
 MU_TEST(test_edges_growth) {
-    __add_verticies(g, 4000); /* add 4000 verticies! */
+    __add_vertices(g, 4000); /* add 4000 vertices! */
     unsigned int i;
     for (i = 1; i < g_num_vertices(g); i++) {
         g_edge_add(g, i - 1, i, NULL);
@@ -177,7 +177,7 @@ MU_TEST(test_edges_growth) {
 }
 
 MU_TEST(test_updating_edge_metadata) {
-    __add_verticies(g, 15);
+    __add_vertices(g, 15);
     g_edge_add(g, 0, 1, __str_duplicate("0-1"));
     g_edge_add(g, 0, 2, __str_duplicate("0-2"));
     g_edge_add(g, 0, 3, __str_duplicate("0-3"));
@@ -193,7 +193,7 @@ MU_TEST(test_updating_edge_metadata) {
 }
 
 MU_TEST(test_edge_add_error) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     edge_t e = g_edge_add(g, 0, 5, NULL); /* this should return NULL since dest is too large*/
     mu_assert_string_eq(NULL, (char*)e);
     e = g_edge_add(g, 6, 0, NULL);
@@ -209,7 +209,7 @@ MU_TEST(test_edge_add_error) {
 }
 
 MU_TEST(test_edge_remove_error) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     g_edge_add(g, 0, 4, NULL);
     g_edge_add(g, 1, 4, NULL);
     g_edge_add(g, 2, 4, NULL);
@@ -225,39 +225,39 @@ MU_TEST(test_edge_remove_error) {
 }
 
 MU_TEST(test_edge_get_error) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     g_edge_add(g, 0, 4, NULL);
     mu_assert_string_eq(NULL, (char*)g_edge_get(g, 2));
 }
 
 
 /*******************************************************************************
-*   Test iterating over the verticies
+*   Test iterating over the vertices
 *******************************************************************************/
-MU_TEST(test_iterate_verticies_all_there) {
-    __add_verticies(g, 5);
+MU_TEST(test_iterate_vertices_all_there) {
+    __add_vertices(g, 5);
     unsigned int i;
     vertex_t v;
-    g_iterate_verticies(g,v,i) {
+    g_iterate_vertices(g,v,i) {
         mu_assert_int_eq(i, *(int*)g_vertex_metadata(v));
     }
 }
 
-MU_TEST(test_iterate_verticies_some_removed) {
-    __add_verticies(g, 5);
+MU_TEST(test_iterate_vertices_some_removed) {
+    __add_vertices(g, 5);
 
     vertex_t t = g_vertex_remove(g, 2);
     g_vertex_free(t);
 
     unsigned int i;
     vertex_t v;
-    g_iterate_verticies(g,v,i) {
+    g_iterate_vertices(g,v,i) {
         mu_assert_int_eq(i, *(int*)g_vertex_metadata(v));
     }
 }
 
 MU_TEST(test_iterate_edges) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     __add_edge(g, 0, 1, 0);
     __add_edge(g, 0, 2, 1);
     __add_edge(g, 0, 3, 2);
@@ -274,7 +274,7 @@ MU_TEST(test_iterate_edges) {
 }
 
 MU_TEST(test_iterate_edges_large) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     unsigned int i, j = 0;
     for (i = 0; i < 65; i++) { /* add 64 edges to the same vertex */
         __add_edge(g, 0, i % 5, i);
@@ -293,7 +293,7 @@ MU_TEST(test_iterate_edges_large) {
 }
 
 MU_TEST(test_iterate_edges_some_removed) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     __add_edge(g, 0, 1, 0);
     __add_edge(g, 0, 2, 1);
     __add_edge(g, 0, 3, 2);
@@ -315,7 +315,7 @@ MU_TEST(test_iterate_edges_some_removed) {
 }
 
 MU_TEST(test_iterate_edges_some_removed_add_back) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     __add_edge(g, 0, 1, 0);
     __add_edge(g, 0, 2, 1);
     __add_edge(g, 0, 3, 2);
@@ -339,7 +339,7 @@ MU_TEST(test_iterate_edges_some_removed_add_back) {
 }
 
 MU_TEST(test_g_vertex_edge_error) {
-    __add_verticies(g, 5);
+    __add_vertices(g, 5);
     __add_edge(g, 0, 1, 0);
     vertex_t v = g_vertex_get(g, 0);
     mu_assert_string_eq(NULL, (char*)g_vertex_edge(v, 1));
@@ -355,10 +355,10 @@ MU_TEST_SUITE(test_suite) {
 
     MU_RUN_TEST(test_default_setup);
 
-    /* add & remove verticies */
-    MU_RUN_TEST(test_add_verticies);
-    MU_RUN_TEST(test_remove_verticies);
-    MU_RUN_TEST(test_verticies_growth);
+    /* add & remove vertices */
+    MU_RUN_TEST(test_add_vertices);
+    MU_RUN_TEST(test_remove_vertices);
+    MU_RUN_TEST(test_vertices_growth);
     MU_RUN_TEST(test_updating_vertex_metadata);
     MU_RUN_TEST(test_get_vertex_errors);
 
@@ -373,8 +373,8 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_g_vertex_edge_error);
 
     /* Iteration tests */
-    MU_RUN_TEST(test_iterate_verticies_all_there);
-    MU_RUN_TEST(test_iterate_verticies_some_removed);
+    MU_RUN_TEST(test_iterate_vertices_all_there);
+    MU_RUN_TEST(test_iterate_vertices_some_removed);
     MU_RUN_TEST(test_iterate_edges);
     MU_RUN_TEST(test_iterate_edges_large);
     MU_RUN_TEST(test_updating_edge_metadata);
@@ -403,7 +403,7 @@ static char* __str_duplicate(const char* s) {
     return buf;
 }
 
-static void  __add_verticies(graph_t g, int num) {
+static void  __add_vertices(graph_t g, int num) {
     int i;
     for (i = 0; i < num; i++) {
         int* q = calloc(1, sizeof(int));

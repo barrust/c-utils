@@ -22,7 +22,7 @@
 ***
 ***     unsigned int i;
 ***     vertex_t v;
-***     g_iterate_verticies(g, v, i) {
+***     g_iterate_vertices(g, v, i) {
 ***         printf("vertex id: %d\tmetadata: %s\n", g_vertex_id(v), (char*)g_vertex_metadata(v));
 ***     }
 ***     g_free(g);
@@ -37,18 +37,18 @@ typedef struct __edge_node* edge_t;
 graph_t g_init();
 graph_t g_init_alt(unsigned int size);
 
-/*  Free the graph and all edges & verticies; defaults to free'ing the metadata
+/*  Free the graph and all edges & vertices; defaults to free'ing the metadata
     property for both. Use the g_free_alt version if the metadata is not
     malloc'd memory */
 void g_free(graph_t g);
 void g_free_alt(graph_t g, bool free_metadata);
 
-/*  Return the number of verticies currently in the graph */
+/*  Return the number of vertices currently in the graph */
 unsigned int g_num_vertices(graph_t g);
 
-/*  Return the total number of verticies ever inserted into the graph
+/*  Return the total number of vertices ever inserted into the graph
     NOTE: likely only needed if writing ones own iteration loop */
-unsigned int g_verticies_inserted(graph_t g);
+unsigned int g_vertices_inserted(graph_t g);
 
 /*  Return the number of edges in the graph */
 unsigned int g_num_edges(graph_t g);
@@ -139,12 +139,12 @@ void g_edge_free_alt(edge_t e, bool free_metadata);
 /*******************************************************************************
 *
 *******************************************************************************/
-/*  Macro to easily iterate over all the verticies in the graph
+/*  Macro to easily iterate over all the vertices in the graph
     NOTE:
         g   -   The graph
         v   -   A vertex_t pointer that will hold the next vertex
         i   -   An unsigned int that will be modified for the loop */
-#define g_iterate_verticies(g, v, i)    for (i = 0; i < g_verticies_inserted(g); i++) if ((v = g_vertex_get(g, i)) != NULL)
+#define g_iterate_vertices(g, v, i)    for (i = 0; i < g_vertices_inserted(g); i++) if ((v = g_vertex_get(g, i)) != NULL)
 
 /*  Macro to easily iterate over the edges from a vertex
     NOTE:
