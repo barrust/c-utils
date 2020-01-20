@@ -71,6 +71,7 @@ int main(int argc, char const *argv[]) {
     __add_highway_as_edge(g, 8, 6, 420);    /* LV - SLC */
     __add_highway_as_edge(g, 6, 10, 735);   /* SLC - SF */
 
+    printf("Breadth First Search; starting at New York: \n");
     unsigned int* bfs = __breadth_first_search(g, g_vertex_get(g, 0));
     for (i = 0; i < g_verticies_inserted(g); i++) {
         printf("%d, ", bfs[i]);
@@ -86,7 +87,7 @@ int main(int argc, char const *argv[]) {
     /* free things */
     g_iterate_verticies(g, v, i) {
         city* c = g_vertex_metadata(v);
-        // __print_city(c);
+        /*__print_city(c); */
         __free_city(c);
         g_vertex_metadata_update(v, NULL);
     }
@@ -144,8 +145,9 @@ static char* __str_duplicate(const char* s) {
 unsigned int* __breadth_first_search(graph_t g, vertex_t start) {
     unsigned int* ret = calloc(g_verticies_inserted(g), sizeof(unsigned int));
 
-    // Use a bitarray to track which nodes we have visited
-    char* bitarray = calloc(g_verticies_inserted(g) / 8 + 1, sizeof(char));  // this is not exactly correct, but it will work!
+    /*  Use a bitarray to track which nodes we have visited
+        NOTE: this is not always correct, but it will work since it is larger! */
+    char* bitarray = calloc(g_verticies_inserted(g) / 8 + 1, sizeof(char));
     unsigned int id = g_vertex_id(start);
     SET_BIT(bitarray, id);
 
@@ -160,7 +162,7 @@ unsigned int* __breadth_first_search(graph_t g, vertex_t start) {
         g_iterate_edges(v, e, i) {
             id = g_edge_dest(e);
             if (CHECK_BIT(bitarray, id) != 0)
-                continue;  // already seen
+                continue;  /* already visited */
             SET_BIT(bitarray, id);
             ret[pos++] = id;
         }

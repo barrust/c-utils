@@ -80,6 +80,17 @@ MU_TEST(test_verticies_growth) {
     mu_assert_int_eq(4000, g_num_vertices(g));
 }
 
+MU_TEST(test_updating_vertex_metadata) {
+    __add_verticies(g, 5);
+    vertex_t v = g_vertex_get(g, 0);
+    int* metadata = g_vertex_metadata(v);
+    mu_assert_int_eq(0, *metadata);
+    *metadata = 255;
+    g_vertex_metadata_update(v, metadata);
+    v = g_vertex_get(g, 0);
+    mu_assert_int_eq(255, *(int*)g_vertex_metadata(v));
+}
+
 
 /*******************************************************************************
 *   Test adding and removing edges
@@ -158,6 +169,19 @@ MU_TEST(test_edges_growth) {
         g_edge_add(g, i - 1, i, NULL);
     }
     mu_assert_int_eq(3999, g_num_edges(g));
+}
+
+MU_TEST(test_updating_edge_metadata) {
+    __add_verticies(g, 15);
+    g_edge_add(g, 0, 1, __str_duplicate("0-1"));
+    g_edge_add(g, 0, 2, __str_duplicate("0-2"));
+    g_edge_add(g, 0, 3, __str_duplicate("0-3"));
+
+    edge_t e = g_edge_get(g, 0);
+    char* metadata = (char*)g_edge_metadata(e);
+    mu_assert_string_eq("0-1", metadata);
+    metadata[0] = '-';
+    mu_assert_string_eq("--1", (char*)g_edge_metadata(e));
 }
 
 MU_TEST(test_edge_add_error) {
@@ -313,6 +337,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_add_verticies);
     MU_RUN_TEST(test_remove_verticies);
     MU_RUN_TEST(test_verticies_growth);
+    MU_RUN_TEST(test_updating_vertex_metadata);
 
     /* add & remove edges */
     MU_RUN_TEST(test_add_edges);
@@ -327,6 +352,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_iterate_verticies_some_removed);
     MU_RUN_TEST(test_iterate_edges);
     MU_RUN_TEST(test_iterate_edges_large);
+    MU_RUN_TEST(test_updating_edge_metadata);
     MU_RUN_TEST(test_iterate_edges_some_removed);
     MU_RUN_TEST(test_iterate_edges_some_removed_add_back);
 }
