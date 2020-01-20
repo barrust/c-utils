@@ -91,6 +91,11 @@ MU_TEST(test_updating_vertex_metadata) {
     mu_assert_int_eq(255, *(int*)g_vertex_metadata(v));
 }
 
+MU_TEST(test_get_vertex_errors) {
+    __add_verticies(g, 5);
+    mu_assert_string_eq(NULL, (char*)g_vertex_get(g, 10));
+}
+
 
 /*******************************************************************************
 *   Test adding and removing edges
@@ -181,7 +186,10 @@ MU_TEST(test_updating_edge_metadata) {
     char* metadata = (char*)g_edge_metadata(e);
     mu_assert_string_eq("0-1", metadata);
     metadata[0] = '-';
-    mu_assert_string_eq("--1", (char*)g_edge_metadata(e));
+    g_edge_metadata_update(e, metadata);
+
+    char* val = (char*)g_edge_metadata(e);
+    mu_assert_string_eq("--1", val);
 }
 
 MU_TEST(test_edge_add_error) {
@@ -214,6 +222,12 @@ MU_TEST(test_edge_remove_error) {
     g_edge_free(e);
     e = g_edge_remove(g, 3); /* now we should get a NULL back */
     mu_assert_string_eq(NULL, (char*)e);
+}
+
+MU_TEST(test_edge_get_error) {
+    __add_verticies(g, 5);
+    g_edge_add(g, 0, 4, NULL);
+    mu_assert_string_eq(NULL, (char*)g_edge_get(g, 2));
 }
 
 
@@ -324,6 +338,14 @@ MU_TEST(test_iterate_edges_some_removed_add_back) {
     mu_assert_int_eq(3, j);
 }
 
+MU_TEST(test_g_vertex_edge_error) {
+    __add_verticies(g, 5);
+    __add_edge(g, 0, 1, 0);
+    vertex_t v = g_vertex_get(g, 0);
+    mu_assert_string_eq(NULL, (char*)g_vertex_edge(v, 1));
+    mu_assert_string_eq(NULL, (char*)g_vertex_edge(v, 17));
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -338,6 +360,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_remove_verticies);
     MU_RUN_TEST(test_verticies_growth);
     MU_RUN_TEST(test_updating_vertex_metadata);
+    MU_RUN_TEST(test_get_vertex_errors);
 
     /* add & remove edges */
     MU_RUN_TEST(test_add_edges);
@@ -346,6 +369,8 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_edges_growth);
     MU_RUN_TEST(test_edge_add_error);
     MU_RUN_TEST(test_edge_remove_error);
+    MU_RUN_TEST(test_edge_get_error);
+    MU_RUN_TEST(test_g_vertex_edge_error);
 
     /* Iteration tests */
     MU_RUN_TEST(test_iterate_verticies_all_there);

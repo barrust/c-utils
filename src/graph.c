@@ -275,7 +275,7 @@ void g_vertex_metadata_update(vertex_t v, void* metadata) {
 }
 
 edge_t g_vertex_edge(vertex_t v, unsigned int idx) {
-    if (idx > v->_max_edges)
+    if (idx >= v->_max_edges)
         return NULL;
     return v->edges[idx];
 }
