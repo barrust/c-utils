@@ -346,6 +346,36 @@ MU_TEST(test_g_vertex_edge_error) {
     mu_assert_string_eq(NULL, (char*)g_vertex_edge(v, 17));
 }
 
+/*******************************************************************************
+*   Test iterating with breadth and depth
+*******************************************************************************/
+MU_TEST(test_g_breadth_first_traverse) {
+    __add_vertices(g, 15);
+    __add_edge(g, 0, 1, 0);
+    __add_edge(g, 0, 3, 0);
+    __add_edge(g, 0, 2, 0);
+    __add_edge(g, 1, 4, 0);
+    __add_edge(g, 1, 5, 0);
+    __add_edge(g, 2, 9, 0);
+    __add_edge(g, 3, 10, 0);
+    __add_edge(g, 10, 6, 0);
+    __add_edge(g, 4, 8, 0);
+    __add_edge(g, 4, 12, 0);
+    __add_edge(g, 6, 14, 0);
+    __add_edge(g, 9, 13, 0);
+    __add_edge(g, 9, 1, 0);
+
+    int answers[] = {0, 1, 3, 2, 4, 5, 10, 9, 8, 12, 6, 13, 14};
+    unsigned int len;
+    unsigned int* res = g_breadth_first_traverse(g, g_vertex_get(g, 0), &len);
+
+    mu_assert_int_eq(13, len);
+    for (unsigned int i = 0; i < len; i++) {
+        mu_assert_int_eq(answers[i], res[i]);
+    }
+    free(res);
+}
+
 
 /*******************************************************************************
 *    Test Suite Setup
@@ -380,6 +410,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_updating_edge_metadata);
     MU_RUN_TEST(test_iterate_edges_some_removed);
     MU_RUN_TEST(test_iterate_edges_some_removed_add_back);
+
+    /* Traversals */
+    MU_RUN_TEST(test_g_breadth_first_traverse);
 }
 
 

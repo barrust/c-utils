@@ -137,7 +137,7 @@ void g_edge_free_alt(edge_t e, bool free_metadata);
 
 
 /*******************************************************************************
-*
+*   Iterators - Iterate over the vertices and edges of a vertex easily
 *******************************************************************************/
 /*  Macro to easily iterate over all the vertices in the graph
     NOTE:
@@ -151,11 +151,17 @@ void g_edge_free_alt(edge_t e, bool free_metadata);
         v   -   The vertex
         e   -   An edge_t pointer that will hold the edges in the loop
         i   -   An unsigned int that will be modified during the loop */
-#define g_iterate_edges(v, e, i)        for (i = 0; i < g_vertex_num_edges_out(v); i++) if ((e = g_vertex_edge(v, i)) != NULL)
+#define g_iterate_edges(v, e, i)       for (i = 0; i < g_vertex_num_edges_out(v); i++) if ((e = g_vertex_edge(v, i)) != NULL)
+
+/*  Return an array with a listing of the vertices in bredth first fashion;
+    this is useful for finding what order one should traverse the list starting
+    at vertex v in a bredth first fashion.
+    NOTE: Up to the caller to free the corresponding memory.
+    NOTE: size is set to the number of elements in the unsigned int array
+    NOTE: The returned array contains the vertex ids of each vertex in order */
+unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size);
 
 
-
-// unsigned int* g_depth_first_search(graph_t g, vertex_t v);
-// unsigned int* g_breadth_first_search(graph_t g, vertex_t v);
+/* unsigned int* g_depth_first_search(graph_t g, vertex_t v, int* size); */
 
 #endif  /* BARRUST_GRAPH_H__ */

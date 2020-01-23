@@ -45,7 +45,7 @@ static int     __str_find_any(const char* s, const char* s2);
 static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
 static void    __free_double_array(char** arr, size_t num_elms);
-static int __cmp_str(const void* a, const void* b);
+static int     __cmp_str(const void* a, const void* b);
 /* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
