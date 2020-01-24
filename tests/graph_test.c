@@ -377,6 +377,32 @@ MU_TEST(test_g_breadth_first_traverse) {
 }
 
 
+MU_TEST(test_g_depth_first_traverse) {
+    __add_vertices(g, 15);
+    __add_edge(g, 0, 1, 0);
+    __add_edge(g, 0, 3, 0);
+    __add_edge(g, 0, 2, 0);
+    __add_edge(g, 1, 4, 0);
+    __add_edge(g, 1, 5, 0);
+    __add_edge(g, 2, 9, 0);
+    __add_edge(g, 3, 10, 0);
+    __add_edge(g, 10, 6, 0);
+    __add_edge(g, 4, 8, 0);
+    __add_edge(g, 4, 12, 0);
+    __add_edge(g, 6, 14, 0);
+    __add_edge(g, 9, 13, 0);
+    __add_edge(g, 9, 1, 0);
+
+    int answers[] = {0, 1, 4, 8, 12, 5, 3, 10, 6, 14, 2, 9, 13};
+    unsigned int len, i;
+    unsigned int* res = g_depth_first_traverse(g, g_vertex_get(g, 0), &len);
+    mu_assert_int_eq(13, len);
+    for (i = 0; i < len; i++) {
+        mu_assert_int_eq(answers[i], res[i]);
+    }
+    free(res);
+}
+
 /*******************************************************************************
 *    Test Suite Setup
 *******************************************************************************/
@@ -413,6 +439,7 @@ MU_TEST_SUITE(test_suite) {
 
     /* Traversals */
     MU_RUN_TEST(test_g_breadth_first_traverse);
+    MU_RUN_TEST(test_g_depth_first_traverse);
 }
 
 

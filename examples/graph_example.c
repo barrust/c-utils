@@ -71,12 +71,20 @@ int main(int argc, char const *argv[]) {
     __add_highway_as_edge(g, 8, 6, 420);    /* LV - SLC */
     __add_highway_as_edge(g, 6, 10, 735);   /* SLC - SF */
 
-    printf("Breadth First Search; starting at New York: \n");
-    unsigned int size;
+    printf("Breadth First Traverse; starting at New York: \n");
+    unsigned int size, len;
     unsigned int* bfs = g_breadth_first_traverse(g, g_vertex_get(g, 0), &size);
+    unsigned int* dfs = g_depth_first_traverse(g, g_vertex_get(g, 0), &len);
     printf("Size: %u\n", size);
     for (i = 0; i < size; i++) {
         printf("%d, ", bfs[i]);
+    }
+    printf("\n\n\n");
+
+    printf("Depth First Traverse: starting from New York: \n");
+    printf("Size: %u\n", len);
+    for (i = 0; i < size; i++) {
+        printf("%d, ", dfs[i]);
     }
     printf("\n\n\n");
 
@@ -95,6 +103,7 @@ int main(int argc, char const *argv[]) {
     }
     g_free(g);
     free(bfs);
+    free(dfs);
 
     if (verbose == true)
         printf("Completed!\n");

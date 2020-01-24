@@ -158,10 +158,15 @@ void g_edge_free_alt(edge_t e, bool free_metadata);
     at vertex v in a bredth first fashion.
     NOTE: Up to the caller to free the corresponding memory.
     NOTE: size is set to the number of elements in the unsigned int array
-    NOTE: The returned array contains the vertex ids of each vertex in order */
+    NOTE: The returned array contains the vertex ids of each vertex, in order */
 unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size);
 
-
-/* unsigned int* g_depth_first_search(graph_t g, vertex_t v, int* size); */
+/*  Return an array with a listing of the vertices in depth first fashion;
+    this is useful for finding what order one should traverse the graph
+    starting at vertex v in a depth first fashion.
+    NOTE: Up to the caller to free the corresponding memory
+    NOTE: size is set to the number of elements in the unsigned int array
+    NOTE: The returned array contains the vertex ids of each vertex, in order */
+unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size);
 
 #endif  /* BARRUST_GRAPH_H__ */

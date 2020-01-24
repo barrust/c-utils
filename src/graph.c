@@ -32,6 +32,8 @@ typedef struct __edge_node{
     void* metadata;
 } Edge;
 
+/* private functions */
+static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray, unsigned int* size);
 
 /*******************************************************************************
 *   Graph Properties / Functions
@@ -367,4 +369,34 @@ unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size
     free(bitarray);
     *size = pos;
     return ret;
+}
+
+
+unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size) {
+    *size = 0;
+    unsigned int* ret = calloc(g_num_vertices(g), sizeof(unsigned int));
+    char* bitarray = calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
+    unsigned int id = g_vertex_id(v);
+    SET_BIT(bitarray, id);
+    ret[0] = id;
+    *size = *size + 1;
+    __traverse_depth_first(g, ret, bitarray, size);
+    free(bitarray);
+    return ret;
+}
+
+
+static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray, unsigned int* size) {
+    vertex_t v = g_vertex_get(g, res[*size - 1]);
+    edge_t e;
+    unsigned int i, id;
+    g_iterate_edges(v, e, i) {
+        id = g_edge_dest(e);
+        if (CHECK_BIT(bitarray, id) != 0)
+            continue;  /* already visited */
+        SET_BIT(bitarray, id);
+        res[*size] = id;
+        *size = *size + 1;
+        __traverse_depth_first(g, res, bitarray, size);
+    }
 }
