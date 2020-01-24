@@ -18,7 +18,8 @@ jobs:
           packages:
             - g++-4.9
       env:
-         - MATRIX_EVAL="CC=gcc-4.9 && STD=-std=gnu99"
+         - MATRIX_EVAL="CC=gcc-4.9"
+         - STD="-std=gnu99"
 
     # works on Precise and Trusty
     - os: linux
