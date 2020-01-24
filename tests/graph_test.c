@@ -366,11 +366,11 @@ MU_TEST(test_g_breadth_first_traverse) {
     __add_edge(g, 9, 1, 0);
 
     int answers[] = {0, 1, 3, 2, 4, 5, 10, 9, 8, 12, 6, 13, 14};
-    unsigned int len;
+    unsigned int len, i;
     unsigned int* res = g_breadth_first_traverse(g, g_vertex_get(g, 0), &len);
 
     mu_assert_int_eq(13, len);
-    for (unsigned int i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         mu_assert_int_eq(answers[i], res[i]);
     }
     free(res);
