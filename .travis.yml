@@ -90,7 +90,7 @@ script:
   - ./dist/linkedlist
   - ./dist/doublelinkedlist
   - ./dist/graph
-  - if [ $TRAVIS_OS_NAME == linux ]; then cppcheck --error-exitcode=1 --enable=warning,performance,information,style ./src/ ; fi
+  - if [ $TRAVIS_OS_NAME == linux ]; cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --template='{file}:{line},{severity},{id},{message}' ./src/ ; fi
   - gcov ./dist/*.gcno
 
 after_success:

@@ -388,6 +388,7 @@ unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size) 
 
 static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray, unsigned int* size) {
     vertex_t v = g_vertex_get(g, res[*size - 1]);
+    // cppcheck-suppress variableScope
     edge_t e;
     unsigned int i, id;
     g_iterate_edges(v, e, i) {
