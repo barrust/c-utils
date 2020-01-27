@@ -264,7 +264,9 @@ dll_free_alt(l, true); // even free the data field
 
 ## graph
 
-This library adds a directed graph implementation that allows for any data type to be used for vertex or edge metadata. It tracks all the verticies and edges inserted into the graph and helps ensure that there are no dangling edges. Macros are provided to allow for iterating over vertcies or over the edges that emanate from the vertex.
+This library adds a directed graph implementation that allows for any data type to be used for vertex or edge metadata. It tracks all the vertices and edges inserted into the graph and helps ensure that there are no dangling edges.
+
+There are several ways to traverse the graph or to easily loop over vertices and edges. Macros are provided to allow for iterating over vertices or over the edges that emanate from the vertex: `g_iterate_vertices` and `g_iterate_edges`. There are also to helper functions to do either a breadth first or depth first traverse starting from a particular vertex: `g_breadth_first_traverse` and `g_depth_first_traverse`.
 
 All functions are documented within the `graph.h` file.
 
@@ -297,7 +299,7 @@ g_edge_add(g, 2, 3, "400 miles"); // boston to cincinati
 // iterate over the verticies
 vertex_t v;
 unsigned int i, j;
-g_iterate_verticies(g, v, i) {
+g_iterate_vertices(g, v, i) {
     printf("idx: %d\tcity: %s\n", i, g_vertex_metadata(v));
 
     // iterate over the edges!

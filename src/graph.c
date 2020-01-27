@@ -32,6 +32,8 @@ typedef struct __edge_node{
     void* metadata;
 } Edge;
 
+/* private functions */
+static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray, unsigned int* size);
 
 /*******************************************************************************
 *   Graph Properties / Functions
@@ -210,7 +212,7 @@ edge_t g_edge_add(graph_t g, unsigned int src, unsigned int dest, void* metadata
     vertex_t v_src = g->verts[src];
     unsigned int outs = (v_src->num_edges_out)++;
     if (outs >= v_src->_max_edges) {
-        unsigned int new_num_edges = g->_max_edges * 2; /* double */
+        unsigned int new_num_edges = v_src->_max_edges * 2; /* double */
         edge_t* tmp = realloc(v_src->edges, new_num_edges * sizeof(edge_t));
         for (i = outs; i < new_num_edges; i++)
             tmp[i] = NULL;
@@ -330,4 +332,72 @@ void g_edge_free_alt(edge_t e, bool free_metadata) {
     if (free_metadata == true)
         free(e->metadata);
     free(e);
+}
+
+
+/*******************************************************************************
+*   traversals
+*******************************************************************************/
+#define SET_BIT(A,k)        (A[((k) / 8)] |=  (1 << ((k) % 8)))
+#define CHECK_BIT(A, k)     (A[((k) / 8)] &   (1 << ((k) % 8)))
+#define CEILING(n,d)  ((n / d) + (n % d > 0))
+unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size) {
+    *size = 0;
+    unsigned int* ret = calloc(g_num_vertices(g), sizeof(unsigned int));
+    /* we will use a bitarray to track which vertices have been visited */
+    char* bitarray = calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
+    unsigned int id = g_vertex_id(v);
+    SET_BIT(bitarray, id);
+
+    int cur_pos = 0, pos = 0;
+    ret[pos++] = id;
+
+    edge_t e;
+    unsigned int i;
+    while (cur_pos != pos) {  /* this signifies that we have hit the end */
+        vertex_t v = g_vertex_get(g, ret[cur_pos]);
+        g_iterate_edges(v, e, i) {
+            id = g_edge_dest(e);
+            if (CHECK_BIT(bitarray, id) != 0)
+                continue;  /* already visited */
+            SET_BIT(bitarray, id);
+            ret[pos++] = id;
+        }
+        ++cur_pos;
+    }
+
+    free(bitarray);
+    *size = pos;
+    return ret;
+}
+
+
+unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size) {
+    *size = 0;
+    unsigned int* ret = calloc(g_num_vertices(g), sizeof(unsigned int));
+    char* bitarray = calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
+    unsigned int id = g_vertex_id(v);
+    SET_BIT(bitarray, id);
+    ret[0] = id;
+    *size = *size + 1;
+    __traverse_depth_first(g, ret, bitarray, size);
+    free(bitarray);
+    return ret;
+}
+
+
+static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray, unsigned int* size) {
+    vertex_t v = g_vertex_get(g, res[*size - 1]);
+    // cppcheck-suppress variableScope
+    edge_t e;
+    unsigned int i, id;
+    g_iterate_edges(v, e, i) {
+        id = g_edge_dest(e);
+        if (CHECK_BIT(bitarray, id) != 0)
+            continue;  /* already visited */
+        SET_BIT(bitarray, id);
+        res[*size] = id;
+        *size = *size + 1;
+        __traverse_depth_first(g, res, bitarray, size);
+    }
 }

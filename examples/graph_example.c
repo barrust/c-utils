@@ -71,14 +71,24 @@ int main(int argc, char const *argv[]) {
     __add_highway_as_edge(g, 8, 6, 420);    /* LV - SLC */
     __add_highway_as_edge(g, 6, 10, 735);   /* SLC - SF */
 
-    printf("Breadth First Search; starting at New York: \n");
-    unsigned int* bfs = __breadth_first_search(g, g_vertex_get(g, 0));
-    for (i = 0; i < g_vertices_inserted(g); i++) {
+    printf("Breadth First Traverse; starting at New York: \n");
+    unsigned int size, len;
+    unsigned int* bfs = g_breadth_first_traverse(g, g_vertex_get(g, 0), &size);
+    unsigned int* dfs = g_depth_first_traverse(g, g_vertex_get(g, 0), &len);
+    printf("Size: %u\n", size);
+    for (i = 0; i < size; i++) {
         printf("%d, ", bfs[i]);
     }
-    printf("\n");
+    printf("\n\n\n");
 
-    for (i = 0; i < g_vertices_inserted(g); i++) {
+    printf("Depth First Traverse: starting from New York: \n");
+    printf("Size: %u\n", len);
+    for (i = 0; i < size; i++) {
+        printf("%d, ", dfs[i]);
+    }
+    printf("\n\n\n");
+
+    for (i = 0; i < size; i++) {
         v = g_vertex_get(g, bfs[i]);
         city* c = g_vertex_metadata(v);
         __print_city(c);
@@ -93,6 +103,7 @@ int main(int argc, char const *argv[]) {
     }
     g_free(g);
     free(bfs);
+    free(dfs);
 
     if (verbose == true)
         printf("Completed!\n");
@@ -136,39 +147,4 @@ static char* __str_duplicate(const char* s) {
     strcpy(buf, s);
     buf[len] = '\0';
     return buf;
-}
-
-
-#define SET_BIT(A,k)        (A[((k) / 8)] |=  (1 << ((k) % 8)))
-#define CHECK_BIT(A, k)     (A[((k) / 8)] &   (1 << ((k) % 8)))
-
-unsigned int* __breadth_first_search(graph_t g, vertex_t start) {
-    unsigned int* ret = calloc(g_vertices_inserted(g), sizeof(unsigned int));
-
-    /*  Use a bitarray to track which nodes we have visited
-        NOTE: this is not always correct, but it will work since it is larger! */
-    char* bitarray = calloc(g_vertices_inserted(g) / 8 + 1, sizeof(char));
-    unsigned int id = g_vertex_id(start);
-    SET_BIT(bitarray, id);
-
-    int cur_pos = 0;
-    int pos = 0;
-    ret[pos++] = id;
-
-    edge_t e;
-    unsigned int i;
-    while (cur_pos != pos) {
-        vertex_t v = g_vertex_get(g, ret[cur_pos]);
-        g_iterate_edges(v, e, i) {
-            id = g_edge_dest(e);
-            if (CHECK_BIT(bitarray, id) != 0)
-                continue;  /* already visited */
-            SET_BIT(bitarray, id);
-            ret[pos++] = id;
-        }
-        cur_pos++;
-    }
-
-    free(bitarray);
-    return ret;
 }
