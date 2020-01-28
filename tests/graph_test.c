@@ -49,6 +49,21 @@ MU_TEST(test_add_vertices) {
     mu_assert_string_eq("d3-football", g_vertex_metadata(v));
 }
 
+MU_TEST(test_add_verticies_idx_error) {
+    vertex_t v = g_vertex_add(g, __str_duplicate("we are here..."));
+    v = g_vertex_add_alt(g, 0, NULL); // this should be an error!
+    mu_assert_string_eq(NULL, (char*)v);
+}
+
+MU_TEST(test_add_vertex_large_idx) {
+    vertex_t v = g_vertex_add_alt(g, 4097, __str_duplicate("we are here..."));
+    mu_assert_int_eq(1, g_num_vertices(g));
+    mu_assert_int_eq(4097, g_vertex_id(v));
+
+    vertex_t q = g_vertex_get(g, 4097);
+    mu_assert_int_eq(4097, g_vertex_id(q));
+}
+
 MU_TEST(test_remove_vertices) {
     mu_assert_int_eq(0, g_num_vertices(g));
     g_vertex_add(g, __str_duplicate("this is a test"));
@@ -169,9 +184,20 @@ MU_TEST(test_remove_edges_src) {
 
 MU_TEST(test_edges_growth) {
     __add_vertices(g, 4000); /* add 4000 vertices! */
+    mu_assert_int_eq(4000, g_num_vertices(g));
     unsigned int i;
+    for (i = 0; i < 4000; i++) {
+        vertex_t v = g_vertex_get(g, i);
+        if (v == NULL)
+            printf("Vertex id=%d == NULL\n", i);
+        // else
+        //     mu_assert_int_eq(i, g_vertex_id(v));
+    }
     for (i = 1; i < g_num_vertices(g); i++) {
-        g_edge_add(g, i - 1, i, NULL);
+        edge_t e = g_edge_add(g, i - 1, i, NULL);
+        if (e == NULL) {
+            printf("e was NULL: %d\n", i);
+        }
     }
     mu_assert_int_eq(3999, g_num_edges(g));
 }
@@ -413,6 +439,8 @@ MU_TEST_SUITE(test_suite) {
 
     /* add & remove vertices */
     MU_RUN_TEST(test_add_vertices);
+    MU_RUN_TEST(test_add_verticies_idx_error);
+    MU_RUN_TEST(test_add_vertex_large_idx);
     MU_RUN_TEST(test_remove_vertices);
     MU_RUN_TEST(test_vertices_growth);
     MU_RUN_TEST(test_updating_vertex_metadata);
