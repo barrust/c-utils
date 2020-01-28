@@ -123,13 +123,27 @@ edge_t g_edge_get(graph_t g, unsigned int id) {
 }
 
 vertex_t g_vertex_add(graph_t g, void* metadata) {
+    unsigned int id = (g->_prev_vert_id)++;
+    return g_vertex_add_alt(g, id, metadata);
+}
+
+vertex_t g_vertex_add_alt(graph_t g, unsigned int idx, void* metadata) {
+    /* check if mixed adding by id and add and clobbered the other */
+    if (idx < g->_max_verts && g->verts[idx] != NULL)
+        return NULL;
+
     vertex_t v = calloc(1, sizeof(Vertex));
     if (v == NULL)
         return NULL;
-    unsigned int id = (g->_prev_vert_id)++;
-    if (id >= g->_max_verts) {
-        /* need to expand the verts! */
+
+    if (idx >= g->_max_verts) {
+        /*  need to expand the verts!
+            NOTE: ensure that we are growing enough to capture idx and
+            not just double... */
         unsigned int new_num_verts = g->_max_verts * 2; /* double */
+        while (new_num_verts < idx)
+            new_num_verts *= 2;
+
         vertex_t* tmp = realloc(g->verts, new_num_verts * sizeof(vertex_t));
         g->_max_verts = new_num_verts;
         g->verts = tmp;
@@ -140,13 +154,13 @@ vertex_t g_vertex_add(graph_t g, void* metadata) {
             g->verts[i] = NULL;
         }
     }
-    v->id = id;
+    v->id = idx;
     v->metadata = metadata;
     v->_max_edges = 16; /* some starting point */
     v->edges = calloc(v->_max_edges, sizeof(edge_t));
     v->num_edges_out = 0;
     v->num_edges_in = 0;
-    g->verts[id] = v;
+    g->verts[idx] = v;
     ++(g->num_verts);
     return v;
 }
