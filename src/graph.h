@@ -54,10 +54,18 @@ unsigned int g_vertices_inserted(graph_t g);
 unsigned int g_num_edges(graph_t g);
 
 
-/*  Insert a new vertex intot he graph with the provided metadata; the
+/*  Insert a new vertex into the graph with the provided metadata; the
     vertex will be assigned an id (based on the order it is added) that can be
     used to quickly retrieve it */
 vertex_t g_vertex_add(graph_t g, void* metadata);
+
+/*  Insert a new vertex into the graph by id with the provieded metadata; the
+    vertex will be assigned to  the provided id that can be used to quickly
+    retrieve it;
+    NOTE: if idx already has a vertex with that id, then NULL will be returned
+    NOTE: it is NOT recommended to mix using g_vertex_add and g_vertex_add_alt
+    NOTE: if possible, initialize the graph to hold the largest known idx */
+vertex_t g_vertex_add_alt(graph_t g, unsigned int idx, void* metadata);
 
 /*  Remove the vertex from the graph, returning it
     NOTE: It is up to the caller to free the memory using g_vertex_free()
