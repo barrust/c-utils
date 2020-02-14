@@ -5,6 +5,23 @@
 #include "graph.h"
 
 
+#if defined (_OPENMP)
+    #include <omp.h>
+    #define ATOMIC _Pragma          ("omp atomic")
+    #define CRITICAL _Pragma        ("omp critical (graph_t_critical)")
+    #define CRITICAL_EDGE _Pragma   ("omp critical (graph_t_edge_critical)")
+    // #define ATOMIC_ADD_FETCH(i)     (__atomic_add_fetch(&(i), 1, __ATOMIC_SEQ_CST))
+    // #define ATOMIC_FETCH_ADD(i)     (__atomic_fetch_add(&(i), 1, __ATOMIC_SEQ_CST))
+    // #define ATOMIC_SUB_FETCH(i)     (__atomic_sub_fetch(&(i), 1, __ATOMIC_SEQ_CST))
+#else
+    #define ATOMIC
+    #define CRITICAL
+    #define CRITICAL_EDGE
+    // #define ATOMIC_ADD_FETCH(i)     (++i)
+    // #define ATOMIC_FETCH_ADD(i)     (i++)
+    // #define ATOMIC_SUB_FETCH(i)     (--i)
+#endif
+
 typedef struct __graph {
     unsigned int num_verts;
     unsigned int num_edges;
@@ -34,6 +51,9 @@ typedef struct __edge_node{
 
 /* private functions */
 static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray, unsigned int* size);
+static void __graph_vertices_grow(graph_t g, unsigned int id);
+static void __graph_edges_grow(graph_t g, unsigned int id);
+static void __vertex_edges_grow(vertex_t v_src, unsigned int outs);
 
 /*******************************************************************************
 *   Graph Properties / Functions
@@ -127,44 +147,32 @@ vertex_t g_vertex_add(graph_t g, void* metadata) {
     return g_vertex_add_alt(g, id, metadata);
 }
 
-vertex_t g_vertex_add_alt(graph_t g, unsigned int idx, void* metadata) {
+vertex_t g_vertex_add_alt(graph_t g, unsigned int id, void* metadata) {
     /* check if mixed adding by id and add and clobbered the other */
-    if (idx >= g->_max_verts) {
-        /*  need to expand the verts!
-            NOTE: ensure that we are growing enough to capture idx and
-            not just double... */
-        unsigned int new_num_verts = g->_max_verts * 2;
-        while (new_num_verts < idx) {
-            new_num_verts *= 2;
+    if (id >= g->_max_verts) {
+        CRITICAL
+        {
+            __graph_vertices_grow(g, id);
         }
-
-        vertex_t* tmp = realloc(g->verts, new_num_verts * sizeof(vertex_t));
-        g->verts = tmp;
-
-        /* ensure everything in the new memory space is NULL if not used */
-        unsigned int i;
-        for (i = g->_max_verts; i < new_num_verts; i++) {
-            g->verts[i] = NULL;
-        }
-        g->_max_verts = new_num_verts;
-    } else if (idx < g->_max_verts && g->verts[idx] != NULL) {
+    } else if (id < g->_max_verts && g->verts[id] != NULL) {
         return NULL;
     }
 
-    if (idx > g->_prev_vert_id)
-        g->_prev_vert_id = idx + 1;
+    if (id > g->_prev_vert_id) {
+        g->_prev_vert_id = id + 1;
+    }
 
     vertex_t v = calloc(1, sizeof(Vertex));
     if (v == NULL)
         return NULL;
 
-    v->id = idx;
+    v->id = id;
     v->metadata = metadata;
     v->_max_edges = 16; /* some starting point */
     v->edges = calloc(v->_max_edges, sizeof(edge_t));
     v->num_edges_out = 0;
     v->num_edges_in = 0;
-    g->verts[idx] = v;
+    g->verts[id] = v;
     ++(g->num_verts);
     return v;
 }
@@ -207,18 +215,11 @@ edge_t g_edge_add(graph_t g, unsigned int src, unsigned int dest, void* metadata
     if (e == NULL)
         return NULL;
 
-    unsigned int i;
     unsigned int id = (g->_prev_edge_id)++;
     if (id >= g->_max_edges) {
-        /* need to expand the edges! */
-        unsigned int new_num_edges = g->_max_edges * 2; /* double */
-        edge_t* tmp = realloc(g->edges, new_num_edges * sizeof(edge_t));
-        g->_max_edges = new_num_edges;
-        g->edges = tmp;
-
-        /* ensure everything in the new memory space is NULL if not used */
-        for (i = g->_prev_edge_id - 1; i < g->_max_edges; i++) {
-            g->edges[i] = NULL;
+        CRITICAL_EDGE
+        {
+            __graph_edges_grow(g, id);
         }
     }
     e->id = id;
@@ -230,13 +231,10 @@ edge_t g_edge_add(graph_t g, unsigned int src, unsigned int dest, void* metadata
     vertex_t v_src = g->verts[src];
     unsigned int outs = (v_src->num_edges_out)++;
     if (outs >= v_src->_max_edges) {
-        unsigned int new_num_edges = v_src->_max_edges * 2; /* double */
-        edge_t* tmp = realloc(v_src->edges, new_num_edges * sizeof(edge_t));
-        for (i = outs; i < new_num_edges; i++)
-            tmp[i] = NULL;
-        v_src->_max_edges = new_num_edges;
-        v_src->edges = tmp;
-        tmp = NULL;
+        CRITICAL_EDGE
+        {
+            __vertex_edges_grow(v_src, outs);
+        }
     }
 
     v_src->edges[outs] = e;
@@ -256,13 +254,16 @@ edge_t g_edge_remove(graph_t g, unsigned int id) {
 
     /*  find the correct location in the src and set to NULL
         but move the last one to fill it's spot */
-    unsigned int i;
     vertex_t v = g->verts[e->src];
-    for (i = 0; i < v->num_edges_out; i++) {
-        if (e == v->edges[i]) {
-            v->edges[i] = v->edges[v->num_edges_out - 1];
-            v->edges[v->num_edges_out - 1] = NULL;
-            break;
+    CRITICAL_EDGE
+    {
+        unsigned int i;
+        for (i = 0; i < v->num_edges_out; i++) {
+            if (e == v->edges[i]) {
+                v->edges[i] = v->edges[v->num_edges_out - 1];
+                v->edges[v->num_edges_out - 1] = NULL;
+                break;
+            }
         }
     }
     --(v->num_edges_out);
@@ -344,6 +345,8 @@ void g_edge_free(edge_t e) {
 }
 
 void g_edge_free_alt(edge_t e, bool free_metadata) {
+    if (e == NULL)
+        return;
     e->id = 0;
     e->src = 0;
     e->dest = 0;
@@ -418,4 +421,62 @@ static void __traverse_depth_first(graph_t g, unsigned int* res, char* bitarray,
         *size = *size + 1;
         __traverse_depth_first(g, res, bitarray, size);
     }
+}
+
+static void __graph_vertices_grow(graph_t g, unsigned int id) {
+    /*  in parallel code, the work may have been done by another thread, so
+        it should be checked one more time */
+    if (id < g->_max_verts)
+        return;
+
+    /*  need to expand the verts!
+        NOTE: ensure that we are growing enough to capture idx and
+        not just double... */
+    unsigned int new_num_verts = g->_max_verts * 2;
+    while (new_num_verts < id) {
+        new_num_verts *= 2;
+    }
+
+    vertex_t* tmp = realloc(g->verts, new_num_verts * sizeof(vertex_t));
+    g->verts = tmp;
+
+    /* ensure everything in the new memory space is NULL if not used */
+    unsigned int i;
+    for (i = g->_max_verts; i < new_num_verts; i++) {
+        g->verts[i] = NULL;
+    }
+    g->_max_verts = new_num_verts;
+}
+
+static void __graph_edges_grow(graph_t g, unsigned int id) {
+    /*  in parallel code, the work may have been done by another thread, so
+        it should be checked one more time */
+    if (id < g->_max_edges)
+        return;
+
+    /* need to expand the edges! */
+    unsigned int new_num_edges = g->_max_edges * 2; /* double */
+    edge_t* tmp = realloc(g->edges, new_num_edges * sizeof(edge_t));
+    g->edges = tmp;
+
+    /* ensure everything in the new memory space is NULL if not used */
+    unsigned int i;
+    for (i = g->_prev_edge_id - 1; i < new_num_edges; i++) {
+        g->edges[i] = NULL;
+    }
+    g->_max_edges = new_num_edges;
+}
+
+static void __vertex_edges_grow(vertex_t v_src, unsigned int outs) {
+    if (outs < v_src->_max_edges)
+        return;
+
+    unsigned int new_num_edges = v_src->_max_edges * 2; /* double */
+    edge_t* tmp = realloc(v_src->edges, new_num_edges * sizeof(edge_t));
+    unsigned int i;
+    for (i = outs; i < new_num_edges; i++)
+        tmp[i] = NULL;
+    v_src->_max_edges = new_num_edges;
+    v_src->edges = tmp;
+    tmp = NULL;
 }
