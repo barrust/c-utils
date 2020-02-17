@@ -20,8 +20,8 @@ MU_TEST(test_timing_simple) {
     sleep(61); /* sleep isn't exactly this many seconds... so get close! */
     timing_end(&t);
     char msg[500] = {0};
-    sprintf(msg, "Time not between 61.00 and 61.10 was %f", t.timing_double);
-    mu_assert(t.timing_double > 61.00 && t.timing_double < 61.10, msg);
+    sprintf(msg, "Time not between 61.00 and 61.25 was %f", t.timing_double);
+    mu_assert(t.timing_double > 61.00 && t.timing_double < 61.25, msg);
 
     /* set these to something we can test! */
     t.milliseconds = 0;
