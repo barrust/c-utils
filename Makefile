@@ -30,6 +30,9 @@ graph:
 debug: CCFLAGS += -g
 debug: all
 
+openmp: CCFLAGS += -fopenmp -Wno-unknown-pragmas
+openmp: all
+
 test: CCFLAGS += -coverage
 test: libraries
 	$(CC) $(STD) $(DISTDIR)/stringlib.o $(TESTDIR)/stringlib_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/strlib
