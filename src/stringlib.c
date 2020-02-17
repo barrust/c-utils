@@ -56,8 +56,9 @@ size_t s_trim(char* s) {
     res += j;
 
     /* now we need to move things */
-    while (j <= length) s[i++] = s[j++];
-
+    if (j > 0) {
+        while (j <= length) s[i++] = s[j++];
+    }
     return res;
 }
 
@@ -67,7 +68,7 @@ char* s_standardize_whitespace(char* s, const char c) {
     while (s[i] != '\0') {
         if (isspace(s[i]))
             s[i] = c;
-        i++;
+        ++i;
     }
     return s;
 }
