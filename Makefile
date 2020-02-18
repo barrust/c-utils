@@ -2,7 +2,7 @@ TESTDIR=tests
 DISTDIR=dist
 SRCDIR=src
 EXAMPLEDIR=examples
-COMPFLAGS=-Wall -Wpedantic -Winline -Wextra
+COMPFLAGS=-Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas
 
 
 all: libraries examples test
@@ -29,6 +29,9 @@ graph:
 
 debug: CCFLAGS += -g
 debug: all
+
+openmp: CCFLAGS += -fopenmp
+openmp: all
 
 test: CCFLAGS += -coverage
 test: libraries

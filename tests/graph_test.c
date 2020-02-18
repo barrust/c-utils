@@ -2,7 +2,9 @@
 #include <stdbool.h>
 #include "../src/graph.h"
 #include "minunit.h"
-
+#if defined (_OPENMP)
+    #include <omp.h>
+#endif
 
 graph_t g;
 
@@ -92,6 +94,13 @@ MU_TEST(test_remove_vertices) {
 
 MU_TEST(test_vertices_growth) {
     __add_vertices(g, 4000); /* add 4000 vertices! */
+    unsigned int i;
+    for (i = 0; i < 4000; i++) {  /* good for checking order when using openmp; only "check" if would fail */
+        vertex_t v = g_vertex_get(g, i);
+        if (g_vertex_id(v) != i) {
+            mu_assert_int_eq(g_vertex_id(v), i);
+        }
+    }
     mu_assert_int_eq(4000, g_num_vertices(g));
 }
 
@@ -493,10 +502,11 @@ static char* __str_duplicate(const char* s) {
 
 static void  __add_vertices(graph_t g, int num) {
     int i;
+    #pragma omp parallel for
     for (i = 0; i < num; i++) {
         int* q = calloc(1, sizeof(int));
         *q = i;
-        g_vertex_add(g, q);
+        g_vertex_add_alt(g, i, q);
     }
 }
 

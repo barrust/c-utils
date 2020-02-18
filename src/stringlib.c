@@ -41,7 +41,7 @@ char* s_reverse(char* s) {
 
 
 size_t s_trim(char* s) {
-    size_t res = 0, i = 0, j = 0, length = strlen(s);
+    size_t res = 0, j = 0, length = strlen(s);
 
     /* remove trailing spaces */
     while (isspace(s[length - 1]) != 0) {
@@ -56,8 +56,10 @@ size_t s_trim(char* s) {
     res += j;
 
     /* now we need to move things */
-    while (j <= length) s[i++] = s[j++];
-
+    if (j > 0) {
+        size_t i = 0;
+        while (j <= length) s[i++] = s[j++];
+    }
     return res;
 }
 
@@ -67,7 +69,7 @@ char* s_standardize_whitespace(char* s, const char c) {
     while (s[i] != '\0') {
         if (isspace(s[i]))
             s[i] = c;
-        i++;
+        ++i;
     }
     return s;
 }

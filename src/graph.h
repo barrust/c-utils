@@ -6,7 +6,7 @@
 ***  Author: Tyler Barrus
 ***  email:  barrust@gmail.com
 ***
-***  Version: 0.1.0
+***  Version: 0.2.0
 ***  Purpose: Directed graph library
 ***
 ***  License: MIT 2020
@@ -62,10 +62,10 @@ vertex_t g_vertex_add(graph_t g, void* metadata);
 /*  Insert a new vertex into the graph by id with the provieded metadata; the
     vertex will be assigned to  the provided id that can be used to quickly
     retrieve it;
-    NOTE: if idx already has a vertex with that id, then NULL will be returned
+    NOTE: if id already has a vertex with that id, then NULL will be returned
     NOTE: it is NOT recommended to mix using g_vertex_add and g_vertex_add_alt
-    NOTE: if possible, initialize the graph to hold the largest known idx */
-vertex_t g_vertex_add_alt(graph_t g, unsigned int idx, void* metadata);
+    NOTE: if possible, initialize the graph to hold the largest known id */
+vertex_t g_vertex_add_alt(graph_t g, unsigned int id, void* metadata);
 
 /*  Remove the vertex from the graph, returning it
     NOTE: It is up to the caller to free the memory using g_vertex_free()
