@@ -103,7 +103,7 @@ int ba_reset(bitarray_t ba) {
 char* ba_to_string(bitarray_t ba) {
     char* res = calloc(ba->num_bits + 1, sizeof(char));
     size_t i;
-    for (i = 0; i < ba->num_bits; i++)
+    for (i = 0; i < ba->num_bits; ++i)
         res[i] = (CHECK_BIT(ba->arr, i) != 0) ? '1' : '0';
     return res;
 }
@@ -112,7 +112,7 @@ char* ba_to_string(bitarray_t ba) {
 size_t ba_number_bits_set(bitarray_t ba) {
     size_t res = 0;
     size_t i;
-    for (i = 0; i < ba->num_bits; i++)
+    for (i = 0; i < ba->num_bits; ++i)
         res += (CHECK_BIT(ba->arr, i) != 0) ? 1 : 0;
     return res;
 }

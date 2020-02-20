@@ -57,6 +57,10 @@ MU_TEST(test_duplicating_partial) {
 MU_TEST(test_reverse) {
     char s[] = "this is a test";
     mu_assert_string_eq("tset a si siht", s_reverse(s));
+    char t[] = "tim";
+    mu_assert_string_eq("mit", s_reverse(t));
+    char q[] = "tiny";
+    mu_assert_string_eq("ynit", s_reverse(q));
 }
 
 /*******************************************************************************

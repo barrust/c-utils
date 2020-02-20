@@ -271,7 +271,7 @@ int fs_rmdir_alt(const char* path, bool recursive) {
         char** paths = __fs_list_dir(path, &num_elms);
 
         int i;
-        for (i = 0; i < num_elms; i++) {
+        for (i = 0; i < num_elms; ++i) {
             char* tmp = fs_combine_filepath(path, paths[i]);
 
             int type = fs_identify_path(tmp);
@@ -429,7 +429,7 @@ void f_free(file_t f) {
     free(f->extension);
     free(f->absolute_path);
     size_t i;
-    for (i = 0; i < f->num_lines; i++)
+    for (i = 0; i < f->num_lines; ++i)
         f->lines[i] = NULL;
     free(f->lines);
     free(f->buffer);
@@ -546,19 +546,19 @@ void d_free(dir_t d) {
 
     int i;
 
-    for (i = 0; i < d->num_subdirs; i++)
+    for (i = 0; i < d->num_subdirs; ++i)
         d->subdirs[i] = NULL;
     free(d->subdirs);
 
-    for (i = 0; i < d->num_subdirs; i++)
+    for (i = 0; i < d->num_subdirs; ++i)
         d->subdirs_fullpath[i] = NULL;
     free(d->subdirs_fullpath);
 
-    for (i = 0; i < d->num_subfiles; i++)
+    for (i = 0; i < d->num_subfiles; ++i)
         d->subfiles[i] = NULL;
     free(d->subfiles);
 
-    for (i = 0; i < d->num_subfiles; i++)
+    for (i = 0; i < d->num_subfiles; ++i)
         d->subfiles_fullpath[i] = NULL;
     free(d->subfiles_fullpath);
 
@@ -605,7 +605,7 @@ int d_update_list(dir_t d) {
     d->subdirs_fullpath = calloc(d->num_subitems, sizeof(char*));
 
     char full_path[2048] = {0};
-    for (i = 0; i < d->num_subitems; i++) {
+    for (i = 0; i < d->num_subitems; ++i) {
         fs_combine_filepath_alt(d->full_path, d->subitems[i], full_path);
         d->subitems_fullpath[i] = __str_duplicate(full_path);
         if (fs_identify_path(full_path) == FS_DIRECTORY) {
@@ -807,7 +807,7 @@ static size_t __str_find_cnt_any(const char* s, const char* s2) {
 
 static void __free_double_array(char** arr, size_t num_elms) {
     size_t i;
-    for (i = 0; i < num_elms; i++) {
+    for (i = 0; i < num_elms; ++i) {
         free(arr[i]);
     }
     free(arr);

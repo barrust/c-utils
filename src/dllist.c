@@ -84,13 +84,13 @@ int dll_insert(dllist_t l, void * data, int idx) {
         dll_node* t;
         if (idx <= (int)l->elms / 2) {
             t = dll_first_node(l);
-            for (i = 1; i < idx; i++)
+            for (i = 1; i < idx; ++i)
                 t = t->next;
         } else {
             /* start from the tail and go backwards! */
             int stop = l->elms - idx;
             t = dll_last_node(l);
-            for (i = 0; i < stop; i++)
+            for (i = 0; i < stop; ++i)
                 t = t->prev;
         }
 
@@ -134,13 +134,13 @@ void* dll_remove(dllist_t l, int idx) {
         int i;
         if (idx <= (int)l->elms / 2) {
             ret = dll_first_node(l);
-            for (i = 1; i < idx; i++)
+            for (i = 1; i < idx; ++i)
                 ret = ret->next;
         } else {
             /* start from the tail and go backwards! */
             int stop = l->elms - idx;
             ret = dll_last_node(l);
-            for (i = 0; i < stop; i++)
+            for (i = 0; i < stop; ++i)
                 ret = ret->prev;
         }
 

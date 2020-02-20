@@ -78,7 +78,7 @@ graph_t g_init_alt(unsigned int size) {
     g->edges = calloc(g->_max_edges, sizeof(edge_t));
 
     unsigned int i;
-    for (i = 0; i < g->_max_edges; i++) {
+    for (i = 0; i < g->_max_edges; ++i) {
         g->verts[i] = NULL;
         g->edges[i] = NULL;
     }
@@ -92,7 +92,7 @@ void g_free(graph_t g) {
 
 void g_free_alt(graph_t g, bool free_metadata) {
     unsigned int i;
-    for (i = 0; i < g->_max_edges; i++) {
+    for (i = 0; i < g->_max_edges; ++i) {
         edge_t e = g->edges[i];
         if (e == NULL)
             continue;
@@ -100,7 +100,7 @@ void g_free_alt(graph_t g, bool free_metadata) {
     }
     free(g->edges);
 
-    for (i = 0; i < g->_max_verts; i++) {
+    for (i = 0; i < g->_max_verts; ++i) {
         vertex_t v = g->verts[i];
         if (v == NULL)
             continue;
@@ -191,7 +191,7 @@ vertex_t g_vertex_remove_alt(graph_t g, unsigned int id, bool free_edge_metadata
 
     /* need to find all the edges that include this vertex and remove them */
     unsigned int i;
-    for (i = 0; i <= g->_prev_edge_id; i++) {
+    for (i = 0; i <= g->_prev_edge_id; ++i) {
         edge_t e = g->edges[i];
         if (e == NULL)
             continue;
@@ -261,7 +261,7 @@ edge_t g_edge_remove(graph_t g, unsigned int id) {
     CRITICAL_EDGE
     {
         unsigned int i;
-        for (i = 0; i < v->num_edges_out; i++) {
+        for (i = 0; i < v->num_edges_out; ++i) {
             if (e == v->edges[i]) {
                 v->edges[i] = v->edges[v->num_edges_out - 1];
                 v->edges[v->num_edges_out - 1] = NULL;
@@ -445,7 +445,7 @@ static void __graph_vertices_grow(graph_t g, unsigned int id) {
 
     /* ensure everything in the new memory space is NULL if not used */
     unsigned int i;
-    for (i = g->_max_verts; i < new_num_verts; i++) {
+    for (i = g->_max_verts; i < new_num_verts; ++i) {
         g->verts[i] = NULL;
     }
     g->_max_verts = new_num_verts;
@@ -464,7 +464,7 @@ static void __graph_edges_grow(graph_t g, unsigned int id) {
 
     /* ensure everything in the new memory space is NULL if not used */
     unsigned int i;
-    for (i = g->_prev_edge_id - 1; i < new_num_edges; i++) {
+    for (i = g->_prev_edge_id - 1; i < new_num_edges; ++i) {
         g->edges[i] = NULL;
     }
     g->_max_edges = new_num_edges;
@@ -477,7 +477,7 @@ static void __vertex_edges_grow(vertex_t v_src, unsigned int outs) {
     unsigned int new_num_edges = v_src->_max_edges * 2;  /* double */
     edge_t* tmp = realloc(v_src->edges, new_num_edges * sizeof(edge_t));
     unsigned int i;
-    for (i = outs; i < new_num_edges; i++)
+    for (i = outs; i < new_num_edges; ++i)
         tmp[i] = NULL;
     v_src->_max_edges = new_num_edges;
     v_src->edges = tmp;

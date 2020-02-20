@@ -61,9 +61,9 @@ int ll_insert(llist_t l, void* data, size_t idx) {
         l->head = t;
     } else {
         ll_node* n = l->head;
-        size_t i = 1;
+        size_t i = 0;
         while (n->next != NULL) {
-            if (i++ == idx)
+            if (++i == idx)
                 break;
             n = n->next;
         }
@@ -85,7 +85,7 @@ void* ll_remove(llist_t l, size_t idx) {
     } else {
         ll_node* t = NULL;
         size_t i;
-        for (i = 0; i < idx; i++) {
+        for (i = 0; i < idx; ++i) {
             t = ret;
             ret = ret->next;
         }

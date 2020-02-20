@@ -6,10 +6,9 @@
 #include "stringlib.h"
 
 
-
 void s_free_array_of_strings(char** a, int num) {
     int i;
-    for (i = 0; i < num; i++)
+    for (i = 0; i < num; ++i)
         free(a[i]);
     free(a);
 }
@@ -27,14 +26,11 @@ char* s_duplicate(const char* s) {
 
 
 char* s_reverse(char* s) {
-    int j = strlen(s) - 1;
-    int i = 0;
-    while (i < j) {
+    int i, j;
+    for (i = 0, j = strlen(s) - 1; i < j; ++i, --j) {
         char tmp = s[i];
         s[i] = s[j];
         s[j] = tmp;
-        ++i;
-        --j;
     }
     return s;
 }
@@ -46,11 +42,11 @@ size_t s_trim(char* s) {
     /* remove trailing spaces */
     while (isspace(s[length - 1]) != 0) {
         s[--length] = '\0';
-        res++;
+        ++res;
     }
 
     /* count the number of leading spaces */
-    while (isspace(s[j]) != 0) j++;
+    while (isspace(s[j]) != 0) ++j;
 
     /* set our return value */
     res += j;
@@ -99,7 +95,7 @@ char* s_remove_unwanted_chars(char* s, const char* unwanted) {
     while (s[j] != '\0') {
         int changes = 0;
         size_t q;
-        for (q = 0; q < unwanted_len; q++) {
+        for (q = 0; q < unwanted_len; ++q) {
             if (s[j] == unwanted[q]) {
                 changes = 1;
                 ++j;
@@ -123,7 +119,7 @@ char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
     size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
         size_t q;
-        for (q = 0; q < unwanted_len; q++) {
+        for (q = 0; q < unwanted_len; ++q) {
             if (s[j] == unwanted[q]) {
                 s[j] = c;
                 break;
@@ -139,7 +135,7 @@ char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
 
 char* s_toupper(char* s) {
     size_t i;
-    for (i = 0; s[i] != '\0'; i++)
+    for (i = 0; s[i] != '\0'; ++i)
         s[i] = toupper(s[i]);
     return s;
 }
@@ -147,7 +143,7 @@ char* s_toupper(char* s) {
 
 char* s_tolower(char* s) {
     size_t i;
-    for (i = 0; s[i] != '\0'; i++)
+    for (i = 0; s[i] != '\0'; ++i)
         s[i] = tolower(s[i]);
     return s;
 }
@@ -184,8 +180,7 @@ int s_find_alt(const char*s, const char c, int idx) {
     int i = 0;
     char* loc = strchr(s, c);
     while (loc != NULL) {
-        ++i;
-        if (i == idx)
+        if (++i == idx)
             break;
         loc = strchr(loc + 1, c);
     }
@@ -241,8 +236,7 @@ int s_find_alt_str(const char*s, const char* sub, int idx) {
     int len = strlen(sub);
     char* loc = strstr(s, sub);
     while (loc != NULL) {
-        ++i;
-        if (i == idx)
+        if (++i == idx)
             break;
         loc = strstr(loc + len, sub);
     }
@@ -289,8 +283,7 @@ int s_find_alt_any(const char*s, const char* s2, int idx) {
     int i = 0;
     char* loc = strpbrk(s, s2);
     while (loc != NULL) {
-        ++i;
-        if (i == idx)
+        if (++i == idx)
             break;
         loc = strpbrk(loc + 1, s2);
     }
