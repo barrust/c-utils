@@ -1,15 +1,10 @@
 /*******************************************************************************
-*   Demonstrate some of the uses of the linked list datastructure by
-*   adding points as a stack! We will make a point struct, to show it being
-*   used with a non-standard datatype.
-*
-*   NOTE: One can make a stack using the data structure by making a macro for
-*   pop and push to ensure that one always pushes to the front (0) and pops
-*   from the front. A stack (LIFO) is best implemented using a singly linked
-*   list that always does all work from the head node.
+*   Demonstrate that the use of a linked list as a stack works the same
+*   since this example is identical to the linked list version.
 *
 *   Use -v to include more debugging information
 *******************************************************************************/
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
-#include "../src/llist.h"
+#include "../src/stack.h"
 
 typedef struct point {
     int x;
@@ -39,42 +34,42 @@ int main(int argc, char const *argv[]) {
     time_t t;
     srand((unsigned) time(&t));
 
-    llist_t l = ll_init();
+    stack_t stk = stk_init();
 
     /* build out a list of points and add them to the stack*/
     int i;
-    for (i = 0; i < NUM_ELEMENTS; i++) {
+    for (i = 0; i < NUM_ELEMENTS; ++i) {
         _point* p = malloc(sizeof(_point));
         p->x = i;
         p->y = rand() % 50;
         p->z = i + 1;
-        ll_insert(l, p, 0);  /* for a stack, everything must be up front */
+        stk_push(stk, p);  /* for a stack, everything must be up front */
     }
 
     /* traverse the list and make sure that each point's x is less than the previous */
     int cnt = 0;
     int prev = NUM_ELEMENTS + 1;
-    ll_node* n;
-    ll_traverse(l, n) { /* this is a macro to simplify n = n->next type loops */
+    stack_node* n;
+    stk_traverse(stk, n) { /* this is a macro to simplify n = n->next type loops */
         _point* q = (_point*) n->data;
         assert(prev > q->x);
         prev = q->x;
     }
 
     /* for a stack, we need to "pop" or remove the first element each time */
-    for (i = 1; i <= NUM_ELEMENTS; i++) {
-        _point* w = (_point*) ll_remove(l, 0);
+    for (i = 1; i <= NUM_ELEMENTS; ++i) {
+        _point* w = (_point*) stk_pop(stk);
         assert(NUM_ELEMENTS - i == w->x);
-        assert((unsigned int)(NUM_ELEMENTS - i) == ll_num_elements(l));
+        assert((unsigned int)(NUM_ELEMENTS - i) == stk_num_elements(stk));
         if (verbose) {
             printf("point: %d\tx: %d\ty: %d\tz: %d\n", cnt++, w->x, w->y, w->z);
         }
         free(w); /* it was pop'd but not yet free'd */
     }
 
-    assert(0 == ll_num_elements(l));
+    assert(0 == stk_num_elements(stk));
 
-    ll_free_alt(l, true);
+    stk_free_alt(stk, true);
     printf("Completed successfully!\n");
     return 0;
 }
