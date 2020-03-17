@@ -289,7 +289,7 @@ To use, simply copy the `stack.h` and `stack.c` files into your project and incl
 ``` c
 #include "stack.h"
 
-stack_t stk = stk_init();
+stack_list_t stk = stk_init();
 
 int* get_random() {
     int* t = calloc(1, sizeof(int));
@@ -323,7 +323,7 @@ To use, simply copy the `queue.h` and `queue.c` files into your project and incl
 ``` c
 #include "queue.h"
 
-queue_t q = q_init();
+queue_list_t q = q_init();
 
 int* get_random() {
     int* t = calloc(1, sizeof(int));

@@ -5,7 +5,7 @@
 #include "../src/queue.h"
 
 
-queue_t q;
+queue_list_t q;
 
 void test_setup(void) {
     q = q_init();

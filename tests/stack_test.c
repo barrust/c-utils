@@ -4,7 +4,7 @@
 #include "minunit.h"
 #include "../src/stack.h"
 
-ll_stack_t stk;
+stack_list_t stk;
 
 void test_setup(void) {
     stk = stk_init();

@@ -35,7 +35,7 @@ int main(int argc, char const *argv[]) {
     time_t t;
     srand((unsigned) time(&t));
 
-    queue_t q = q_init();
+    queue_list_t q = q_init();
 
     for (i = 0; i < NUM_ELEMENTS; ++i) {
         _person* p = malloc(sizeof(_person));
