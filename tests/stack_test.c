@@ -69,6 +69,9 @@ MU_TEST(test_simple_pops) {
     stk_pop_alt(stk, true);
     mu_assert_int_eq(0, stk_num_elements(stk));
     mu_assert_null(stk_first_node(stk));
+
+    /* we should be empty stack, try popping again! */
+    mu_assert_null(stk_pop(stk));
 }
 
 /*******************************************************************************
