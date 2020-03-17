@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
     time_t t;
     srand((unsigned) time(&t));
 
-    stack_t stk = stk_init();
+    ll_stack_t stk = stk_init();
 
     /* build out a list of points and add them to the stack*/
     int i;

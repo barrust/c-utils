@@ -10,18 +10,18 @@ typedef struct __linked_list {
 } linked_list;
 
 
-stack_t stk_init() {
-    stack_t q = calloc(1, sizeof(linked_list));
-    q->head = NULL;
-    q->elms = 0;
-    return q;
+ll_stack_t stk_init() {
+    ll_stack_t stk = calloc(1, sizeof(linked_list));
+    stk->head = NULL;
+    stk->elms = 0;
+    return stk;
 }
 
-void stk_free(stack_t stk) {
+void stk_free(ll_stack_t stk) {
     stk_free_alt(stk, false);
 }
 
-void stk_free_alt(stack_t stk, bool free_data) {
+void stk_free_alt(ll_stack_t stk, bool free_data) {
     stack_node* n = stk->head;
     while (n != NULL) {
         if (free_data == true)
@@ -34,15 +34,15 @@ void stk_free_alt(stack_t stk, bool free_data) {
     free(stk);
 }
 
-size_t stk_num_elements(stack_t stk) {
+size_t stk_num_elements(ll_stack_t stk) {
     return stk->elms;
 }
 
-stack_node* stk_first_node(stack_t stk) {
+stack_node* stk_first_node(ll_stack_t stk) {
     return stk->head;
 }
 
-int stk_push(stack_t stk, void * data) {
+int stk_push(ll_stack_t stk, void * data) {
     /* setup the node to add */
     stack_node* n = calloc(1, sizeof(stack_node));
     if (n == NULL)
@@ -56,13 +56,13 @@ int stk_push(stack_t stk, void * data) {
     return STACK_SUCCESS;
 }
 
-void stk_pop_alt(stack_t stk, bool free_data) {
+void stk_pop_alt(ll_stack_t stk, bool free_data) {
     void* ret = stk_pop(stk);
     if (free_data == true)
         free(ret);
 }
 
-void* stk_pop(stack_t stk) {
+void* stk_pop(ll_stack_t stk) {
     if (stk->elms == 0)
         return NULL;
 
