@@ -14,6 +14,8 @@ If there are other commonly used code or data-structures that should be added, p
 * [bitarray](#bitarray)
 * [linked list](#linkedlist)
 * [doubly linked list](#doublylinkedlist)
+* [stack](#stack)
+* [queue](#queue)
 * [graph](#graph)
 * [timing-c](#timing-c)
 
@@ -173,7 +175,7 @@ ba_free(ba);
 
 ## linkedlist
 
-This library adds a generic linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list.
+This library adds a generic linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list. If you have fewer access and removal needs it may be better to use a [stack](#stack) which provides the same structure.
 
 All functions are documented within the `llist.h` file.
 
@@ -190,11 +192,15 @@ To use, simply copy the `llist.h` and `llist.c` files into your project and incl
 
 llist_t l = ll_init();
 
+int* get_random() {
+    int* t = calloc(1, sizeof(int));
+    *t = rand() % 100000;
+    return t;
+}
 
 int i;
 for (i = 0; i < 1000; i++) {
-    int* t = calloc(1, sizeof(int));
-    *t = rand() % 100000;
+    int* t = get_random();
     ll_append(l, t);
 }
 
@@ -219,7 +225,7 @@ ll_free_alt(l, true); // even free the data field
 
 ## doublylinkedlist
 
-This library adds a generic doubly linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list.
+This library adds a generic doubly linked list implementation. Any type of data can be added to the list as the data type of the data is `void*`. Elements can be added or removed to the end or any location within the list. This is useful when you need to control where nodes are inserted and the order that they are removed. If you have fewer access and removal needs it may be better to use a [queue](#queue) which provides the same structure.
 
 All functions are documented within the `dllist.h` file.
 
@@ -236,11 +242,15 @@ To use, simply copy the `dllist.h` and `dllist.c` files into your project and in
 
 dllist_t l = dll_init();
 
+int* get_random() {
+    int* t = calloc(1, sizeof(int));
+    *t = rand() % 100000;
+    return t;
+}
 
 int i;
 for (i = 0; i < 1000; i++) {
-    int* t = calloc(1, sizeof(int));
-    *t = rand() % 100000;
+    int* t = get_random();
     dll_append(l, t);
 }
 
@@ -260,6 +270,74 @@ while (node != NULL) {
 }
 
 dll_free_alt(l, true); // even free the data field
+```
+
+## stack
+
+Built using the linked list code, this provides a special implementation of a linked list that always inserts and removes the first element in the linked list. This is useful in instances that there is no need for arbitrary insertion and removal locations from the linked list. As such, this version can be slightly faster than a linked list since insertion is constant.
+
+All functions are documented within the `stack.h` file.
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `stack` library
+
+#### Usage
+
+To use, simply copy the `stack.h` and `stack.c` files into your project and include it where needed.
+
+``` c
+#include "stack.h"
+
+stack_list_t stk = stk_init();
+
+int* get_random() {
+    int* t = calloc(1, sizeof(int));
+    *t = rand() % 100000;
+    return t;
+}
+
+int i;
+for (i = 0; i < 1000; i++) {
+    int* t = get_random();
+    stk_push(stk, t);
+}
+
+int* val = (int*) stk_pop(stk);  // this will be the last item pushed on the stack!
+```
+
+## queue
+
+Built using the doubly linked list code, this provides a special implementation of a doubly linked list that always inserts at the end of the list and always removes the first element. This is useful in instances that there is no need for arbitrary insertion and removal locations from the linked list but you want to either be able to access all nodes from both directions or you want to maintain a FIFO (first in first out) approach. As such, this version can be slightly faster than a doubly linked list since insertion and deletion are constant.
+
+All functions are documented within the `queue.h` file.
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `queue` library
+
+#### Usage
+
+To use, simply copy the `queue.h` and `queue.c` files into your project and include it where needed.
+
+``` c
+#include "queue.h"
+
+queue_list_t q = q_init();
+
+int* get_random() {
+    int* t = calloc(1, sizeof(int));
+    *int = rand() % 100000;
+    return t;
+}
+
+int i;
+for (i = 0; i < 1000; i++) {
+    int* t = get_random();
+    q_push(q, t);
+}
+
+int* val = (int*) q_pop(q);  // this will be the first item pushed on the queue!
 ```
 
 ## graph
