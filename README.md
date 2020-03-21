@@ -18,6 +18,7 @@ If there are other commonly used code or data-structures that should be added, p
 * [queue](#queue)
 * [graph](#graph)
 * [timing-c](#timing-c)
+* [minunit](#minunit)
 
 ##### Recommended External Libraries
 * [set](https://github.com/barrust/set)
@@ -26,13 +27,13 @@ If there are other commonly used code or data-structures that should be added, p
 
 ##### Unit tests
 
-Unit tests are provided using the [minunit](https://github.com/siu/minunit) library. Each function is, **hopefully**, fully covered. Any help in getting as close to 100% coverage would be much appreciated!
+Unit tests are provided using the [minunit](#minunit) library. Each function is, **hopefully**, fully covered. Any help in getting as close to 100% coverage would be much appreciated!
 
-To run the unittest suite, simply compile the test files using the provided `Makefile` with the command `make test`. Then you can execute the tests using the executables `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, `./dist/graph`, or `./dist/timing`.
+To run the unit-test suite, simply compile the test files using the provided `Makefile` with the command `make test`. Then you can execute the tests using the executables `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, `./dist/graph`, `./dist/llist`, `./dist/dllist`, `./dist/stack`, `./dist/queue`,  or `./dist/timing`.
 
 #### Issues
 
-If an unexpected outcome occurs, please submit an issue on github. Please also provide a ***minimal code example*** that encapsulates the error.
+If an unexpected outcome occurs, please submit an [issue on github](https://github.com/barrust/c-utils/issues). Please also provide a ***minimal code example*** that encapsulates the error.
 
 A great [issue](https://github.com/barrust/c-utils/issues) would provide the following:
 > s_remove_unwanted_chars shows duplicate entries after removal.
@@ -428,3 +429,64 @@ char* output = format_time_diff(&t);
 printf("pretty output: %s\n", output);
 free(output);
 ```
+
+## minunit
+
+This header utility is a testing framework for C programs. It is a fork of [siu/mununit](https://github.com/siu/minunit) that adds several assertions that are not in the base library. License ([MIT](https://github.com/siu/minunit/blob/master/MIT-LICENSE.txt)) information is contained in the header file.
+
+### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `minunit.h` testing framework.
+
+### Usage
+
+For full examples, please view the tests in the `./test` folder. A quick run down of setting up the tests is provided below along with a quick set of function documentation.
+
+``` c
+#include <stdio.h>
+#include <stdlib.h>
+#include <minunit.h>
+
+int arr[25];
+
+void test_setup(void) {
+    for (int i = 0; i < 25; ++i)
+        arr[i] = i;
+}
+
+void test_teardown(void) {
+    // no teardown required
+}
+
+MU_TEST(test_simple) {
+    mu_assert_int_eq(0, arr[0]);
+}
+
+// Set up the test suite by configuring and stating which tests should be run
+MU_TEST_SUITE(test_suite) {
+    MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+
+    MU_RUN_TEST(test_simple);
+}
+
+int main() {
+    MU_RUN_SUITE(test_suite);
+    MU_REPORT();
+    printf("Number failed tests: %d\n", minunit_fail);
+    return minunit_fail;
+}
+```
+
+### Documentation
+
+* **mu_check(test)**: Checks to verify that the passed boolean expression test is `true`; fails otherwise.
+* **mu_fail(message)**: Automatically fails the assertion and returns the provided message; useful for non-implemented features, etc.
+* **mu_assert(test, message)**: Assert that the boolean expression `test` is true, otherwise fail and print the passed `message`.
+* **mu_assert_int_eq(expected, result)**: Assert that the `expected` int is the same as the passed `result`.
+* **mu_assert_int_in(expected, array_length, result)**: Assert that the `result` is a member of the `expected` array; `array_length` is needed to know the number of elements in the array.
+* **mu_assert_double_eq(expected, result)**: Assert that the double in `result` is the same as the `expected` double.
+* **mu_assert_string_eq(expected, result)**: Assert that the `result` string (char* or char[]) is the same as the `expected` string.
+* **mu_assert_null(result)**: Assert that the passed `result` pointer is `NULL`
+* **mu_assert_not_null(result)**: Assert that the passed `result` pointer is not `NULL`
+* **mu_assert_pointers_eq(pointer1, pointer2)**:
+* **mu_assert_pointers_not_eq(pointer1, pointer2)**:

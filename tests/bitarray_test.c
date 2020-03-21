@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "../src/minunit.h"
 #include "../src/bitarray.h"
-#include "minunit.h"
-
 
 void test_setup(void) {}
 
