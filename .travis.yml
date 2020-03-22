@@ -20,6 +20,7 @@ jobs:
       env:
          - MATRIX_EVAL="CC=gcc-4.6"
          - STD="-std=gnu99"
+         - COMPFLAGS="-Wall -Wno-unknown-pragmas"
     - os: linux
       addons:
         apt:
