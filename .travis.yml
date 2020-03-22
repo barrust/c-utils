@@ -16,9 +16,9 @@ jobs:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.5
+            - g++-4.6
       env:
-         - MATRIX_EVAL="CC=gcc-4.5"
+         - MATRIX_EVAL="CC=gcc-4.6"
          - STD="-std=gnu99"
     - os: linux
       addons:
