@@ -9,20 +9,21 @@ This project provides a collection of utility libraries to help reduce the need 
 If there are other commonly used code or data-structures that should be added, please add a feature request!
 
 ##### Table of Contents:
-* [stringlib](#stringlib)
-* [fileutils](#fileutils)
+* [stringlib](#stringlib) - C-string utilities
+* [fileutils](#fileutils) - File system utilities
 * [bitarray](#bitarray)
 * [linked list](#linkedlist)
 * [doubly linked list](#doublylinkedlist)
 * [stack](#stack)
 * [queue](#queue)
 * [graph](#graph)
-* [timing-c](#timing-c)
-* [minunit](#minunit)
+* [timing-c](#timing-c) - Code timing utility
+* [minunit](#minunit) - Unit testing
 
 ##### Recommended External Libraries
 * [set](https://github.com/barrust/set)
 * [hashmap](https://github.com/barrust/hashmap)
+* [bloom filter](https://github.com/barrust/bloom)
 
 
 ##### Unit tests
