@@ -1,9 +1,12 @@
-
+/*******************************************************************************
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
+***  License: MIT 2019
+*******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "bitarray.h"
-
 
 
 #define CHECK_BIT(A, k)     (A[((k) / 8)] &   (1 << ((k) % 8)))
