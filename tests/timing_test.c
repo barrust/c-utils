@@ -1,5 +1,5 @@
 #include <unistd.h>         /*sleep*/
-#include "minunit.h"
+#include "../src/minunit.h"
 #include "../src/timing.h"
 
 

@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "minunit.h"
+#include "../src/minunit.h"
 #include "../src/llist.h"
 
 llist_t l;

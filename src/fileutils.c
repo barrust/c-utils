@@ -1,3 +1,8 @@
+/*******************************************************************************
+***  Author: Tyler Barrus
+***  email:  barrust@gmail.com
+***  License: MIT 2019
+*******************************************************************************/
 #include <string.h>         /* strlen, strcmp, strchr, strncpy, strpbrk */
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +12,7 @@
 #include <dirent.h>         /* */
 #include <errno.h>
 #include "fileutils.h"
+
 
 typedef struct __file_struct {
     size_t filesize;

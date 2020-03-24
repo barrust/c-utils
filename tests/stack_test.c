@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "minunit.h"
+#include "../src/minunit.h"
 #include "../src/stack.h"
 
 stack_list_t stk;

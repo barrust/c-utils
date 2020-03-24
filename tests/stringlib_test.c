@@ -1,6 +1,7 @@
 #include <stdlib.h>
+#include "../src/minunit.h"
 #include "../src/stringlib.h"
-#include "minunit.h"
+
 
 
 char* foostring = NULL;

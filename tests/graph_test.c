@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../src/graph.h"
-#include "minunit.h"
 #if defined (_OPENMP)
     #include <omp.h>
 #endif
+#include "../src/minunit.h"
+#include "../src/graph.h"
+
 
 graph_t g;
 

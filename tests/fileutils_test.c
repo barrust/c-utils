@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include "minunit.h"
+#include "../src/minunit.h"
 #include "../src/fileutils.h"
 
 

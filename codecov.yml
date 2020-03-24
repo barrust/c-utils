@@ -34,3 +34,4 @@ comment:
 ignore:
   - "./tests/"
   - "./examples/"
+  - "./src/minunit.h"
