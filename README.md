@@ -39,7 +39,7 @@ If an unexpected outcome occurs, please submit an [issue on github](https://gith
 A great [issue](https://github.com/barrust/c-utils/issues) would provide the following:
 > s_remove_unwanted_chars shows duplicate entries after removal.
 > ``` c
-> char* test[] = "This is a test";
+> char test[] = "This is a test";
 > // expect "Ths s a es"
 > // get "Ths s a esest"
 > // Notice the extra `est`; likely due to not erasing the trailing chars
