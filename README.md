@@ -487,7 +487,7 @@ int main() {
 * **mu_assert_int_in(expected, array_length, result)**: Assert that the `result` is a member of the `expected` array; `array_length` is needed to know the number of elements in the array.
 * **mu_assert_double_eq(expected, result)**: Assert that the double in `result` is the same as the `expected` double.
 * **mu_assert_string_eq(expected, result)**: Assert that the `result` string (char* or char[]) is the same as the `expected` string.
-* **mu_assert_null(result)**: Assert that the passed `result` pointer is `NULL`
-* **mu_assert_not_null(result)**: Assert that the passed `result` pointer is not `NULL`
-* **mu_assert_pointers_eq(pointer1, pointer2)**:
-* **mu_assert_pointers_not_eq(pointer1, pointer2)**:
+* **mu_assert_null(result)**: Assert that the passed `result` pointer is `NULL`.
+* **mu_assert_not_null(result)**: Assert that the passed `result` pointer is not `NULL`.
+* **mu_assert_pointers_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` point to the same memory location.
+* **mu_assert_pointers_not_eq(pointer1, pointer2)**: Assert that `pointer1` and `pointer2` do not point to the same memory location.
