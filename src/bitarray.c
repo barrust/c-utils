@@ -5,7 +5,6 @@
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include "bitarray.h"
 
 
@@ -26,13 +25,13 @@ typedef struct __bitarray {
          of 8 and the numerator is guaranteed to be positive
    NOTE: This is close in timing to the math version when not using
          compiler optimizations but can be faster when optimized */
-#define ceiling(n,d)  ((n / d) + (n % d > 0))
+#define CEILING(n,d)  ((n / d) + (n % d > 0))
 
 
 bitarray_t ba_init(size_t bits) {
     bitarray_t ba = calloc(1, sizeof(bitarray));
     ba->num_bits = bits;
-    size_t num_chars = ceiling(bits, 8);
+    size_t num_chars = CEILING(bits, 8);
     ba->num_chars = num_chars;
     /* the extra one is for the null byte! */
     ba->arr = calloc(num_chars + 1, sizeof(unsigned char));
@@ -96,7 +95,7 @@ int ba_clear_bit(bitarray_t ba, size_t bit) {
 
 int ba_reset(bitarray_t ba) {
     size_t i;
-    for (i = 0; i < ba->num_chars; i++) {
+    for (i = 0; i < ba->num_chars; ++i) {
         ba->arr[i] = 0;
     }
     return BIT_NOT_SET;
