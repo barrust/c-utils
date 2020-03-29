@@ -55,7 +55,7 @@ MU_TEST(test_add_vertices) {
 MU_TEST(test_add_verticies_idx_error) {
     vertex_t v = g_vertex_add(g, __str_duplicate("we are here..."));
     v = g_vertex_add_alt(g, 0, NULL); // this should be an error!
-    mu_assert_string_eq(NULL, (char*)v);
+    mu_assert_null(v);
 }
 
 MU_TEST(test_add_vertex_large_idx) {
@@ -89,7 +89,7 @@ MU_TEST(test_remove_vertices) {
 
     /* check that something removed is clean! */
     v = g_vertex_remove(g, 0);
-    mu_assert_string_eq(NULL, (char*)v);
+    mu_assert_null(v);
     mu_assert_int_eq(1, g_num_vertices(g));  /* it shouldn't change the num vertices */
 }
 
@@ -118,7 +118,7 @@ MU_TEST(test_updating_vertex_metadata) {
 
 MU_TEST(test_get_vertex_errors) {
     __add_vertices(g, 5);
-    mu_assert_string_eq(NULL, (char*)g_vertex_get(g, 10));
+    mu_assert_null(g_vertex_get(g, 10));
 }
 
 
@@ -231,17 +231,17 @@ MU_TEST(test_updating_edge_metadata) {
 MU_TEST(test_edge_add_error) {
     __add_vertices(g, 5);
     edge_t e = g_edge_add(g, 0, 5, NULL); /* this should return NULL since dest is too large*/
-    mu_assert_string_eq(NULL, (char*)e);
+    mu_assert_null(e);
     e = g_edge_add(g, 6, 0, NULL);
-    mu_assert_string_eq(NULL, (char*)e);
+    mu_assert_null(e);
 
     /* now remove a vertex and try to add an edge to it */
     vertex_t v = g_vertex_remove(g, 0);
     g_vertex_free(v);
     e = g_edge_add(g, 0, 1, NULL);
-    mu_assert_string_eq(NULL, (char*)e);
+    mu_assert_null(e);
     e = g_edge_add(g, 1, 0, NULL);
-    mu_assert_string_eq(NULL, (char*)e);
+    mu_assert_null(e);
 }
 
 MU_TEST(test_edge_remove_error) {
@@ -252,18 +252,18 @@ MU_TEST(test_edge_remove_error) {
     g_edge_add(g, 3, 4, NULL);
 
     edge_t e = g_edge_remove(g, 5);
-    mu_assert_string_eq(NULL, (char*)e);
+    mu_assert_null(e);
 
     e = g_edge_remove(g, 3); /* this should be fine */
     g_edge_free(e);
     e = g_edge_remove(g, 3); /* now we should get a NULL back */
-    mu_assert_string_eq(NULL, (char*)e);
+    mu_assert_null(e);
 }
 
 MU_TEST(test_edge_get_error) {
     __add_vertices(g, 5);
     g_edge_add(g, 0, 4, NULL);
-    mu_assert_string_eq(NULL, (char*)g_edge_get(g, 2));
+    mu_assert_null(g_edge_get(g, 2));
 }
 
 
@@ -378,8 +378,8 @@ MU_TEST(test_g_vertex_edge_error) {
     __add_vertices(g, 5);
     __add_edge(g, 0, 1, 0);
     vertex_t v = g_vertex_get(g, 0);
-    mu_assert_string_eq(NULL, (char*)g_vertex_edge(v, 1));
-    mu_assert_string_eq(NULL, (char*)g_vertex_edge(v, 17));
+    mu_assert_null(g_vertex_edge(v, 1));
+    mu_assert_null(g_vertex_edge(v, 17));
 }
 
 /*******************************************************************************

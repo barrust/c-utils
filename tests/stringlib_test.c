@@ -217,7 +217,7 @@ MU_TEST(test_s_strrstr) {
     char test[] = "This is a test of the test system!";
     mu_assert_string_eq("test system!", s_strrstr(test, "test"));  /* should pick up the second one! */
     mu_assert_string_eq("is a test of the test system!", s_strrstr(test, "is"));  /* should pick up the second one! */
-    mu_assert_string_eq(NULL, s_strrstr(test, "foo"));
+    mu_assert_null(s_strrstr(test, "foo"));
 }
 
 MU_TEST(test_s_find_reverse_str) {
@@ -302,11 +302,13 @@ MU_TEST(test_cmp_basic) {
 MU_TEST(test_cmp_case_sensitivity) {
     char* test = s_duplicate("This is a test");
     /* case sensitive */
+    mu_assert_int_eq(0, s_cmp_alt(test, "This is a test", CASE_SENSITIVE));
+    mu_assert_int_not_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE));
     mu_assert(s_cmp_alt(test, "This is a test", CASE_SENSITIVE) == 0, "s_cmp_alt failed for case sensitive!");
     mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE) != 0, "s_cmp_alt failed for case sensitive!");
     /* case insensitive */
-    mu_assert(s_cmp_alt(test, "This is a test", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");
-    mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_INSENSITIVE) == 0, "s_cmp_alt failed for case insensitive!");
+    mu_assert_int_not_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE));
+    mu_assert_int_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_INSENSITIVE));
     free(test);
 }
 
@@ -327,10 +329,10 @@ MU_TEST(test_extract_substring) {
 MU_TEST(test_extract_substring_bad_start) {
     char test[] = "The quick brown fox jumped over the lazy dog.";
     char* r1 = s_extract_substring(test, 45, 5); /* close but still to long */
-    mu_assert_string_eq(NULL, r1);
+    mu_assert_null(r1);
     free(r1);
     char* r2 = s_extract_substring(test, 145, 5); /* not even close */
-    mu_assert_string_eq(NULL, r2);
+    mu_assert_null(r2);
     free(r2);
 }
 
@@ -342,7 +344,7 @@ MU_TEST(test_extract_substring_str) {
 
     /* now check one that is not present */
     char* r2 = s_extract_substring_str(test, "qiuck", 15);
-    mu_assert_string_eq(NULL, r2);
+    mu_assert_null(r2);
     free(r2);
 
     char* r3 = s_extract_substring_str(test, "lazy", 15);
@@ -358,7 +360,7 @@ MU_TEST(test_extract_substring_c) {
 
     /* now check one that is not present */
     char* r2 = s_extract_substring_c(test, '!', 15);
-    mu_assert_string_eq(NULL, r2);
+    mu_assert_null(r2);
     free(r2);
 }
 
