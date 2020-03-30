@@ -63,7 +63,7 @@ examples: libraries
 	$(CC) $(STD) $(DISTDIR)/graph-lib.o $(EXAMPLEDIR)/graph_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_graph
 
 clean:
-	rm -rf ./$(DISTDIR)/*
+	if [ -d "./$(DISTDIR)/" ]; then rm -rf ./$(DISTDIR)/*; fi
 	rm -f ./*.gcno
 	rm -f ./*.gcda
 	rm -f ./*.gcov
