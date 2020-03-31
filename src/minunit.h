@@ -200,6 +200,36 @@ static void (*minunit_teardown)(void) = NULL;
 	}\
 )
 
+#define mu_assert_int_greater_than(val, result) MU__SAFE_BLOCK(\
+	int minunit_tmp_e;\
+	int minunit_tmp_r;\
+	minunit_assert++;\
+	minunit_tmp_e = (val);\
+	minunit_tmp_r = (result);\
+	if (val >= minunit_tmp_r) {\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %d <= %d", __func__, __FILE__, __LINE__, minunit_tmp_r, minunit_tmp_e);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
+#define mu_assert_int_less_than(val, result) MU__SAFE_BLOCK(\
+	int minunit_tmp_e;\
+	int minunit_tmp_r;\
+	minunit_assert++;\
+	minunit_tmp_e = (val);\
+	minunit_tmp_r = (result);\
+	if (val <= minunit_tmp_r) {\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %d >= %d", __func__, __FILE__, __LINE__, minunit_tmp_r, minunit_tmp_e);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
 #define mu_assert_int_between(expected_lower, expected_upper, result) MU__SAFE_BLOCK(\
 	int minunit_tmp_e;\
 	int minunit_tmp_m;\
@@ -253,6 +283,36 @@ static void (*minunit_teardown)(void) = NULL;
 	if (fabs(minunit_tmp_e-minunit_tmp_r) > MINUNIT_EPSILON) {\
 		int minunit_significant_figures = 1 - log10(MINUNIT_EPSILON);\
 		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %.*g expected but was %.*g", __func__, __FILE__, __LINE__, minunit_significant_figures, minunit_tmp_e, minunit_significant_figures, minunit_tmp_r);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
+#define mu_assert_double_greater_than(val, result) MU__SAFE_BLOCK(\
+	double minunit_tmp_e;\
+	double minunit_tmp_r;\
+	minunit_assert++;\
+	minunit_tmp_e = (val);\
+	minunit_tmp_r = (result);\
+	if (val >= minunit_tmp_r) {\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %f <= %f", __func__, __FILE__, __LINE__, minunit_tmp_r, minunit_tmp_e);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
+#define mu_assert_double_less_than(val, result) MU__SAFE_BLOCK(\
+	double minunit_tmp_e;\
+	double minunit_tmp_r;\
+	minunit_assert++;\
+	minunit_tmp_e = (val);\
+	minunit_tmp_r = (result);\
+	if (val <= minunit_tmp_r) {\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %f >= %f", __func__, __FILE__, __LINE__, minunit_tmp_r, minunit_tmp_e);\
 		minunit_status = 1;\
 		return;\
 	} else {\

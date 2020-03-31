@@ -3,8 +3,8 @@
 #include "../src/minunit.h"
 
 
-#define NUM_FAILED_TESTS    15
-#define NUM_TESTS           34
+#define NUM_FAILED_TESTS    23
+#define NUM_TESTS           46
 
 
 char* res_str;
@@ -62,6 +62,30 @@ MU_TEST(test_int_not_eq_fail) {
     mu_assert_int_not_eq(0, 0);  // failure
 }
 
+MU_TEST(test_int_greater_than) {
+    mu_assert_int_greater_than(5, 6);
+}
+
+MU_TEST(test_int_greater_than_fail1) {
+    mu_assert_int_greater_than(5, 5);  // failure
+}
+
+MU_TEST(test_int_greater_than_fail2) {
+    mu_assert_int_greater_than(5, 4);  // failure
+}
+
+MU_TEST(test_int_less_than) {
+    mu_assert_int_less_than(5, 4);
+}
+
+MU_TEST(test_int_less_than_fail1) {
+    mu_assert_int_less_than(5, 5);  // failure
+}
+
+MU_TEST(test_int_less_than_fail2) {
+    mu_assert_int_less_than(5, 6);  // failure
+}
+
 MU_TEST(test_int_between) {
     // NOTE: between is inclusive
     mu_assert_int_between(1, 5, 1);
@@ -103,6 +127,30 @@ MU_TEST(test_double_eq_fail) {
     mu_assert_double_eq(6.0, 6.000001);  // failure
 }
 
+MU_TEST(test_double_greater_than) {
+    mu_assert_double_greater_than(5.0, 6.0);
+}
+
+MU_TEST(test_double_greater_than_fail1) {
+    mu_assert_double_greater_than(5.0, 5.0);  // failure
+}
+
+MU_TEST(test_double_greater_than_fail2) {
+    mu_assert_double_greater_than(5.0, 4.0);  // failure
+}
+
+MU_TEST(test_double_less_than) {
+    mu_assert_double_less_than(5.0, 4.0);
+}
+
+MU_TEST(test_double_less_than_fail1) {
+    mu_assert_double_less_than(5.0, 5.0);  // failure
+}
+
+MU_TEST(test_double_less_than_fail2) {
+    mu_assert_double_less_than(5.0, 6.0);  // failure
+}
+
 MU_TEST(test_double_between) {
     // NOTE: between is inclusive
     mu_assert_double_between(1.0, 1.5, 1.0);
@@ -124,6 +172,10 @@ MU_TEST(test_double_between_fail2) {
 *******************************************************************************/
 MU_TEST(test_str_eq) {
     mu_assert_string_eq("This is a test!", res_str);
+
+}
+
+MU_TEST(test_str_eq_fail) {
     mu_assert_string_eq("This is also a test!", res_str); // failure
 }
 
@@ -175,6 +227,12 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_int_eq_fail);
     MU_RUN_TEST(test_int_not_eq);
     MU_RUN_TEST(test_int_not_eq_fail);
+    MU_RUN_TEST(test_int_greater_than);
+    MU_RUN_TEST(test_int_greater_than_fail1);
+    MU_RUN_TEST(test_int_greater_than_fail2);
+    MU_RUN_TEST(test_int_less_than);
+    MU_RUN_TEST(test_int_less_than_fail1);
+    MU_RUN_TEST(test_int_less_than_fail2);
     MU_RUN_TEST(test_int_between);
     MU_RUN_TEST(test_int_between_fail1);
     MU_RUN_TEST(test_int_between_fail2);
@@ -184,12 +242,19 @@ MU_TEST_SUITE(test_suite) {
     /* doubles */
     MU_RUN_TEST(test_double_eq);
     MU_RUN_TEST(test_double_eq_fail);
+    MU_RUN_TEST(test_double_greater_than);
+    MU_RUN_TEST(test_double_greater_than_fail1);
+    MU_RUN_TEST(test_double_greater_than_fail2);
+    MU_RUN_TEST(test_double_less_than);
+    MU_RUN_TEST(test_double_less_than_fail1);
+    MU_RUN_TEST(test_double_less_than_fail2);
     MU_RUN_TEST(test_double_between);
     MU_RUN_TEST(test_double_between_fail1);
     MU_RUN_TEST(test_double_between_fail2);
 
     /* strings */
     MU_RUN_TEST(test_str_eq);
+    MU_RUN_TEST(test_str_eq_fail);
 
     /* pointers */
     MU_RUN_TEST(test_pointer_null);

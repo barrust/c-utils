@@ -485,9 +485,13 @@ int main() {
 * **mu_assert(test, message)**: Assert that the boolean expression `test` is true, otherwise fail and print the passed `message`.
 * **mu_assert_int_eq(expected, result)**: Assert that the `expected` int is the same as the passed `result`.
 * **mu_assert_int_not_eq(expected, result)**: Assert that the `result` does not equal `expected`; not this is useful for checking comparison functions, etc.
+* **mu_assert_int_greater_than(val, result)**: Assert that `result` is greater than `val`.
+* **mu_assert_int_less_than(val, result)**:  Assert that `result` is less than `val`.
 * **mu_assert_int_between(expected_lower, expected_upper, result)**: Assert that the `result` is between (inclusive) `expected_lower` and `expected_upper`; if upper and lower are reversed, then it is **not** between!
 * **mu_assert_int_in(expected, array_length, result)**: Assert that the `result` is a member of the `expected` array; `array_length` is needed to know the number of elements in the array.
 * **mu_assert_double_eq(expected, result)**: Assert that the double in `result` is the same as the `expected` double.
+* **mu_assert_double_greater_than(val, result)**: Assert that `result` is greater than `val`.
+* **mu_assert_double_less_than(val, result)**:  Assert that `result` is less than `val`.
 * **mu_assert_double_between(expected_lower, expected_upper, result)**: Assert that `result` is between (inclusive) `expected_lower` and `expected_upper`; if upper and lower are reversed, then it is **not** between!
 * **mu_assert_string_eq(expected, result)**: Assert that the `result` string (char* or char[]) is the same as the `expected` string.
 * **mu_assert_null(result)**: Assert that the passed `result` pointer is `NULL`.
