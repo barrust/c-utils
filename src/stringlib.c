@@ -235,7 +235,7 @@ int s_find_alt(const char*s, const char c, int idx) {
 
 
 int s_find_str(const char* s, const char* sub) {
-    if (s == NULL)
+    if (s == NULL || sub == NULL)
         return -1;
 
     char* loc = strstr(s, sub);
@@ -371,6 +371,11 @@ char* s_append(char* s1, const char* s2) {
 
 
 char* s_append_alt(char* (*s1), const char* s2) {
+    if (s2 == NULL)
+        return *s1;
+    else if (*s1 == NULL)
+        return NULL;
+
     size_t len =  strlen(s2);
     char* res = realloc(*s1, strlen(*s1) + len + 1);
     strcat(res, s2);
@@ -392,6 +397,13 @@ int s_cmp(const char* s1, const char* s2) {
 
 
 int s_cmp_alt(const char* s1, const char* s2, int casesensitive) {
+    if (s1 == s2)  // then they point to the same thing!
+        return 0;
+    else if (s1 == NULL)  // give it some behavior
+        return -1;
+    else if (s2 == NULL)
+        return 1;
+
     if (casesensitive) {
         return strcmp(s1, s2);
     }
@@ -407,6 +419,9 @@ int s_cmp_alt(const char* s1, const char* s2, int casesensitive) {
 
 
 char* s_extract_substring(const char* s, size_t start, size_t length) {
+    if (s == NULL)
+        return NULL;
+
     size_t len = strlen(s);
     if (start >= len)
         return NULL;
@@ -435,6 +450,9 @@ char* s_extract_substring_c(const char* s, const char c, size_t length) {
 
 
 char** s_split_string_c(const char* s, const char c, int* num) {
+    if (s == NULL || num == NULL)
+        return NULL;
+
     int max_size = s_find_cnt(s, c);
     char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
@@ -461,6 +479,9 @@ char** s_split_string_c(const char* s, const char c, int* num) {
 
 
 char** s_split_string_str(const char* s, const char* sub, int* num) {
+    if (s == NULL || sub == NULL || num == NULL)
+        return NULL;
+
     int max_size = s_find_cnt_str(s, sub);
     char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
@@ -490,6 +511,9 @@ char** s_split_string_str(const char* s, const char* sub, int* num) {
 
 
 char** s_split_string_any(const char* s, const char* s2, int* num) {
+    if (s == NULL || num == NULL)
+        return NULL;
+
     const char* find;
     if (s2 == NULL)
         find = " \n\r\f\v\t";
@@ -526,6 +550,9 @@ char** s_split_lines(const char* s, int* num) {
 
 
 char* s_single_space(char* s) {
+    if (s == NULL || s[0] == '\0')
+        return s;
+
     s_trim(s);
 
     int i = 0, j = 0, found = 0;
