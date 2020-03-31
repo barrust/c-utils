@@ -37,8 +37,8 @@ void test_teardown(void) {
 *******************************************************************************/
 MU_TEST(test_default_setup) {
     mu_assert_int_eq(0, dll_num_elements(l));
-    mu_assert_string_eq(NULL, (void*)dll_first_node(l));
-    mu_assert_string_eq(NULL, (void*)dll_last_node(l));
+    mu_assert_null(dll_first_node(l));
+    mu_assert_null(dll_last_node(l));
 }
 
 
@@ -132,7 +132,7 @@ MU_TEST(test_insert_beginning) {
     /* ensure pointing correct */
     mu_assert_int_eq(0, *(int*)n->next->data);
     mu_assert_int_eq(15, *(int*)n->next->prev->data);
-    mu_assert_string_eq(NULL, (void*)n->prev);
+    mu_assert_null(n->prev);
 
     int w = 0;
     n = n->next;
@@ -220,7 +220,7 @@ MU_TEST(test_insert_negative) {
 
     dll_node* n = dll_last_node(l);
     mu_assert_int_eq(15, *(int*)n->data);
-    mu_assert_string_eq(NULL, (void*)n->next);
+    mu_assert_null(n->next);
 }
 
 MU_TEST(test_insert_negative_mid) {
@@ -237,7 +237,7 @@ MU_TEST(test_insert_negative_mid) {
 
     dll_node* n = dll_last_node(l)->prev;
     mu_assert_int_eq(15, *(int*)n->data);
-    mu_assert_string_eq((void*)dll_last_node(l), (void*)n->next);
+    mu_assert_pointers_eq(dll_last_node(l), n->next);
 }
 
 MU_TEST(test_insert_error) {
@@ -462,8 +462,8 @@ MU_TEST(test_remove_only_elm) {
     mu_assert_int_eq(0, dll_num_elements(l));
     free(val);
 
-    mu_assert_string_eq(NULL, (void*)dll_first_node(l));
-    mu_assert_string_eq(NULL, (void*)dll_last_node(l));
+    mu_assert_null(dll_first_node(l));
+    mu_assert_null(dll_last_node(l));
 }
 
 MU_TEST(test_remove_alt) {
@@ -475,6 +475,7 @@ MU_TEST(test_remove_alt) {
         dll_append(l, t);
     }
     dll_remove_alt(l, 0, true);  /* remember it is 0 based */
+    mu_assert_int_eq(4, dll_num_elements(l));
 }
 
 
@@ -488,7 +489,7 @@ MU_TEST(test_remove_error_neg) {
     mu_assert_int_eq(5, dll_num_elements(l));
 
     void* res = dll_remove(l, -5);  /* remember it is 0 based so this is out of bounds */
-    mu_assert_string_eq(NULL, res);
+    mu_assert_null(res);
 }
 
 /*******************************************************************************

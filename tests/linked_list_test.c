@@ -35,7 +35,7 @@ static void printlist(llist_t l) {
 *******************************************************************************/
 MU_TEST(test_default_setup) {
     mu_assert_int_eq(0, ll_num_elements(l));
-    mu_assert_string_eq(NULL, (void*)ll_first_node(l));
+    mu_assert_null(ll_first_node(l));
 }
 
 
@@ -254,6 +254,7 @@ MU_TEST(test_remove_alt) {
         ll_append(l, t);
     }
     ll_remove_alt(l, 0, true);  /* remember it is 0 based */
+    mu_assert_int_eq(4, ll_num_elements(l));
 }
 
 MU_TEST(test_remove_error) {
@@ -266,7 +267,7 @@ MU_TEST(test_remove_error) {
     mu_assert_int_eq(5, ll_num_elements(l));
 
     void* res = ll_remove(l, 5);  /* remember it is 0 based so this is out of bounds */
-    mu_assert_string_eq(NULL, res);
+    mu_assert_null(res);
 }
 
 /*******************************************************************************

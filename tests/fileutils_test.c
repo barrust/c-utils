@@ -87,7 +87,7 @@ MU_TEST(test_resolve_path_no_exist) {
 }
 
 MU_TEST(test_resolve_path_null) {
-    mu_assert_string_eq(NULL, fs_resolve_path(NULL));
+    mu_assert_null(fs_resolve_path(NULL));
 }
 
 /*******************************************************************************
@@ -378,7 +378,7 @@ MU_TEST(test_list_dir) {
 
     /* test the error case */
     char** val = fs_list_dir("./foo", &items);
-    mu_assert_string_eq(NULL, (void*)val);
+    mu_assert_null(val);
     mu_assert_int_eq(0, items);
 }
 
@@ -386,7 +386,7 @@ MU_TEST(test_combine_filepath) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
 
     /* test error cases */
-    mu_assert_string_eq(NULL, fs_combine_filepath(NULL, NULL));
+    mu_assert_null(fs_combine_filepath(NULL, NULL));
     char* res = fs_combine_filepath(NULL, "test.txt");
     mu_assert_string_eq("test.txt", res);
     free(res);
@@ -429,18 +429,19 @@ MU_TEST(test_file_t_init) {
     /* haven't loaded the file, so these should be the defaults! */
     mu_assert_int_eq(0 , f_number_lines(f));
     mu_assert_string_eq(NULL , f_buffer(f));
-    mu_assert(f_lines(f) == NULL, "Expected lines to be NULL, if was not...");
+    mu_assert_null(f_lines(f));
+    // mu_assert(f_lines(f) == NULL, "Expected lines to be NULL, if was not...");
     free(filepath);
     f_free(f);
 }
 
 MU_TEST(test_file_t_init_non_file) {
     file_t f = f_init(test_dir);
-    mu_assert_string_eq(NULL, (void*)f);
+    mu_assert_null(f);
 
     char* filepath = __str_snprintf("%s/test-2.txt", test_dir);
     f = f_init(filepath);
-    mu_assert_string_eq(NULL, (void*)f);
+    mu_assert_null(f);
     free(filepath);
 }
 
@@ -506,11 +507,10 @@ MU_TEST(test_dir_t_init) {
 MU_TEST(test_dir_init_fail) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
     dir_t d = d_init(filepath);
-    mu_assert_string_eq(NULL, (void*)d);
+    mu_assert_null(d);
     free(filepath);
     d_free(d);
 }
-
 
 MU_TEST(test_dir_update_list) {
     dir_t d = d_init(test_dir_rel);

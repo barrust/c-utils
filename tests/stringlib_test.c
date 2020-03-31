@@ -369,11 +369,11 @@ MU_TEST(test_cmp_case_sensitivity) {
     char* test = s_duplicate("This is a test");
     /* case sensitive */
     mu_assert_int_eq(0, s_cmp_alt(test, "This is a test", CASE_SENSITIVE));
-    // mu_assert_int_not_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE));
+    mu_assert_int_not_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE));
     mu_assert(s_cmp_alt(test, "This is a test", CASE_SENSITIVE) == 0, "s_cmp_alt failed for case sensitive!");
     mu_assert(s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE) != 0, "s_cmp_alt failed for case sensitive!");
     /* case insensitive */
-    // mu_assert_int_not_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE));
+    mu_assert_int_not_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE));
     mu_assert_int_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_INSENSITIVE));
     free(test);
 }
