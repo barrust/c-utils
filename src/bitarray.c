@@ -5,6 +5,7 @@
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  // memset
 #include "bitarray.h"
 
 
@@ -14,6 +15,13 @@
 #define TOGGLE_BIT(A,k)     (A[((k) / 8)] ^=  (1 << ((k) % 8)))
 
 
+/* see: https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetTable */
+#define B2(n) n,     n+1,     n+1,     n+2
+#define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
+#define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
+static const unsigned char bits_set_table[256] = {B6(0), B6(1), B6(1), B6(2)};
+
+
 typedef struct __bitarray {
     unsigned char* arr;
     size_t num_bits;
@@ -21,11 +29,11 @@ typedef struct __bitarray {
 } __bitarray;
 
 
-/* NOTE: This does zero error checking because it is always has a denominator
-         of 8 and the numerator is guaranteed to be positive
+/* NOTE: This does zero error checking because it is guaranteed to have
+         a denominator of 8 and the numerator is guaranteed to be positive
    NOTE: This is close in timing to the math version when not using
          compiler optimizations but can be faster when optimized */
-#define CEILING(n,d)  ((n / d) + (n % d > 0))
+#define CEILING(n, d)  (((n) / (d)) + ((n) % (d) > 0))
 
 
 bitarray_t ba_init(size_t bits) {
@@ -94,10 +102,7 @@ int ba_clear_bit(bitarray_t ba, size_t bit) {
 
 
 int ba_reset(bitarray_t ba) {
-    size_t i;
-    for (i = 0; i < ba->num_chars; ++i) {
-        ba->arr[i] = 0;
-    }
+    memset(ba->arr, 0, ba->num_chars);
     return BIT_NOT_SET;
 }
 
@@ -114,7 +119,7 @@ char* ba_to_string(bitarray_t ba) {
 size_t ba_number_bits_set(bitarray_t ba) {
     size_t res = 0;
     size_t i;
-    for (i = 0; i < ba->num_bits; ++i)
-        res += (CHECK_BIT(ba->arr, i) != 0) ? 1 : 0;
+    for (i = 0; i < ba->num_chars; ++i)
+        res += bits_set_table[ba->arr[i]];
     return res;
 }
