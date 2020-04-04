@@ -51,6 +51,10 @@ MU_TEST(test_duplicating_partial) {
     free(res);
 }
 
+MU_TEST(test_duplicating_string_null) {
+    mu_assert_null(s_duplicate(NULL));
+}
+
 
 /*******************************************************************************
 *   Test reverse
@@ -62,6 +66,10 @@ MU_TEST(test_reverse) {
     mu_assert_string_eq("mit", s_reverse(t));
     char q[] = "tiny";
     mu_assert_string_eq("ynit", s_reverse(q));
+    char w[] = " ";
+    w[0] = '\0';
+    mu_assert_string_eq(w, s_reverse(w));
+    mu_assert_null(s_reverse(NULL));
 }
 
 /*******************************************************************************
@@ -88,6 +96,13 @@ MU_TEST(test_s_trim_leading) {
     mu_assert_int_eq(4, res);
 }
 
+MU_TEST(test_s_trim_null) {
+    char test[] = " ";
+    test[0] = '\0';
+    mu_assert_int_eq(0, s_trim(test));
+    mu_assert_int_eq(0, s_trim(NULL));
+}
+
 
 /*******************************************************************************
 *   Test s_snprintf
@@ -104,6 +119,10 @@ MU_TEST(test_s_snprintf) {
     char* res1 = s_snprintf("%s\t%s", "temp", "something");
     mu_assert_string_eq("temp\tsomething", res1);
     free(res1);
+
+    char* res2 = s_snprintf(NULL);
+    mu_assert_null(res2);
+    free(res2); // unnecessary
 }
 
 
@@ -113,10 +132,13 @@ MU_TEST(test_s_snprintf) {
 MU_TEST(test_remove_unwanted_chars_single) {
     s_trim(s_standardize_whitespace(foostring, ' '));
     mu_assert_string_eq("The quick brwn fx jumped ver the lazy dg.", s_remove_unwanted_chars(foostring, "o"));
+    mu_assert_null(s_standardize_whitespace(NULL, ' '));
 }
 
 MU_TEST(test_remove_unwanted_chars_mult) {
     s_trim(s_standardize_whitespace(foostring, ' '));
+    mu_assert_string_eq(foostring, s_remove_unwanted_chars(foostring, NULL));  // no changes!
+    mu_assert_null(s_remove_unwanted_chars(NULL, "oedy."));
     mu_assert_string_eq("Th quick brwn fx jump vr th laz g", s_remove_unwanted_chars(foostring, "oedy."));
 }
 
@@ -126,6 +148,8 @@ MU_TEST(test_remove_unwanted_chars_mult) {
 *******************************************************************************/
 MU_TEST(test_replace_unwanted_chars_single) {
     s_trim(s_standardize_whitespace(foostring, ' '));
+    mu_assert_string_eq(foostring, s_replace_unwanted_chars(foostring, NULL, 'a'));  // no changes!
+    mu_assert_null(s_replace_unwanted_chars(NULL, "oedy.", 'a'));
     mu_assert_string_eq("The quick brawn fax jumped aver the lazy dag.", s_replace_unwanted_chars(foostring, "o", 'a'));
 }
 
@@ -140,11 +164,19 @@ MU_TEST(test_replace_unwanted_chars_multi) {
 *******************************************************************************/
 MU_TEST(test_to_upper) {
     char test[] = "This is a test!";
+    mu_assert_null(s_toupper(NULL));
+    test[0] = '\0';
+    mu_assert_string_eq(test, s_toupper(test));
+    test[0] = 'T';  // reset
     mu_assert_string_eq("THIS IS A TEST!", s_toupper(test));
 }
 
 MU_TEST(test_to_lower) {
     char test[] = "ThiS Is A Test!";
+    mu_assert_null(s_tolower(NULL));
+    test[0] = '\0';
+    mu_assert_string_eq(test, s_tolower(test));
+    test[0] = 'T';  // reset
     mu_assert_string_eq("this is a test!", s_tolower(test));
 }
 
@@ -158,6 +190,8 @@ MU_TEST(test_s_find) {
     mu_assert_int_eq(11, s_find(test, 'e'));
     mu_assert_int_eq(-1, s_find(test, 'z'));
     mu_assert_int_eq(28, s_find(test, '!'));
+    // include NULL test
+    mu_assert_int_eq(-1, s_find(NULL, '!'));
 }
 
 MU_TEST(test_s_find_alt) {
@@ -169,6 +203,8 @@ MU_TEST(test_s_find_alt) {
     mu_assert_int_eq(-1, s_find_alt(test, 'e', 4));
     mu_assert_int_eq(-1, s_find_alt(test, 'z', 1));
     mu_assert_int_eq(28, s_find_alt(test, '!', 1));
+    // include NULL test
+    mu_assert_int_eq(-1, s_find_alt(NULL, 'z', 1));
 }
 
 MU_TEST(test_s_find_reverse) {
@@ -177,6 +213,8 @@ MU_TEST(test_s_find_reverse) {
     mu_assert_int_eq(26, s_find_reverse(test, 'e'));
     mu_assert_int_eq(-1, s_find_reverse(test, 'z'));
     mu_assert_int_eq(28, s_find_reverse(test, '!'));
+    // include NULL test
+    mu_assert_int_eq(-1, s_find_reverse(NULL, 'z'));
 }
 
 MU_TEST(test_s_find_cnt) {
@@ -185,6 +223,8 @@ MU_TEST(test_s_find_cnt) {
     mu_assert_int_eq(6, s_find_cnt(test, ' '));
     mu_assert_int_eq(0, s_find_cnt(test, '.'));
     mu_assert_int_eq(4, s_find_cnt(test, 't'));
+    // include NULL test
+    mu_assert_int_eq(-1, s_find_cnt(NULL, 'z'));
 }
 
 MU_TEST(test_s_find_str) {
@@ -193,6 +233,9 @@ MU_TEST(test_s_find_str) {
     mu_assert_int_eq(27, s_find_str(test, "m!"));
     mu_assert_int_eq(-1, s_find_str(test, "system."));
     mu_assert_int_eq(28, s_find_str(test, "!"));
+    // include NULL test
+    mu_assert_int_eq(-1, s_find_str(NULL, "z"));
+    mu_assert_int_eq(-1, s_find_str(test, NULL));
 }
 
 MU_TEST(test_s_find_cnt_str) {
@@ -201,6 +244,8 @@ MU_TEST(test_s_find_cnt_str) {
     mu_assert_int_eq(2, s_find_cnt_str(test, "is"));
     mu_assert_int_eq(0, s_find_cnt_str(test, "system."));
     mu_assert_int_eq(4, s_find_cnt_str(test, "t"));
+    // include NULL test
+    mu_assert_int_eq(0, s_find_cnt_str(NULL, "z"));
 }
 
 MU_TEST(test_s_find_alt_str) {
@@ -211,6 +256,9 @@ MU_TEST(test_s_find_alt_str) {
     mu_assert_int_eq(37, s_find_alt_str(test, "is", 3));
     mu_assert_int_eq(-1, s_find_alt_str(test, "is", 4));
     mu_assert_int_eq(27, s_find_alt_str(test, "m!", 1));
+    // include NULL test
+    mu_assert_int_eq(-1, s_find_alt_str(NULL, "is", 1));
+    mu_assert_int_eq(-1, s_find_alt_str(test, NULL, 1));
 }
 
 MU_TEST(test_s_strrstr) {
@@ -218,6 +266,9 @@ MU_TEST(test_s_strrstr) {
     mu_assert_string_eq("test system!", s_strrstr(test, "test"));  /* should pick up the second one! */
     mu_assert_string_eq("is a test of the test system!", s_strrstr(test, "is"));  /* should pick up the second one! */
     mu_assert_null(s_strrstr(test, "foo"));
+    // include NULL tests
+    mu_assert_null(s_strrstr(NULL, "foo"));
+    mu_assert_null(s_strrstr("test system!", NULL));
 }
 
 MU_TEST(test_s_find_reverse_str) {
@@ -225,17 +276,27 @@ MU_TEST(test_s_find_reverse_str) {
     mu_assert_int_eq(22, s_find_str_reverse(test, "test"));  /* should pick up the second one! */
     mu_assert_int_eq(5, s_find_str_reverse(test, "is"));  /* should pick up the second one! */
     mu_assert_int_eq(-1, s_find_str_reverse(test, "foo"));
+    // include NULL tests
+    mu_assert_int_eq(-1, s_find_str_reverse(NULL, "foo"));
+    mu_assert_int_eq(-1, s_find_str_reverse(test, NULL));
 }
 
 MU_TEST(test_s_find_any) {
     mu_assert_int_eq(2, s_find_any(foostring, "\n\t\r"));
     mu_assert_int_eq(21, s_find_any(foostring, "jx!"));
+    mu_assert_int_eq(-1, s_find_any(foostring, ";:"));
+    // include NULL tests
+    mu_assert_int_eq(-1, s_find_any(NULL, "jx!"));
+    mu_assert_int_eq(-1, s_find_any(foostring, NULL));
 }
 
 MU_TEST(test_s_find_any_reverse) {
     mu_assert_int_eq(51, s_find_any_reverse(foostring, "\n\t\r"));
     mu_assert_int_eq(23, s_find_any_reverse(foostring, "jx!"));
     mu_assert_int_eq(-1, s_find_any_reverse(foostring, ";:"));
+    // include NULL tests
+    mu_assert_int_eq(-1, s_find_any_reverse(NULL, "jx!"));
+    mu_assert_int_eq(-1, s_find_any_reverse(foostring, NULL));
 }
 
 MU_TEST(test_s_find_cnt_any) {
@@ -244,6 +305,9 @@ MU_TEST(test_s_find_cnt_any) {
     mu_assert_int_eq(7, s_find_cnt_any(test, "is"));
     mu_assert_int_eq(0, s_find_cnt_any(test, "\n\r"));
     mu_assert_int_eq(6, s_find_cnt_any(test, " \n\r"));
+    // include NULL tests
+    mu_assert_int_eq(0, s_find_cnt_any(NULL, "\n\r"));
+    mu_assert_int_eq(0, s_find_cnt_any(test, NULL));
 }
 
 MU_TEST(test_s_find_alt_any) {
@@ -255,6 +319,9 @@ MU_TEST(test_s_find_alt_any) {
     mu_assert_int_eq(25, s_find_alt_any(test, "tT", 5));
     mu_assert_int_eq(-1, s_find_alt_any(test, "tT", 6));
     mu_assert_int_eq(-1, s_find_alt_any(test, "qv", 1));
+    // include NULL tests
+    mu_assert_int_eq(-1, s_find_alt_any(NULL, "tT", 1));
+    mu_assert_int_eq(-1, s_find_alt_any(test, NULL, 1));
 }
 
 
@@ -265,6 +332,9 @@ MU_TEST(test_append) {
     char* test = s_duplicate("This is a test");
     test = s_append(test, " of the system!");
     mu_assert_string_eq("This is a test of the system!", test);
+    test = s_append(test, NULL);  // this returns the same thing passed in
+    mu_assert_string_eq("This is a test of the system!", test);
+    mu_assert_null(s_append(NULL, test));
     free(test);
 }
 
@@ -279,13 +349,18 @@ MU_TEST(test_concat) {
 
     mu_assert_string_eq("This is a test of the system!", res);
     /* show that all the pointers are different! */
-    mu_assert(test != t2, "Pointers test and t1 are equal when they should not be!");
-    mu_assert(test != res, "Pointers test and res are equal when they should not be!");
-    mu_assert(t2 != res, "Pointers t1 and res are equal when they should not be!");
+    mu_assert_pointers_not_eq(test, t2);
+    mu_assert_pointers_not_eq(test, res);
+    mu_assert_pointers_not_eq(res, t2);
 
+    // test some NULLS
+    char* tmp = s_concat(res, NULL);  // this returns the same thing passed in
+    mu_assert_string_eq("This is a test of the system!", res);
+    mu_assert_null(s_concat(NULL, tmp));
     free(test);
     free(t2);
     free(res);
+    free(tmp);
 }
 
 
@@ -294,9 +369,14 @@ MU_TEST(test_concat) {
 *******************************************************************************/
 MU_TEST(test_cmp_basic) {
     char* test = s_duplicate("This is a test");
-    mu_assert(s_cmp(test, "This is a test") == 0, "s_cmp failed!");
-    mu_assert(s_cmp(test, "THIS IS A TEST") != 0, "s_cmp failed!");
+    mu_assert_int_eq(0, s_cmp(test, "This is a test"));
+    mu_assert_int_not_eq(0, s_cmp(test, "THIS IS A TEST"));
+    mu_assert_int_eq(0, s_cmp(test, test));
     free(test);
+
+    // Some NULL tests
+    mu_assert_int_eq(-1, s_cmp(NULL, "This is a test"));
+    mu_assert_int_eq(1, s_cmp("This is a test", NULL));
 }
 
 MU_TEST(test_cmp_case_sensitivity) {
@@ -310,6 +390,12 @@ MU_TEST(test_cmp_case_sensitivity) {
     mu_assert_int_not_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_SENSITIVE));
     mu_assert_int_eq(0, s_cmp_alt(test, "THIS IS A TEST", CASE_INSENSITIVE));
     free(test);
+
+    // Some NULL tests
+    mu_assert_int_eq(-1, s_cmp_alt(NULL, "This is a test", CASE_SENSITIVE));
+    mu_assert_int_eq(-1, s_cmp_alt(NULL, "This is a test", CASE_INSENSITIVE));
+    mu_assert_int_eq(1, s_cmp_alt("This is a test", NULL, CASE_SENSITIVE));
+    mu_assert_int_eq(1, s_cmp_alt("This is a test", NULL, CASE_INSENSITIVE));
 }
 
 
@@ -324,11 +410,14 @@ MU_TEST(test_extract_substring) {
     char* r2 = s_extract_substring(test, 10, 250);
     mu_assert_string_eq("brown fox jumped over the lazy dog.", r2);
     free(r2);
+
+    // test NULL case
+    mu_assert_null(s_extract_substring(NULL, 10, 250));
 }
 
 MU_TEST(test_extract_substring_bad_start) {
     char test[] = "The quick brown fox jumped over the lazy dog.";
-    char* r1 = s_extract_substring(test, 45, 5); /* close but still to long */
+    char* r1 = s_extract_substring(test, 45, 5); /* off by 1 error long */
     mu_assert_null(r1);
     free(r1);
     char* r2 = s_extract_substring(test, 145, 5); /* not even close */
@@ -350,6 +439,10 @@ MU_TEST(test_extract_substring_str) {
     char* r3 = s_extract_substring_str(test, "lazy", 15);
     mu_assert_string_eq("lazy dog.", r3);
     free(r3);
+
+    // check NULL cases
+    mu_assert_null(s_extract_substring_str(NULL, "lazy", 15));
+    mu_assert_null(s_extract_substring_str(test, NULL, 15));
 }
 
 MU_TEST(test_extract_substring_c) {
@@ -362,6 +455,9 @@ MU_TEST(test_extract_substring_c) {
     char* r2 = s_extract_substring_c(test, '!', 15);
     mu_assert_null(r2);
     free(r2);
+
+    // check NULL
+    mu_assert_null(s_extract_substring_c(NULL, '|', 15));
 }
 
 
@@ -401,6 +497,10 @@ MU_TEST(test_split_string_c) {
     mu_assert_string_eq("test.", res[3]);
 
     s_free_array_of_strings(res, num);
+
+    // Test NULL cases
+    mu_assert_null(s_split_string_c(NULL, ' ', &num));
+    mu_assert_null(s_split_string_c(test, ' ', NULL));
 }
 
 MU_TEST(test_split_string_str) {
@@ -437,6 +537,11 @@ MU_TEST(test_split_string_str) {
     mu_assert_string_eq(" a te", res[2]);
     mu_assert_string_eq("t.", res[3]);
     s_free_array_of_strings(res, num);
+
+    // Test NULL cases
+    mu_assert_null(s_split_string_str(NULL, "s", &num));
+    mu_assert_null(s_split_string_str(test, NULL, &num));
+    mu_assert_null(s_split_string_str(test, "s", NULL));
 }
 
 MU_TEST(test_split_string_any) {
@@ -468,6 +573,10 @@ MU_TEST(test_split_string_any) {
     mu_assert_int_eq(1, num);
     mu_assert_string_eq(foostring, res[0]);
     s_free_array_of_strings(res, num);
+
+    // Test NULL cases
+    mu_assert_null(s_split_string_any(NULL, "qbfz", &num));
+    mu_assert_null(s_split_string_any(foostring, "qbfz", NULL));
 }
 
 MU_TEST(test_s_split_lines) {
@@ -482,6 +591,10 @@ MU_TEST(test_s_split_lines) {
     mu_assert_string_eq("And looked down one as far as I could", res[3]);
     mu_assert_string_eq("To where it bent in the undergrowth;", res[4]);
     s_free_array_of_strings(res, num);
+
+    // Test NULL cases
+    mu_assert_null(s_split_lines(NULL, &num));
+    mu_assert_null(s_split_lines(test, NULL));
 }
 
 
@@ -492,6 +605,13 @@ MU_TEST(test_s_single_space) {
     char test[] = "  This\t \n\r is \n\r a test! \n\r\f\t";
     s_single_space(test);
     mu_assert_string_eq("This is a test!", test);
+
+    // Test NULL cases (\0 too)
+    mu_assert_null(s_single_space(NULL));
+    test[0] = '\0';
+    char tmp[] = " ";
+    tmp[0] = '\0';
+    mu_assert_string_eq(tmp, test);
 }
 
 
@@ -509,6 +629,7 @@ MU_TEST_SUITE(test_suite) {
     /* s_duplicate string */
     MU_RUN_TEST(test_duplicating_string);
     MU_RUN_TEST(test_duplicating_partial);
+    MU_RUN_TEST(test_duplicating_string_null);
 
     /* s_reverse */
     MU_RUN_TEST(test_reverse);
@@ -517,6 +638,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_s_trim_both);
     MU_RUN_TEST(test_s_trim_trailing);
     MU_RUN_TEST(test_s_trim_leading);
+    MU_RUN_TEST(test_s_trim_null);
 
     /* s_snprintf */
     MU_RUN_TEST(test_s_snprintf);

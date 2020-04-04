@@ -20,6 +20,9 @@ void s_free_array_of_strings(char** a, int num) {
 
 
 char* s_duplicate(const char* s) {
+    if (s == NULL)
+        return NULL;
+
     size_t len = strlen(s);  /* ensure room for NULL terminated */
     char* buf = malloc((len + 1) * sizeof(char));
     if (buf == NULL)
@@ -31,6 +34,9 @@ char* s_duplicate(const char* s) {
 
 
 char* s_reverse(char* s) {
+    if (s == NULL)
+        return NULL;
+
     int i, j;
     for (i = 0, j = strlen(s) - 1; i < j; ++i, --j) {
         char tmp = s[i];
@@ -42,6 +48,9 @@ char* s_reverse(char* s) {
 
 
 size_t s_trim(char* s) {
+    if (s == NULL || s[0] == '\0')
+        return 0;
+
     size_t res = 0, j = 0, length = strlen(s);
 
     /* remove trailing spaces */
@@ -66,6 +75,9 @@ size_t s_trim(char* s) {
 
 
 char* s_standardize_whitespace(char* s, const char c) {
+    if (s == NULL)
+        return NULL;
+
     size_t i = 0;
     while (s[i] != '\0') {
         if (isspace(s[i]))
@@ -77,6 +89,9 @@ char* s_standardize_whitespace(char* s, const char c) {
 
 
 char* s_snprintf(const char* fmt, ...) {
+    if (fmt == NULL)
+        return NULL;
+
     va_list args;
 
     va_start(args, fmt);
@@ -96,6 +111,9 @@ char* s_snprintf(const char* fmt, ...) {
 }
 
 char* s_remove_unwanted_chars(char* s, const char* unwanted) {
+    if (s == NULL || unwanted == NULL)
+        return s;
+
     size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
         int changes = 0;
@@ -121,6 +139,9 @@ char* s_remove_unwanted_chars(char* s, const char* unwanted) {
 
 
 char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
+    if (s == NULL || unwanted == NULL)
+        return s;
+
     size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
         size_t q;
@@ -139,6 +160,9 @@ char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
 
 
 char* s_toupper(char* s) {
+    if (s == NULL || s[0] == '\0')
+        return s;
+
     size_t i;
     for (i = 0; s[i] != '\0'; ++i)
         s[i] = toupper(s[i]);
@@ -147,6 +171,9 @@ char* s_toupper(char* s) {
 
 
 char* s_tolower(char* s) {
+    if (s == NULL || s[0] == '\0')
+        return s;
+
     size_t i;
     for (i = 0; s[i] != '\0'; ++i)
         s[i] = tolower(s[i]);
@@ -155,6 +182,9 @@ char* s_tolower(char* s) {
 
 
 int s_find(const char* s, const char c) {
+    if (s == NULL)
+        return -1;
+
     char* loc = strchr(s, c);
     if (loc == NULL)
         return -1;
@@ -163,6 +193,9 @@ int s_find(const char* s, const char c) {
 
 
 int s_find_reverse(const char* s, const char c) {
+    if (s == NULL)
+        return -1;
+
     char* loc = strrchr(s, c);
     if (loc == NULL)
         return -1;
@@ -171,6 +204,9 @@ int s_find_reverse(const char* s, const char c) {
 
 
 int s_find_cnt(const char* s, const char c) {
+    if (s == NULL)
+        return -1;
+
     int res = 0;
     char* loc = strchr(s, c);
     while (loc != NULL) {
@@ -182,6 +218,9 @@ int s_find_cnt(const char* s, const char c) {
 
 
 int s_find_alt(const char*s, const char c, int idx) {
+    if (s == NULL)
+        return -1;
+
     int i = 0;
     char* loc = strchr(s, c);
     while (loc != NULL) {
@@ -196,6 +235,9 @@ int s_find_alt(const char*s, const char c, int idx) {
 
 
 int s_find_str(const char* s, const char* sub) {
+    if (s == NULL || sub == NULL)
+        return -1;
+
     char* loc = strstr(s, sub);
     if (loc == NULL)
         return -1;
@@ -204,6 +246,9 @@ int s_find_str(const char* s, const char* sub) {
 
 
 char* s_strrstr(const char* s, const char* sub) {
+    if (s == NULL || sub == NULL)
+        return NULL;
+
     int len = strlen(sub);
     char* res = NULL;
     char* loc = strstr(s, sub);
@@ -217,6 +262,9 @@ char* s_strrstr(const char* s, const char* sub) {
 
 
 int s_find_str_reverse(const char* s, const char* sub) {
+    if (s == NULL || sub == NULL)
+        return -1;
+
     char* loc = s_strrstr(s, sub);
     if (loc == NULL)
         return -1;
@@ -224,7 +272,10 @@ int s_find_str_reverse(const char* s, const char* sub) {
 }
 
 
-int s_find_cnt_str(const char* s, const char* sub) {
+int s_find_cnt_str(const char* s, const char* sub) {\
+    if (s == NULL || sub == NULL)
+        return 0;
+
     int res = 0;
     int len = strlen(sub);
     char* loc = strstr(s, sub);
@@ -237,6 +288,9 @@ int s_find_cnt_str(const char* s, const char* sub) {
 
 
 int s_find_alt_str(const char*s, const char* sub, int idx) {
+    if (s == NULL || sub == NULL)
+        return -1;
+
     int i = 0;
     int len = strlen(sub);
     char* loc = strstr(s, sub);
@@ -252,6 +306,9 @@ int s_find_alt_str(const char*s, const char* sub, int idx) {
 
 
 int s_find_any(const char* s, const char* s2) {
+    if (s == NULL || s2 == NULL)
+        return -1;
+
     char* loc = strpbrk(s, s2);
     if (loc == NULL)
         return -1;
@@ -260,6 +317,9 @@ int s_find_any(const char* s, const char* s2) {
 
 
 int s_find_any_reverse(const char* s, const char* s2) {
+    if (s == NULL || s2 == NULL)
+        return -1;
+
     char* res = NULL;
     char* loc = strpbrk(s, s2);
     if (loc == NULL)  /* quick exit */
@@ -274,6 +334,9 @@ int s_find_any_reverse(const char* s, const char* s2) {
 
 
 int s_find_cnt_any(const char* s, const char* s2) {
+    if (s == NULL || s2 == NULL)
+        return 0;
+
     int res = 0;
     char* loc = strpbrk(s, s2);
     while (loc != NULL) {
@@ -285,6 +348,9 @@ int s_find_cnt_any(const char* s, const char* s2) {
 
 
 int s_find_alt_any(const char*s, const char* s2, int idx) {
+    if (s == NULL || s2 == NULL)
+        return -1;
+
     int i = 0;
     char* loc = strpbrk(s, s2);
     while (loc != NULL) {
@@ -305,6 +371,11 @@ char* s_append(char* s1, const char* s2) {
 
 
 char* s_append_alt(char* (*s1), const char* s2) {
+    if (s2 == NULL)
+        return *s1;
+    else if (*s1 == NULL)
+        return NULL;
+
     size_t len =  strlen(s2);
     char* res = realloc(*s1, strlen(*s1) + len + 1);
     strcat(res, s2);
@@ -326,6 +397,13 @@ int s_cmp(const char* s1, const char* s2) {
 
 
 int s_cmp_alt(const char* s1, const char* s2, int casesensitive) {
+    if (s1 == s2)  // then they point to the same thing!
+        return 0;
+    else if (s1 == NULL)  // give it some behavior
+        return -1;
+    else if (s2 == NULL)
+        return 1;
+
     if (casesensitive) {
         return strcmp(s1, s2);
     }
@@ -341,6 +419,9 @@ int s_cmp_alt(const char* s1, const char* s2, int casesensitive) {
 
 
 char* s_extract_substring(const char* s, size_t start, size_t length) {
+    if (s == NULL)
+        return NULL;
+
     size_t len = strlen(s);
     if (start >= len)
         return NULL;
@@ -369,6 +450,9 @@ char* s_extract_substring_c(const char* s, const char c, size_t length) {
 
 
 char** s_split_string_c(const char* s, const char c, int* num) {
+    if (s == NULL || num == NULL)
+        return NULL;
+
     int max_size = s_find_cnt(s, c);
     char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
@@ -395,6 +479,9 @@ char** s_split_string_c(const char* s, const char c, int* num) {
 
 
 char** s_split_string_str(const char* s, const char* sub, int* num) {
+    if (s == NULL || sub == NULL || num == NULL)
+        return NULL;
+
     int max_size = s_find_cnt_str(s, sub);
     char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
@@ -424,6 +511,9 @@ char** s_split_string_str(const char* s, const char* sub, int* num) {
 
 
 char** s_split_string_any(const char* s, const char* s2, int* num) {
+    if (s == NULL || num == NULL)
+        return NULL;
+
     const char* find;
     if (s2 == NULL)
         find = " \n\r\f\v\t";
@@ -460,6 +550,9 @@ char** s_split_lines(const char* s, int* num) {
 
 
 char* s_single_space(char* s) {
+    if (s == NULL || s[0] == '\0')
+        return s;
+
     s_trim(s);
 
     int i = 0, j = 0, found = 0;
