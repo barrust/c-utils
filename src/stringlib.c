@@ -272,7 +272,7 @@ int s_find_str_reverse(const char* s, const char* sub) {
 }
 
 
-int s_find_cnt_str(const char* s, const char* sub) {\
+int s_find_cnt_str(const char* s, const char* sub) {
     if (s == NULL || sub == NULL)
         return 0;
 
@@ -371,10 +371,8 @@ char* s_append(char* s1, const char* s2) {
 
 
 char* s_append_alt(char* (*s1), const char* s2) {
-    if (s2 == NULL)
-        return *s1;
-    else if (*s1 == NULL)
-        return NULL;
+    if ((*s1) == NULL || s2 == NULL)
+        return (*s1);
 
     size_t len =  strlen(s2);
     char* res = realloc(*s1, strlen(*s1) + len + 1);

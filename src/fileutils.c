@@ -81,8 +81,7 @@ int fs_identify_path(const char* path) {
 char* fs_resolve_path(const char* path) {
     if (path == NULL)
         return NULL;
-
-    if (strlen(path) == 1 && strcmp(path, ".") == 0)
+    else if (path[0] == '.' && strlen(path) == 1)
         return fs_cwd();
 
     char* new_path = NULL;
