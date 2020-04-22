@@ -7,7 +7,7 @@ COMPFLAGS=-Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas
 
 all: libraries examples test
 
-libraries: string bitarray fileutils linkedlist doublylinkedlist graph queue stack
+libraries: string bitarray fileutils linkedlist doublylinkedlist graph queue stack permutations
 
 string:
 	$(CC) $(STD) -c $(SRCDIR)/stringlib.c -o $(DISTDIR)/stringlib.o $(CCFLAGS) $(COMPFLAGS)
@@ -32,6 +32,9 @@ queue:
 
 graph:
 	$(CC) $(STD) -c $(SRCDIR)/graph.c -o $(DISTDIR)/graph-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+permutations:
+	$(CC) $(STD) -c $(SRCDIR)/permutations.c -o $(DISTDIR)/permutations-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 debug: CCFLAGS += -g
 debug: all
@@ -62,6 +65,7 @@ examples: libraries
 	$(CC) $(STD) $(DISTDIR)/queue-lib.o $(EXAMPLEDIR)/queue_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_queue
 	$(CC) $(STD) $(DISTDIR)/stack-lib.o $(EXAMPLEDIR)/stack_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_stack
 	$(CC) $(STD) $(DISTDIR)/graph-lib.o $(EXAMPLEDIR)/graph_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_graph
+	$(CC) $(STD) $(DISTDIR)/permutations-lib.o $(EXAMPLEDIR)/permutations_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_permutations
 
 clean:
 	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi
