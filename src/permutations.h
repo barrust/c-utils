@@ -21,4 +21,10 @@ const unsigned short* perm_current_permutation(permutations_t p);
 
 const char* perm_to_string(permutations_t p);
 
+const char* perm_alphabet(permutations_t p);
+
+unsigned short perm_alphabet_length(permutations_t p);
+
+size_t perm_input_size(permutations_t p);
+
 #endif  /* BARRUST_PERMUTATIONS_H__ */

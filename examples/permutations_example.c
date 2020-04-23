@@ -24,11 +24,11 @@ int main() {
 
     printf("----------------------------------------------------------------\n");
 
-    // for (uint64_t i = 0; i < 23; ++i) {
-    //     // perm_sub(p, 2);
-    //     perm_dec(p);
-    //     printf("%s\n", perm_to_string(p));
-    // }
+    for (uint64_t i = 0; i < 23; ++i) {
+        perm_sub(p, 3);
+        // perm_dec(p);
+        printf("%s\n", perm_to_string(p));
+    }
 
     perm_free(p);
 }

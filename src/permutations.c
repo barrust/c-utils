@@ -48,13 +48,24 @@ void perm_free(permutations_t p) {
     p = NULL;
 }
 
-
 const unsigned short* perm_current_permutation(permutations_t p) {
     return p->cur_perm;
 }
 
 const char* perm_to_string(permutations_t p) {
     return p->cur_perm_str;
+}
+
+const char* perm_alphabet(permutations_t p) {
+    return p->alphabet;
+}
+
+unsigned short perm_alphabet_length(permutations_t p) {
+    return p->alphabet_len;
+}
+
+size_t perm_input_size(permutations_t p) {
+    return p->input_len;
 }
 
 void perm_inc(permutations_t p) {
@@ -77,30 +88,35 @@ void perm_add(permutations_t p, size_t num) {
     __update_current_str(p, p->input_len - cnt);
 }
 
+void perm_dec(permutations_t p) {
+    perm_sub(p, 1);
+}
 
-// void perm_dec(permutations_t p) {
-//     perm_sub(p, 1);
-// }
-//
-//
-// void perm_sub(permutations_t p, size_t num) {
-//     size_t i, j, pos, start;
-//     for (i = 0; i < num; ++i) {
-//         pos = p->input_len - 1;
-//         while (pos > 0 && p->cur_perm[pos] == 0) {
-//             --pos;
-//         }
-//         // printf("Max: %d\n", max);
-//         if (pos == 0 && p->cur_perm[pos] == 0) {
-//             return;
-//         }
-//         start = p->input_len - pos;
-//         --p->cur_perm[pos++];
-//         for (j = pos; j < p->input_len; ++j)
-//             p->cur_perm[j] = p->input_len - 1;
-//     }
-//     __update_current_str(p, 0);
-// }
+void perm_sub(permutations_t p, size_t num) {
+    size_t i, j, pos, cnt = 1;
+    for (i = 0; i < num; ++i) {
+        pos = p->input_len - 1;
+        if (p->cur_perm[pos] > 0) {
+            --p->cur_perm[pos];
+            continue;
+        }
+        while (pos > 0 && p->cur_perm[pos] == 0) {
+            ++cnt;
+            --pos;
+        }
+
+        /* avoid overflowing */
+        if (pos == 0 && p->cur_perm[pos] == 0) {
+            return;
+        }
+
+        --p->cur_perm[pos++];
+        for (j = pos; j < p->input_len; ++j)
+            p->cur_perm[j] = p->alphabet_len - 1;
+    }
+    __update_current_str(p, p->input_len - cnt);
+}
+
 
 /*******************************************************************************
 *   private functions
