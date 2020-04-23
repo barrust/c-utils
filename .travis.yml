@@ -92,6 +92,7 @@ script:
   - ./dist/queue
   - ./dist/stack
   - ./dist/graph
+  - ./dist/permutations
   - if [ $TRAVIS_OS_NAME == linux ]; then cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --template='{file}:{line},{severity},{id},{message}' ./src/ ; fi
   - gcov ./dist/*.gcno
 
