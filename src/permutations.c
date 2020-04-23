@@ -69,7 +69,7 @@ void perm_add(permutations_t p, size_t num) {
         while (p->cur_perm[pos] == p->alphabet_len) {
             ++cnt;
             p->cur_perm[pos--] = 0;
-            if (pos == 0)
+            if (pos == 0 && p->cur_perm[pos] == p->alphabet_len)
                 break;
             ++p->cur_perm[pos];
         }
