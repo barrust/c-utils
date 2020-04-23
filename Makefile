@@ -1,4 +1,5 @@
 TESTDIR=tests
+LIBDIR=libs
 DISTDIR=dist
 SRCDIR=src
 EXAMPLEDIR=examples
@@ -10,31 +11,31 @@ all: libraries examples test
 libraries: string bitarray fileutils linkedlist doublylinkedlist graph queue stack permutations
 
 string:
-	$(CC) $(STD) -c $(SRCDIR)/stringlib.c -o $(DISTDIR)/stringlib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/stringlib.c -o $(LIBDIR)/string-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 bitarray:
-	$(CC) $(STD) -c $(SRCDIR)/bitarray.c -o $(DISTDIR)/bitarray-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/bitarray.c -o $(LIBDIR)/bitarray-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 fileutils:
-	$(CC) $(STD) -c $(SRCDIR)/fileutils.c -o $(DISTDIR)/fileutils-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/fileutils.c -o $(LIBDIR)/fileutils-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 linkedlist:
-	$(CC) $(STD) -c $(SRCDIR)/llist.c -o $(DISTDIR)/llist-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/llist.c -o $(LIBDIR)/llist-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 doublylinkedlist:
-	$(CC) $(STD) -c $(SRCDIR)/dllist.c -o $(DISTDIR)/dllist-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/dllist.c -o $(LIBDIR)/dllist-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 stack:
-	$(CC) $(STD) -c $(SRCDIR)/stack.c -o $(DISTDIR)/stack-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/stack.c -o $(LIBDIR)/stack-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 queue:
-	$(CC) $(STD) -c $(SRCDIR)/queue.c -o $(DISTDIR)/queue-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/queue.c -o $(LIBDIR)/queue-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 graph:
-	$(CC) $(STD) -c $(SRCDIR)/graph.c -o $(DISTDIR)/graph-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/graph.c -o $(LIBDIR)/graph-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 permutations:
-	$(CC) $(STD) -c $(SRCDIR)/permutations.c -o $(DISTDIR)/permutations-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -c $(SRCDIR)/permutations.c -o $(LIBDIR)/permutations-lib.o $(CCFLAGS) $(COMPFLAGS)
 
 debug: CCFLAGS += -g
 debug: all
@@ -44,16 +45,16 @@ openmp: all
 
 test: CCFLAGS += -coverage
 test: libraries
-	$(CC) $(STD) $(DISTDIR)/stringlib.o $(TESTDIR)/stringlib_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/strlib
+	$(CC) $(STD) $(LIBDIR)/string-lib.o $(TESTDIR)/stringlib_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/strlib
 	$(CC) $(STD) $(TESTDIR)/timing_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/timing
 	$(CC) $(STD) $(TESTDIR)/minunit_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/minunit
-	$(CC) $(STD) $(DISTDIR)/bitarray-lib.o $(TESTDIR)/bitarray_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/bitarray
-	$(CC) $(STD) $(DISTDIR)/fileutils-lib.o $(TESTDIR)/fileutils_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/fileutils
-	$(CC) $(STD) $(DISTDIR)/llist-lib.o $(TESTDIR)/linked_list_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/linkedlist
-	$(CC) $(STD) $(DISTDIR)/dllist-lib.o $(TESTDIR)/doubly_linked_list_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/doublelinkedlist
-	$(CC) $(STD) $(DISTDIR)/queue-lib.o $(TESTDIR)/queue_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/queue
-	$(CC) $(STD) $(DISTDIR)/stack-lib.o $(TESTDIR)/stack_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/stack
-	$(CC) $(STD) $(DISTDIR)/graph-lib.o $(TESTDIR)/graph_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/graph
+	$(CC) $(STD) $(LIBDIR)/bitarray-lib.o $(TESTDIR)/bitarray_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/bitarray
+	$(CC) $(STD) $(LIBDIR)/fileutils-lib.o $(TESTDIR)/fileutils_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/fileutils
+	$(CC) $(STD) $(LIBDIR)/llist-lib.o $(TESTDIR)/linked_list_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/linkedlist
+	$(CC) $(STD) $(LIBDIR)/dllist-lib.o $(TESTDIR)/doubly_linked_list_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/doublelinkedlist
+	$(CC) $(STD) $(LIBDIR)/queue-lib.o $(TESTDIR)/queue_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/queue
+	$(CC) $(STD) $(LIBDIR)/stack-lib.o $(TESTDIR)/stack_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/stack
+	$(CC) $(STD) $(LIBDIR)/graph-lib.o $(TESTDIR)/graph_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/graph
 
 examples: libraries
 	$(CC) $(STD) $(EXAMPLEDIR)/timing_example.c $(CCFLAGS) $(COMPFLAGS) -lm -o ./$(DISTDIR)/ex_timing
@@ -69,6 +70,7 @@ examples: libraries
 
 clean:
 	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi
+	if [ -d "./$(LIBDIR)/" ]; then rm ./$(LIBDIR)/*; fi
 	rm -f ./*.gcno
 	rm -f ./*.gcda
 	rm -f ./*.gcov
