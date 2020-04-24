@@ -20,6 +20,7 @@ If there are other commonly used code or data-structures that should be added, p
 * [stack](#stack)
 * [queue](#queue)
 * [graph](#graph)
+* [permutations](#permutations)
 * [timing-c](#timing-c) - Code timing utility
 * [minunit](#minunit) - Unit testing
 
@@ -33,7 +34,7 @@ If there are other commonly used code or data-structures that should be added, p
 
 Unit tests are provided using the [minunit](#minunit) library. Each function is, **hopefully**, fully covered. Any help in getting as close to 100% coverage would be much appreciated!
 
-To run the unit-test suite, simply compile the test files using the provided `Makefile` with the command `make test`. Then you can execute the tests using the executables `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, `./dist/graph`, `./dist/llist`, `./dist/dllist`, `./dist/stack`, `./dist/queue`,  or `./dist/timing`.
+To run the unit-test suite, simply compile the test files using the provided `Makefile` with the command `make test`. Then you can execute the tests using the executables `./dist/bitarray`, `./dist/strlib`, `./dist/fileutils`, `./dist/graph`, `./dist/llist`, `./dist/dllist`, `./dist/stack`, `./dist/queue`, `./dist/permutations`, `./dist/minunit`, or `./dist/timing`.
 
 #### Issues
 
@@ -51,7 +52,7 @@ A great [issue](https://github.com/barrust/c-utils/issues) would provide the fol
 
 #### Examples
 
-Example programs are provided in the `./examples` folder. You can compile these examples using `make examples`. They can be run using `./dist/ex_timing`, `./dist/ex_bitarray`, `./dist/ex_fileutils`, `./dist/ex_stringlib`, `./dist/ex_linkedlist`, and `./dist/ex_doublylinkedlist`.
+Example programs are provided in the `./examples` folder. You can compile these examples using `make examples`. They can be run from the `./dist` folder and are named prepended with `ex_`.
 
 Not all functionality is demonstrated for all libraries, but hopefully enough is present to help make using these libraries easier. All functionality for each library is documented in the `.h` files.
 
@@ -394,6 +395,32 @@ g_iterate_vertices(g, v, i) {
 }
 
 g_free_alt(g, false);
+```
+
+## permutations
+
+There are times when one needs to run over all (most?) of the permutations of a set of characters, or numbers. This library allows the user to pass initialize a permutation list and give it a length and an alphabet and get the permutations as needed such as to check for all possible k-mers in a genome, among other uses!
+
+#### Compiler Flags
+
+***NONE*** - There are no needed compiler flags for the `permutations` library
+
+#### Usage
+
+To use, simply copy the `permutations.h` and `permutations.c` files into your project and include it where needed.
+
+``` c
+#include "permutations.h"
+
+permutations_t p = perm_init(5, "ATCG");
+
+// number permutations is alphabet length raised to the input length
+for (unsigned int i = 0; i < 1024; ++i) {
+    perm_inc(p);
+    // do something with the new permutation
+    printf("%s\n", perm_to_string(p));
+}
+perm_free(p);
 ```
 
 
