@@ -72,19 +72,26 @@ void perm_inc(permutations_t p) {
 }
 
 void perm_add(permutations_t p, size_t num) {
-    size_t i, cnt = 1;
+    size_t i, max_val = 0, cnt = 0;
     for (i = 0; i < num; ++i) {
         size_t pos = p->input_len - 1;
+        cnt = 1;
         ++p->cur_perm[pos];
         while (p->cur_perm[pos] == p->alphabet_len) {
             ++cnt;
             p->cur_perm[pos--] = 0;
-            if (pos == 0 && p->cur_perm[pos] == p->alphabet_len)
-                break;
             ++p->cur_perm[pos];
+            /* check for wrap around */
+            if (pos == 0 && p->cur_perm[pos] == p->alphabet_len) {
+                p->cur_perm[pos] = 0;
+                __update_current_str(p, 0);
+                break;
+            }
         }
+        if (cnt > max_val)
+            max_val = cnt;
     }
-    __update_current_str(p, p->input_len - cnt);
+    __update_current_str(p, p->input_len - max_val);
 }
 
 void perm_dec(permutations_t p) {
@@ -92,9 +99,10 @@ void perm_dec(permutations_t p) {
 }
 
 void perm_sub(permutations_t p, size_t num) {
-    size_t i, j, cnt = 1;
+    size_t i, j, max_val = 0, cnt;
     for (i = 0; i < num; ++i) {
         size_t pos = p->input_len - 1;
+        cnt = 1;
         if (p->cur_perm[pos] > 0) {
             --p->cur_perm[pos];
             continue;
@@ -113,8 +121,11 @@ void perm_sub(permutations_t p, size_t num) {
         --p->cur_perm[pos++];
         for (j = pos; j < p->input_len; ++j)
             p->cur_perm[j] = p->alphabet_len - 1;
+
+        if (cnt > max_val)
+            max_val = cnt;
     }
-    __update_current_str(p, p->input_len - cnt);
+    __update_current_str(p, p->input_len - max_val);
 }
 
 
