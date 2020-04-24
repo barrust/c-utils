@@ -72,10 +72,9 @@ void perm_inc(permutations_t p) {
 }
 
 void perm_add(permutations_t p, size_t num) {
-    size_t i, max_val = 0, cnt = 0;
+    size_t i, max_val = 0;
     for (i = 0; i < num; ++i) {
-        size_t pos = p->input_len - 1;
-        cnt = 1;
+        size_t cnt = 1, pos = p->input_len - 1;
         ++p->cur_perm[pos];
         while (p->cur_perm[pos] == p->alphabet_len) {
             ++cnt;
@@ -99,10 +98,9 @@ void perm_dec(permutations_t p) {
 }
 
 void perm_sub(permutations_t p, size_t num) {
-    size_t i, j, max_val = 0, cnt;
+    size_t i, j, max_val = 0;
     for (i = 0; i < num; ++i) {
-        size_t pos = p->input_len - 1;
-        cnt = 1;
+        size_t cnt = 1, pos = p->input_len - 1;
         if (p->cur_perm[pos] > 0) {
             --p->cur_perm[pos];
             continue;
