@@ -3,7 +3,6 @@
 ***  email:  barrust@gmail.com
 ***  License: MIT 2020
 *******************************************************************************/
-#include <stdio.h>  // remove!
 #include <stdlib.h>
 #include <string.h>
 
@@ -33,9 +32,7 @@ permutations_t perm_init(size_t input_len, const char* alphabet) {
     // set up the permutations
     p->cur_perm = calloc(input_len + 1, sizeof(unsigned short));
     p->cur_perm_str = calloc(input_len + 1, sizeof(char));
-    unsigned int i;
-    for (i = 0; i < input_len; ++i)
-        p->cur_perm_str[i] = p->alphabet[0];  // start at the beginning
+    __update_current_str(p, 0);
 
     return p;
 }
