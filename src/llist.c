@@ -35,7 +35,6 @@ void ll_free_alt(llist_t l, bool free_data) {
         n->data = NULL;
         ll_node* t = n->next;
         free(n);
-        n = NULL;
         n = t;
     }
 
