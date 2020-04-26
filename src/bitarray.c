@@ -64,6 +64,7 @@ const unsigned char* ba_get_bitarray(bitarray_t ba) {
 
 void ba_free(bitarray_t ba) {
     free(ba->arr);
+    ba->arr = NULL;
     ba->num_bits = 0;
     ba->num_chars = 0;
     free(ba);

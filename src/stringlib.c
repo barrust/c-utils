@@ -13,8 +13,10 @@
 
 void s_free_array_of_strings(char** a, int num) {
     int i;
-    for (i = 0; i < num; ++i)
+    for (i = 0; i < num; ++i) {
         free(a[i]);
+        a[i] = NULL;
+    }
     free(a);
 }
 

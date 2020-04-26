@@ -33,11 +33,14 @@ void q_free_alt(queue_list_t q, bool free_data) {
     while (n != NULL) {
         if (free_data == true)
             free(n->data);
+        n->data = NULL;
         queue_node* t = n;
         n = n->next;
         free(t);
     }
     q->elms = 0;
+    q->head = NULL;
+    q->tail = NULL;
     free(q);
 }
 

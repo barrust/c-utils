@@ -438,6 +438,19 @@ void f_free(file_t f) {
         f->lines[i] = NULL;
     free(f->lines);
     free(f->buffer);
+
+    /* Set everything to a default value */
+    f->filesize = 0;
+    f->mode = 0;
+    f->num_lines = 0;
+    f->is_symlink = false;
+    f->basepath = NULL;
+    f->filename = NULL;
+    f->extension = NULL;
+    f->absolute_path = NULL;
+    f->buffer = NULL;
+    f->lines = NULL;
+
     free(f);
 }
 
@@ -571,6 +584,19 @@ void d_free(dir_t d) {
     __free_double_array(d->subitems_fullpath, d->num_subitems);
 
     free(d->full_path);
+
+    /* Set everything to a default value */
+    d->num_subitems = 0;
+    d->num_subdirs = 0;
+    d->num_subfiles = 0;
+    d->full_path = NULL;
+    d->subitems = NULL;
+    d->subdirs = NULL;
+    d->subfiles = NULL;
+    d->subitems_fullpath = NULL;
+    d->subdirs_fullpath = NULL;
+    d->subfiles_fullpath = NULL;
+
     free(d);
 }
 

@@ -31,12 +31,17 @@ void dll_free(dllist_t l) {
 void dll_free_alt(dllist_t l, bool free_data) {
     dll_node* n = l->head;
     while (n != NULL) {
-        if (free_data == true)
+        if (free_data == true) {
             free(n->data);
+            n->data = NULL;
+        }
         dll_node* t = n;
         n = n->next;
         free(t);
+        t = NULL;
     }
+    l->head = NULL;
+    l->tail = NULL;
     l->elms = 0;
     free(l);
 }
@@ -156,5 +161,6 @@ void* dll_remove(dllist_t l, int idx) {
     data = ret->data;
     --(l->elms);
     free(ret);
+    ret = NULL;
     return data;
 }

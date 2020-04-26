@@ -118,6 +118,8 @@ void g_free_alt(graph_t g, bool free_metadata) {
     g->_max_edges = 0;
     g->_prev_vert_id = 0;
     g->_prev_edge_id = 0;
+    g->verts = NULL;
+    g->edges = NULL;
 
     free(g);
 }
@@ -320,6 +322,9 @@ void g_vertex_free_alt(vertex_t v, bool free_metadata) {
     free(v->edges);
     if (free_metadata == true)
         free(v->metadata);
+
+    v->metadata = NULL;
+    v->edges = NULL;
     free(v);
 }
 
@@ -359,6 +364,7 @@ void g_edge_free_alt(edge_t e, bool free_metadata) {
     e->dest = 0;
     if (free_metadata == true)
         free(e->metadata);
+    e->metadata = NULL;
     free(e);
 }
 

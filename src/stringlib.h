@@ -21,12 +21,11 @@
 ***
 *******************************************************************************/
 
-#include <stdio.h>
 
 #define CASE_SENSITIVE 1
 #define CASE_INSENSITIVE 0
 
-#define STRLIB_VERSION "0.1.0"
+#define S_STRLIB_VERSION "0.1.1"
 
 
 void s_free_array_of_strings(char** a, int num);
