@@ -31,11 +31,13 @@ void stk_free_alt(stack_list_t stk, bool free_data) {
     while (n != NULL) {
         if (free_data == true)
             free(n->data);
+        n->data = NULL;
         stack_node* t = n;
         n = n->next;
         free(t);
     }
     stk->elms = 0;
+    stk->head = NULL;
     free(stk);
 }
 

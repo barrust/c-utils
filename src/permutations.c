@@ -12,9 +12,9 @@
 typedef struct __permutations {
     unsigned short alphabet_len;
     size_t input_len;
-    char* alphabet;
     unsigned short* cur_perm;
     char* cur_perm_str;
+    char* alphabet;
 } __permutations;
 
 
@@ -41,6 +41,12 @@ void perm_free(permutations_t p) {
     free(p->alphabet);
     free(p->cur_perm);
     free(p->cur_perm_str);
+
+    p->alphabet_len = 0;
+    p->input_len = 0;
+    p->cur_perm = NULL;
+    p->cur_perm_str = NULL;
+    p->alphabet = NULL;
     free(p);
 }
 

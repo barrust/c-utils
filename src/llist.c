@@ -32,10 +32,14 @@ void ll_free_alt(llist_t l, bool free_data) {
     while (n != NULL) {
         if (free_data == true)
             free(n->data);
+        n->data = NULL;
         ll_node* t = n->next;
         free(n);
         n = t;
     }
+
+    l->head = NULL;
+    l->elms = 0;
     free(l);
 }
 
