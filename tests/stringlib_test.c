@@ -334,10 +334,16 @@ MU_TEST(test_append) {
     mu_assert_string_eq("This is a test of the system!", test);
     test = s_append(test, NULL);  // this returns the same thing passed in
     mu_assert_string_eq("This is a test of the system!", test);
-    mu_assert_null(s_append(NULL, test));
+    // mu_assert_null(s_append(NULL, test));
     free(test);
 }
 
+MU_TEST(test_append_alt) {
+    char* test = NULL;
+    test = s_append_alt(&test, "Test should no longer be null!");
+    mu_assert_string_eq("Test should no longer be null!", test);
+    free(test);
+}
 
 /*******************************************************************************
 *   Test concat
@@ -672,6 +678,7 @@ MU_TEST_SUITE(test_suite) {
 
     /* append */
     MU_RUN_TEST(test_append);
+    MU_RUN_TEST(test_append_alt);
 
     /* concat */
     MU_RUN_TEST(test_concat);
