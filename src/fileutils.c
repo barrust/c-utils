@@ -87,6 +87,14 @@ char* fs_resolve_path(const char* path) {
     char* new_path = NULL;
     char* tmp = __str_duplicate(path);
     int pos = __str_find_reverse(tmp, '/');
+
+    if (pos == -1) {
+        char* cwd = fs_cwd();
+        new_path = calloc(strlen(cwd) + 2 + strlen(path), sizeof(char));
+        snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s/%s", cwd, path);
+        free(cwd);
+    }
+
     while (pos != -1) {
         tmp[pos] = '\0';
         char* p = realpath(tmp, NULL);

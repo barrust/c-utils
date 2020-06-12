@@ -373,11 +373,11 @@ char* s_append(char* s1, const char* s2) {
 
 
 char* s_append_alt(char* (*s1), const char* s2) {
-    if ((*s1) == NULL || s2 == NULL)
+    if (s2 == NULL)
         return (*s1);
 
-    size_t len =  strlen(s2);
-    char* res = realloc(*s1, strlen(*s1) + len + 1);
+    size_t len = (*s1) == NULL ? 0 : strlen(*s1);
+    char* res = realloc(*s1, len + strlen(s2) + 1);
     strcat(res, s2);
     /* set s1 pointer to the res pointer */
     *s1 = res;
@@ -386,6 +386,8 @@ char* s_append_alt(char* (*s1), const char* s2) {
 }
 
 char* s_concat(const char* s1, const char* s2) {
+    if (s1 == NULL || s2 == NULL)
+        return NULL;
     char* ret = s_duplicate(s1);
     return s_append(ret, s2);
 }

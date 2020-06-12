@@ -63,6 +63,11 @@ MU_TEST(test_setup_resolve_paths) {
     char* cwd = fs_cwd();
     mu_assert_string_eq(cwd, path);
     free(path);
+
+    path = NULL;
+    path = fs_resolve_path("");  /* this simulates a relative path without leading . */
+    mu_assert_string_eq(cwd, path);
+    free(path);
     free(cwd);
 }
 
