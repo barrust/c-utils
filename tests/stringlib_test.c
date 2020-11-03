@@ -103,6 +103,12 @@ MU_TEST(test_s_trim_null) {
     mu_assert_int_eq(0, s_trim(NULL));
 }
 
+MU_TEST(test_s_trim_spaces) {
+    char test[] = " \t\n\t  ";
+    mu_assert_int_eq(6, s_trim(test));
+    mu_assert_string_eq("", test);
+}
+
 
 /*******************************************************************************
 *   Test s_snprintf
@@ -645,6 +651,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_s_trim_trailing);
     MU_RUN_TEST(test_s_trim_leading);
     MU_RUN_TEST(test_s_trim_null);
+    MU_RUN_TEST(test_s_trim_spaces);
 
     /* s_snprintf */
     MU_RUN_TEST(test_s_snprintf);

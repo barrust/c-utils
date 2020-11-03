@@ -56,7 +56,7 @@ size_t s_trim(char* s) {
     size_t res = 0, j = 0, length = strlen(s);
 
     /* remove trailing spaces */
-    while (isspace(s[length - 1]) != 0) {
+    while (length > 0 && isspace(s[length - 1]) != 0) {
         s[--length] = '\0';
         ++res;
     }
