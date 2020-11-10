@@ -28,6 +28,7 @@ If there are other commonly used code or data-structures that should be added, p
 * [set](https://github.com/barrust/set)
 * [hashmap](https://github.com/barrust/hashmap)
 * [bloom filter](https://github.com/barrust/bloom)
+* [kseq](https://github.com/lh3/readfq) A fasta/fastq parser library
 
 
 ##### Unit tests

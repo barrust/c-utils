@@ -7,7 +7,7 @@
 ***  email:  barrust@gmail.com
 ***
 ***  Version: 0.1.0
-***  Purpose: Generic singly linked list implementation
+***  Purpose: Generic permutations library
 ***
 ***  License: MIT 2020
 ***
