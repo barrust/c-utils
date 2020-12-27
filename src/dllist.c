@@ -62,7 +62,7 @@ int dll_append(dllist_t l, void* data) {
     return dll_insert(l, data, -1);
 }
 
-int dll_insert(dllist_t l, void * data, int idx) {
+int dll_insert(dllist_t l, void* data, int idx) {
     if (idx != -1 && idx < 0 && idx <= (-1 * (int)l->elms))
         return DLL_FAILURE;
 

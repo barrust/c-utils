@@ -49,7 +49,7 @@ stack_node* stk_first_node(stack_list_t stk) {
     return stk->head;
 }
 
-int stk_push(stack_list_t stk, void * data) {
+int stk_push(stack_list_t stk, void* data) {
     /* setup the node to add */
     stack_node* n = calloc(1, sizeof(stack_node));
     if (n == NULL)

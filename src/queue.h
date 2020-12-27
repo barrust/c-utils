@@ -62,7 +62,7 @@ queue_node* q_last_node(queue_list_t q);
 
 
 /*  Insert a new node into the queue */
-int q_push(queue_list_t q, void * data);
+int q_push(queue_list_t q, void* data);
 
 /*  Pop the node from the front of the queue */
 void* q_pop(queue_list_t q);

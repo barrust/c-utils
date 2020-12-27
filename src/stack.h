@@ -59,7 +59,7 @@ size_t stk_num_elements(stack_list_t stk);
 stack_node* stk_first_node(stack_list_t stk);
 
 /*  Insert a new node into the queue */
-int stk_push(stack_list_t stk, void * data);
+int stk_push(stack_list_t stk, void* data);
 
 /*  Pop the node from the front of the queue */
 void* stk_pop(stack_list_t stk);

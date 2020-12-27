@@ -28,7 +28,8 @@ If there are other commonly used code or data-structures that should be added, p
 * [set](https://github.com/barrust/set)
 * [hashmap](https://github.com/barrust/hashmap)
 * [bloom filter](https://github.com/barrust/bloom)
-* [kseq](https://github.com/lh3/readfq) A fasta/fastq parser library
+* [kseq](https://github.com/lh3/readfq) - A fasta/fastq parser library
+* [utf-8](https://github.com/sheredom/utf8.h) - Single header UTF-8 string functions for C and C++
 
 
 ##### Unit tests

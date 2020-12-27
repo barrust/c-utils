@@ -78,7 +78,7 @@ dll_node* dll_last_node(dllist_t l);
 int dll_append(dllist_t l, void* data);
 
 /*  Insert a new node at the position pointed to by `idx` */
-int dll_insert(dllist_t l, void * data, int idx);
+int dll_insert(dllist_t l, void* data, int idx);
 
 /*  Remove a node that at the position `idx` */
 void* dll_remove(dllist_t l, int idx);

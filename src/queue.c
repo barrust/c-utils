@@ -56,7 +56,7 @@ queue_node* q_last_node(queue_list_t q) {
     return q->tail;
 }
 
-int q_push(queue_list_t q, void * data) {
+int q_push(queue_list_t q, void* data) {
     /* setup the node to add */
     queue_node* n = calloc(1, sizeof(queue_node));
     if (n == NULL)
