@@ -58,7 +58,7 @@ MU_TEST(test_freeing) {
 MU_TEST(test_traverse) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -87,7 +87,7 @@ MU_TEST(test_traverse) {
 MU_TEST(test_append) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -117,12 +117,12 @@ MU_TEST(test_append) {
 MU_TEST(test_insert_beginning) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     dll_insert(l, q, 0); // insert at the beginning
 
@@ -146,27 +146,27 @@ MU_TEST(test_insert_beginning) {
 MU_TEST(test_insert_end) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     dll_insert(l, q, 5); /* insert at the end of the list (like append) */
     dll_node* n = dll_last_node(l);
     mu_assert_int_eq(15, *(int*)n->data);
-    mu_assert_string_eq(NULL, (void*)n->next);
+    mu_assert_null((void*)n->next);
 }
 
 MU_TEST(test_insert_first_half) {
     int i;
     for (i = 0; i < 10; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     dll_insert(l, q, 2); /* insert at the first half */
 
@@ -185,12 +185,12 @@ MU_TEST(test_insert_first_half) {
 MU_TEST(test_insert_second_half) {
     int i;
     for (i = 0; i < 10; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     dll_insert(l, q, 8); /* insert at the second half */
 
@@ -209,12 +209,12 @@ MU_TEST(test_insert_second_half) {
 MU_TEST(test_insert_negative) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     dll_insert(l, q, -1); /* insert in the second half, using a negatvie index */
 
@@ -226,12 +226,12 @@ MU_TEST(test_insert_negative) {
 MU_TEST(test_insert_negative_mid) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     dll_insert(l, q, -2); /* insert in the second half, using a negatvie index */
 
@@ -243,12 +243,12 @@ MU_TEST(test_insert_negative_mid) {
 MU_TEST(test_insert_error) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     int res = dll_insert(l, q, -6);
     free(q);
@@ -262,7 +262,7 @@ MU_TEST(test_insert_error) {
 MU_TEST(test_remove_last_element) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -292,7 +292,7 @@ MU_TEST(test_remove_last_element) {
 MU_TEST(test_remove_first_element) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -321,7 +321,7 @@ MU_TEST(test_remove_first_element) {
 MU_TEST(test_remove_early_element) {
     int i;
     for (i = 0; i < 10; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -355,7 +355,7 @@ MU_TEST(test_remove_early_element) {
 MU_TEST(test_remove_late_element) {
     int i;
     for (i = 0; i < 10; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -389,7 +389,7 @@ MU_TEST(test_remove_late_element) {
 MU_TEST(test_remove_late_element_neg) {
     int i;
     for (i = 0; i < 10; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -423,7 +423,7 @@ MU_TEST(test_remove_late_element_neg) {
 MU_TEST(test_remove_last_neg) {
     int i;
     for (i = 0; i < 10; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -453,7 +453,7 @@ MU_TEST(test_remove_last_neg) {
 MU_TEST(test_remove_only_elm) {
     int i;
     for (i = 0; i < 1; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -470,7 +470,7 @@ MU_TEST(test_remove_alt) {
     /* remove alt free's the memory if desired */
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }
@@ -482,7 +482,7 @@ MU_TEST(test_remove_alt) {
 MU_TEST(test_remove_error_neg) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         dll_append(l, t);
     }

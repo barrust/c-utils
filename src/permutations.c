@@ -23,15 +23,15 @@ static void __update_current_str(permutations_t p, size_t pos);
 
 
 permutations_t perm_init(size_t input_len, const char* alphabet) {
-    permutations_t p = calloc(1, sizeof(permutations));
+    permutations_t p = (permutations_t)calloc(1, sizeof(permutations));
     p->alphabet_len = strlen(alphabet);
     p->input_len = input_len;
     // setup the alphabet
-    p->alphabet = calloc(p->alphabet_len + 1, sizeof(char));
+    p->alphabet = (char*)calloc(p->alphabet_len + 1, sizeof(char));
     strcpy(p->alphabet, alphabet);
     // set up the permutations
-    p->cur_perm = calloc(input_len + 1, sizeof(unsigned short));
-    p->cur_perm_str = calloc(input_len + 1, sizeof(char));
+    p->cur_perm = (unsigned short*)calloc(input_len + 1, sizeof(unsigned short));
+    p->cur_perm_str = (char*)calloc(input_len + 1, sizeof(char));
     __update_current_str(p, 0);
 
     return p;

@@ -18,8 +18,8 @@
 
 int main() {
     /* set up the tests */
-    int* nums = calloc(ITERATIONS, sizeof(int));
-    int* denoms = calloc(ITERATIONS, sizeof(int));
+    int* nums = (int*)calloc(ITERATIONS, sizeof(int));
+    int* denoms = (int*)calloc(ITERATIONS, sizeof(int));
 
     int i;
     for (i = 0; i < ITERATIONS; i++) {

@@ -26,7 +26,7 @@ char* s_duplicate(const char* s) {
         return NULL;
 
     size_t len = strlen(s);  /* ensure room for NULL terminated */
-    char* buf = malloc((len + 1) * sizeof(char));
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
     strcpy(buf, s);
@@ -101,7 +101,7 @@ char* s_snprintf(const char* fmt, ...) {
     size_t len = vsnprintf(NULL, 0, fmt, args);
     va_end(args);
 
-    char* buf = malloc((len + 1) * sizeof(char));
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL; /* must be an error state */
 
@@ -187,7 +187,7 @@ int s_find(const char* s, const char c) {
     if (s == NULL)
         return -1;
 
-    char* loc = strchr(s, c);
+    char* loc = strchr((char*)s, c);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -198,7 +198,7 @@ int s_find_reverse(const char* s, const char c) {
     if (s == NULL)
         return -1;
 
-    char* loc = strrchr(s, c);
+    char* loc = strrchr((char*)s, c);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -210,7 +210,7 @@ int s_find_cnt(const char* s, const char c) {
         return -1;
 
     int res = 0;
-    char* loc = strchr(s, c);
+    char* loc = strchr((char*)s, c);
     while (loc != NULL) {
         ++res;
         loc = strchr(loc + 1, c);
@@ -224,7 +224,7 @@ int s_find_alt(const char*s, const char c, int idx) {
         return -1;
 
     int i = 0;
-    char* loc = strchr(s, c);
+    char* loc = strchr((char*)s, c);
     while (loc != NULL) {
         if (++i == idx)
             break;
@@ -240,7 +240,7 @@ int s_find_str(const char* s, const char* sub) {
     if (s == NULL || sub == NULL)
         return -1;
 
-    char* loc = strstr(s, sub);
+    char* loc = strstr((char*)s, sub);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -253,7 +253,7 @@ char* s_strrstr(const char* s, const char* sub) {
 
     int len = strlen(sub);
     char* res = NULL;
-    char* loc = strstr(s, sub);
+    char* loc = strstr((char*)s, sub);
 
     while (loc != NULL) {
         res = loc;
@@ -280,7 +280,7 @@ int s_find_cnt_str(const char* s, const char* sub) {
 
     int res = 0;
     int len = strlen(sub);
-    char* loc = strstr(s, sub);
+    char* loc = strstr((char*)s, sub);
     while (loc != NULL) {
         ++res;
         loc = strstr(loc + len, sub);
@@ -295,7 +295,7 @@ int s_find_alt_str(const char*s, const char* sub, int idx) {
 
     int i = 0;
     int len = strlen(sub);
-    char* loc = strstr(s, sub);
+    char* loc = strstr((char*)s, sub);
     while (loc != NULL) {
         if (++i == idx)
             break;
@@ -311,7 +311,7 @@ int s_find_any(const char* s, const char* s2) {
     if (s == NULL || s2 == NULL)
         return -1;
 
-    char* loc = strpbrk(s, s2);
+    char* loc = strpbrk((char*)s, s2);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -323,7 +323,7 @@ int s_find_any_reverse(const char* s, const char* s2) {
         return -1;
 
     char* res = NULL;
-    char* loc = strpbrk(s, s2);
+    char* loc = strpbrk((char*)s, s2);
     if (loc == NULL)  /* quick exit */
         return -1;
 
@@ -340,7 +340,7 @@ int s_find_cnt_any(const char* s, const char* s2) {
         return 0;
 
     int res = 0;
-    char* loc = strpbrk(s, s2);
+    char* loc = strpbrk((char*)s, s2);
     while (loc != NULL) {
         ++res;
         loc = strpbrk(loc + 1, s2);
@@ -354,7 +354,7 @@ int s_find_alt_any(const char*s, const char* s2, int idx) {
         return -1;
 
     int i = 0;
-    char* loc = strpbrk(s, s2);
+    char* loc = strpbrk((char*)s, s2);
     while (loc != NULL) {
         if (++i == idx)
             break;
@@ -378,9 +378,9 @@ char* s_append_alt(char* (*s1), const char* s2) {
 
     char* res;
     if ((*s1) == NULL)
-        res = calloc(strlen(s2) + 1, sizeof(char));
+        res = (char*)calloc(strlen(s2) + 1, sizeof(char));
     else
-        res = realloc(*s1, strlen(*s1) + strlen(s2) + 1);
+        res = (char*)realloc(*s1, strlen(*s1) + strlen(s2) + 1);
     strcat(res, s2);
     /* set s1 pointer to the res pointer */
     *s1 = res;
@@ -433,7 +433,7 @@ char* s_extract_substring(const char* s, size_t start, size_t length) {
     if (start + length > len)
         return s_duplicate(s + start);
 
-    char* ret = calloc(length + 1, sizeof(char));
+    char* ret = (char*)calloc(length + 1, sizeof(char));
     return strncpy(ret, s + start, length);
 }
 
@@ -459,7 +459,7 @@ char** s_split_string_c(const char* s, const char c, int* num) {
         return NULL;
 
     int max_size = s_find_cnt(s, c);
-    char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
+    char** results = (char**)calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
     const char* loc = s;
     int cnt = 0;
@@ -478,7 +478,7 @@ char** s_split_string_c(const char* s, const char c, int* num) {
         results[cnt++] = s_duplicate(loc);
     *num = cnt;
 
-    char** v = realloc(results, cnt * sizeof(char*));
+    char** v = (char**)realloc(results, cnt * sizeof(char*));
     return v;
 }
 
@@ -488,7 +488,7 @@ char** s_split_string_str(const char* s, const char* sub, int* num) {
         return NULL;
 
     int max_size = s_find_cnt_str(s, sub);
-    char** results = calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
+    char** results = (char**)calloc(max_size + 1, sizeof(char*));  /* will be cut down for empty lines... */
 
     int sub_len = strlen(sub);
 
@@ -510,7 +510,7 @@ char** s_split_string_str(const char* s, const char* sub, int* num) {
         results[cnt++] = s_duplicate(loc);
     *num = cnt;
 
-    char** v = realloc(results, cnt * sizeof(char*));
+    char** v = (char**)realloc(results, cnt * sizeof(char*));
     return v;
 }
 
@@ -526,7 +526,7 @@ char** s_split_string_any(const char* s, const char* s2, int* num) {
         find = s2;
 
     int max_size = s_find_cnt_any(s, find);
-    char** results = calloc(max_size + 1, sizeof(char*));
+    char** results = (char**)calloc(max_size + 1, sizeof(char*));
     const char* loc = s;
     int cnt = 0;
     int len = s_find_any(loc, find);
@@ -544,7 +544,7 @@ char** s_split_string_any(const char* s, const char* s2, int* num) {
         results[cnt++] = s_duplicate(loc);
     *num = cnt;
 
-    char** v = realloc(results, cnt * sizeof(char*));
+    char** v = (char**)realloc(results, cnt * sizeof(char*));
     return v;
 }
 

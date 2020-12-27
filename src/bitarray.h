@@ -24,6 +24,9 @@
 ***
 *******************************************************************************/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define BIT_SET 1
 #define BIT_NOT_SET 0
@@ -73,5 +76,8 @@ size_t ba_number_bits_set(bitarray_t ba);
 /*  Free all the memory */
 void ba_free(bitarray_t ba);
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif      /*   BARRUST_BIT_ARRAY_H__   */

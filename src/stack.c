@@ -16,7 +16,7 @@ typedef struct __linked_list {
 
 
 stack_list_t stk_init() {
-    stack_list_t stk = calloc(1, sizeof(linked_list));
+    stack_list_t stk = (stack_list_t)calloc(1, sizeof(linked_list));
     stk->head = NULL;
     stk->elms = 0;
     return stk;
@@ -51,7 +51,7 @@ stack_node* stk_first_node(stack_list_t stk) {
 
 int stk_push(stack_list_t stk, void* data) {
     /* setup the node to add */
-    stack_node* n = calloc(1, sizeof(stack_node));
+    stack_node* n = (stack_node*)calloc(1, sizeof(stack_node));
     if (n == NULL)
         return STACK_FAILURE;
 

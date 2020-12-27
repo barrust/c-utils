@@ -41,7 +41,7 @@ MU_TEST(test_add_vertices) {
     vertex_t v = g_vertex_add(g, __str_duplicate("this is a test"));
     mu_assert_int_eq(1, g_num_vertices(g));
     mu_assert_int_eq(0, g_vertex_id(v));
-    mu_assert_string_eq("this is a test", g_vertex_metadata(v));
+    mu_assert_string_eq("this is a test", (char*)g_vertex_metadata(v));
 
     g_vertex_add(g, __str_duplicate("d3-football"));
     g_vertex_add(g, __str_duplicate("college hoops"));
@@ -49,7 +49,7 @@ MU_TEST(test_add_vertices) {
 
     v = g_vertex_get(g, 1);
     mu_assert_int_eq(1, g_vertex_id(v));
-    mu_assert_string_eq("d3-football", g_vertex_metadata(v));
+    mu_assert_string_eq("d3-football", (char*)g_vertex_metadata(v));
 }
 
 MU_TEST(test_add_verticies_idx_error) {
@@ -77,13 +77,13 @@ MU_TEST(test_remove_vertices) {
 
     vertex_t v = g_vertex_remove(g, 0);
     mu_assert_int_eq(0, g_vertex_id(v));
-    mu_assert_string_eq("this is a test", g_vertex_metadata(v));
+    mu_assert_string_eq("this is a test", (char*)g_vertex_metadata(v));
     mu_assert_int_eq(2, g_num_vertices(g));
     g_vertex_free(v);
 
     v = g_vertex_remove(g, 2);
     mu_assert_int_eq(2, g_vertex_id(v));
-    mu_assert_string_eq("college hoops", g_vertex_metadata(v));
+    mu_assert_string_eq("college hoops", (char*)g_vertex_metadata(v));
     mu_assert_int_eq(1, g_num_vertices(g));
     g_vertex_free(v);
 
@@ -108,7 +108,7 @@ MU_TEST(test_vertices_growth) {
 MU_TEST(test_updating_vertex_metadata) {
     __add_vertices(g, 5);
     vertex_t v = g_vertex_get(g, 0);
-    int* metadata = g_vertex_metadata(v);
+    int* metadata = (int*)g_vertex_metadata(v);
     mu_assert_int_eq(0, *metadata);
     *metadata = 255;
     g_vertex_metadata_update(v, metadata);
@@ -140,7 +140,7 @@ MU_TEST(test_add_edges) {
     edge_t e = g_edge_get(g, 5);
     mu_assert_int_eq(0, g_edge_src(e));
     mu_assert_int_eq(6, g_edge_dest(e));
-    mu_assert_string_eq("6", g_edge_metadata(e));
+    mu_assert_string_eq("6", (char*)g_edge_metadata(e));
 }
 
 MU_TEST(test_remove_edges) {
@@ -493,7 +493,7 @@ int main() {
 /* Private Functions */
 static char* __str_duplicate(const char* s) {
     size_t len = strlen(s);
-    char* buf = malloc((len + 1) * sizeof(char));
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
     strcpy(buf, s);
@@ -505,14 +505,14 @@ static void  __add_vertices(graph_t g, int num) {
     int i;
     #pragma omp parallel for
     for (i = 0; i < num; i++) {
-        int* q = calloc(1, sizeof(int));
+        int* q = (int*)calloc(1, sizeof(int));
         *q = i;
         g_vertex_add_alt(g, i, q);
     }
 }
 
 static void __add_edge(graph_t g, unsigned int src, unsigned int dest, int val) {
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = val;
     g_edge_add(g, src, dest, q);
 }

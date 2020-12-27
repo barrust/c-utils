@@ -17,7 +17,7 @@ typedef struct __doubly_linked_list {
 
 
 dllist_t dll_init() {
-    dllist_t l = calloc(1, sizeof(doubly_linked_list));
+    dllist_t l = (dllist_t)calloc(1, sizeof(doubly_linked_list));
     l->head = NULL;
     l->tail = NULL;
     l->elms = 0;
@@ -70,7 +70,7 @@ int dll_insert(dllist_t l, void* data, int idx) {
         idx = l->elms + idx + 1;  /* adding 1 makes -1 like 0 from the tail */
 
     /* setup the node to add */
-    dll_node* n = calloc(1, sizeof(dll_node));
+    dll_node* n = (dll_node*)calloc(1, sizeof(dll_node));
     if (n == NULL)
         return DLL_FAILURE;
 

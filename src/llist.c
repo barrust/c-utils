@@ -17,7 +17,7 @@ typedef struct __linked_list {
 
 
 llist_t ll_init() {
-    llist_t l = calloc(1, sizeof(linked_list));
+    llist_t l = (llist_t)calloc(1, sizeof(linked_list));
     l->head = NULL;
     l->elms = 0;
     return l;
@@ -58,7 +58,7 @@ int ll_append(llist_t l, void* data) {
 }
 
 int ll_insert(llist_t l, void* data, size_t idx) {
-    ll_node* t = calloc(1, sizeof(ll_node));
+    ll_node* t = (ll_node*)calloc(1, sizeof(ll_node));
     if (t == NULL)
         return LL_FAILURE;
 

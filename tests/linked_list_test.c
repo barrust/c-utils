@@ -55,7 +55,7 @@ MU_TEST(test_freeing) {
 MU_TEST(test_traverse) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
@@ -75,7 +75,7 @@ MU_TEST(test_traverse) {
 MU_TEST(test_append) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
@@ -96,12 +96,12 @@ MU_TEST(test_append) {
 MU_TEST(test_insert_beginning) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     ll_insert(l, q, 0); // insert at the beginning
 
@@ -122,12 +122,12 @@ MU_TEST(test_insert_beginning) {
 MU_TEST(test_insert_mid) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     ll_insert(l, q, 2); // insert somewhere in the middle
     // printlist(l);
@@ -141,12 +141,12 @@ MU_TEST(test_insert_mid) {
 MU_TEST(test_insert_end_to_large) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
 
-    int* q = calloc(1, sizeof(int));
+    int* q = (int*)calloc(1, sizeof(int));
     *q = 15;
     ll_insert(l, q, 7); // insert somewhere after the end...
     mu_assert_int_eq(6, ll_num_elements(l));
@@ -159,7 +159,7 @@ MU_TEST(test_insert_end_to_large) {
 MU_TEST(test_remove_last_element) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
@@ -183,7 +183,7 @@ MU_TEST(test_remove_last_element) {
 MU_TEST(test_remove_mid_element) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
@@ -210,7 +210,7 @@ MU_TEST(test_remove_mid_element) {
 MU_TEST(test_remove_first_element) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
@@ -234,7 +234,7 @@ MU_TEST(test_remove_final_element) {
     /* do something here! */
     int i;
     for (i = 0; i < 1; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
@@ -249,7 +249,7 @@ MU_TEST(test_remove_alt) {
     /* remove alt free's the memory if desired */
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }
@@ -260,7 +260,7 @@ MU_TEST(test_remove_alt) {
 MU_TEST(test_remove_error) {
     int i;
     for (i = 0; i < 5; i++) {
-        int* t = calloc(1, sizeof(int));
+        int* t = (int*)calloc(1, sizeof(int));
         *t = i;
         ll_append(l, t);
     }

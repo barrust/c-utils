@@ -16,7 +16,7 @@ void test_teardown(void) {
 }
 
 int* make_into_pointer(int i) {
-    int* t = malloc(sizeof(int));
+    int* t = (int*)malloc(sizeof(int));
     *t = i;
     return t;
 }
@@ -59,7 +59,7 @@ MU_TEST(test_simple_pops) {
     stk_push(stk, make_into_pointer(2));
     mu_assert_int_eq(3, stk_num_elements(stk));
 
-    int* i = stk_pop(stk);
+    int* i = (int*)stk_pop(stk);
     mu_assert_int_eq(2, stk_num_elements(stk));
     mu_assert_int_eq(2, *i);
     free(i);

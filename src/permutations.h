@@ -24,6 +24,10 @@
 ***
 *******************************************************************************/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct __permutations permutations;
 typedef struct __permutations *permutations_t;
 
@@ -62,5 +66,8 @@ unsigned short perm_alphabet_length(permutations_t p);
 /*  Get access to the input size, or output string, of the permutation */
 size_t perm_input_size(permutations_t p);
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif  /* BARRUST_PERMUTATIONS_H__ */

@@ -17,7 +17,7 @@ void test_teardown(void) {
 }
 
 int* make_into_pointer(int i) {
-    int* t = malloc(sizeof(int));
+    int* t = (int*)malloc(sizeof(int));
     *t = i;
     return t;
 }

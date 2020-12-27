@@ -20,8 +20,9 @@
 
 #include <stdbool.h>
 
-
-#include <stdbool.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 typedef struct __linked_list stack;
@@ -67,5 +68,9 @@ void  stk_pop_alt(stack_list_t stk, bool free_data);
 
 /*  Traverse the list easily using the following macros */
 #define stk_traverse(stk, node)               for (node = stk_first_node(stk); node != NULL; node = node->next)
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

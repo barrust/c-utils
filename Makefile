@@ -3,7 +3,7 @@ LIBDIR=libs
 DISTDIR=dist
 SRCDIR=src
 EXAMPLEDIR=examples
-COMPFLAGS=-Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas
+COMPFLAGS=-Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
 
 
 all: libraries examples test

@@ -21,6 +21,10 @@
 ***
 *******************************************************************************/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #define CASE_SENSITIVE 1
 #define CASE_INSENSITIVE 0
@@ -141,5 +145,8 @@ int s_find_alt(const char*s, const char c, int idx);
 int s_find_alt_str(const char*s, const char* sub, int idx);
 int s_find_alt_any(const char*s, const char* s2, int idx);
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* END BARRUST_STRING_LIBRARY_H__ */
