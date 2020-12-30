@@ -67,7 +67,7 @@ graph_t g_init() {
 }
 
 graph_t g_init_alt(unsigned int size) {
-    graph_t g = calloc(1, sizeof(Graph));
+    graph_t g = (graph_t)calloc(1, sizeof(Graph));
     if (g == NULL)
         return NULL;
 
@@ -78,8 +78,8 @@ graph_t g_init_alt(unsigned int size) {
     g->_max_verts = size;
     g->_max_edges = size;
 
-    g->verts = calloc(g->_max_verts, sizeof(vertex_t));
-    g->edges = calloc(g->_max_edges, sizeof(edge_t));
+    g->verts = (vertex_t*)calloc(g->_max_verts, sizeof(vertex_t));
+    g->edges = (edge_t*)calloc(g->_max_edges, sizeof(edge_t));
 
     unsigned int i;
     for (i = 0; i < g->_max_edges; ++i) {
@@ -171,14 +171,14 @@ vertex_t g_vertex_add_alt(graph_t g, unsigned int id, void* metadata) {
         }
     }
 
-    vertex_t v = calloc(1, sizeof(Vertex));
+    vertex_t v = (vertex_t)calloc(1, sizeof(Vertex));
     if (v == NULL)
         return NULL;
 
     v->id = id;
     v->metadata = metadata;
     v->_max_edges = 16;  /* some starting point */
-    v->edges = calloc(v->_max_edges, sizeof(edge_t));
+    v->edges = (edge_t*)calloc(v->_max_edges, sizeof(edge_t));
     v->num_edges_out = 0;
     v->num_edges_in = 0;
     g->verts[id] = v;
@@ -220,7 +220,7 @@ edge_t g_edge_add(graph_t g, unsigned int src, unsigned int dest, void* metadata
     if (src > g->_prev_vert_id || dest > g->_prev_vert_id || g->verts[src] == NULL || g->verts[dest] == NULL)
         return NULL;
 
-    edge_t e = calloc(1, sizeof(Edge));
+    edge_t e = (edge_t)calloc(1, sizeof(Edge));
     if (e == NULL)
         return NULL;
 
@@ -377,9 +377,9 @@ void g_edge_free_alt(edge_t e, bool free_metadata) {
 #define CEILING(n,d)  ((n / d) + (n % d > 0))
 unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size) {
     *size = 0;
-    unsigned int* ret = calloc(g_num_vertices(g), sizeof(unsigned int));
+    unsigned int* ret = (unsigned int*)calloc(g_num_vertices(g), sizeof(unsigned int));
     /* we will use a bitarray to track which vertices have been visited */
-    char* bitarray = calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
+    char* bitarray = (char*)calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
     unsigned int id = g_vertex_id(v);
     SET_BIT(bitarray, id);
 
@@ -408,8 +408,8 @@ unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size
 
 unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size) {
     *size = 0;
-    unsigned int* ret = calloc(g_num_vertices(g), sizeof(unsigned int));
-    char* bitarray = calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
+    unsigned int* ret = (unsigned int*)calloc(g_num_vertices(g), sizeof(unsigned int));
+    char* bitarray = (char*)calloc(CEILING(g_vertices_inserted(g), 8), sizeof(char));
     unsigned int id = g_vertex_id(v);
     SET_BIT(bitarray, id);
     ret[0] = id;
@@ -450,7 +450,7 @@ static void __graph_vertices_grow(graph_t g, unsigned int id) {
         new_num_verts *= 2;
     }
 
-    vertex_t* tmp = realloc(g->verts, new_num_verts * sizeof(vertex_t));
+    vertex_t* tmp = (vertex_t*)realloc(g->verts, new_num_verts * sizeof(vertex_t));
     g->verts = tmp;
 
     /* ensure everything in the new memory space is NULL if not used */
@@ -469,7 +469,7 @@ static void __graph_edges_grow(graph_t g, unsigned int id) {
 
     /* need to expand the edges! */
     unsigned int new_num_edges = g->_max_edges * 2; /* double */
-    edge_t* tmp = realloc(g->edges, new_num_edges * sizeof(edge_t));
+    edge_t* tmp = (edge_t*)realloc(g->edges, new_num_edges * sizeof(edge_t));
     g->edges = tmp;
 
     /* ensure everything in the new memory space is NULL if not used */
@@ -485,7 +485,7 @@ static void __vertex_edges_grow(vertex_t v_src, unsigned int outs) {
         return;
 
     unsigned int new_num_edges = v_src->_max_edges * 2;  /* double */
-    edge_t* tmp = realloc(v_src->edges, new_num_edges * sizeof(edge_t));
+    edge_t* tmp = (edge_t*)realloc(v_src->edges, new_num_edges * sizeof(edge_t));
     unsigned int i;
     for (i = outs; i < new_num_edges; ++i)
         tmp[i] = NULL;

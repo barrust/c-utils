@@ -37,12 +37,12 @@ typedef struct __bitarray {
 
 
 bitarray_t ba_init(size_t bits) {
-    bitarray_t ba = calloc(1, sizeof(bitarray));
+    bitarray_t ba = (bitarray_t)calloc(1, sizeof(bitarray));
     ba->num_bits = bits;
     size_t num_chars = CEILING(bits, 8);
     ba->num_chars = num_chars;
     /* the extra one is for the null byte! */
-    ba->arr = calloc(num_chars + 1, sizeof(unsigned char));
+    ba->arr = (unsigned char*)calloc(num_chars + 1, sizeof(unsigned char));
     return ba;
 }
 
@@ -109,7 +109,7 @@ int ba_reset(bitarray_t ba) {
 
 
 char* ba_to_string(bitarray_t ba) {
-    char* res = calloc(ba->num_bits + 1, sizeof(char));
+    char* res = (char*)calloc(ba->num_bits + 1, sizeof(char));
     size_t i;
     for (i = 0; i < ba->num_bits; ++i)
         res[i] = (CHECK_BIT(ba->arr, i) != 0) ? '1' : '0';

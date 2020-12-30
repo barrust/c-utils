@@ -20,6 +20,9 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct __doubly_linked_list q_list;
 typedef struct __doubly_linked_list *queue_list_t;
@@ -71,5 +74,9 @@ void  q_pop_alt(queue_list_t q, bool free_data);
 /*  Traverse the list easily using the following macros */
 #define q_traverse(q, node)               for (node = q_first_node(q); node != NULL; node = node->next)
 #define q_reverse_traverse(q, node)       for (node = q_last_node(q); node != NULL; node = node->prev)
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

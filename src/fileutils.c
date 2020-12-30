@@ -90,7 +90,7 @@ char* fs_resolve_path(const char* path) {
 
     if (pos == -1) {
         char* cwd = fs_cwd();
-        new_path = calloc(strlen(cwd) + 2 + strlen(path), sizeof(char));
+        new_path = (char*)calloc(strlen(cwd) + 2 + strlen(path), sizeof(char));
         snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s/%s", cwd, path);
         free(cwd);
     }
@@ -101,7 +101,7 @@ char* fs_resolve_path(const char* path) {
         if (p != NULL) {
             char* s = tmp + (pos + 1);
             int p_len = strlen(p), t_len = strlen(s);
-            new_path = calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
+            new_path = (char*)calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
             snprintf(new_path, p_len + 2 + t_len, "%s/%s", p, s);
             free(p);
             break;
@@ -142,7 +142,7 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
     int f_len = strlen(filename);
 
     if (res == NULL)
-        res = calloc(p_len + f_len + 2, sizeof(char)); /* 2 for / and NULL */
+        res = (char*)calloc(p_len + f_len + 2, sizeof(char)); /* 2 for / and NULL */
 
     strcpy(res, path);
     if (res[p_len - 1] == '/') {
@@ -156,11 +156,11 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
 
 char* fs_cwd() {
     size_t malsize = 16; /* some defult power of 2... */
-    char* buf = malloc(malsize * sizeof(char));
+    char* buf = (char*)malloc(malsize * sizeof(char));
     errno = 0;
     while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
         malsize *= 2;
-        char* tmp = realloc(buf, malsize * sizeof(char));
+        char* tmp = (char*)realloc(buf, malsize * sizeof(char));
         buf = tmp;
     }
     return buf;
@@ -244,7 +244,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
 
     /* add a trailing '/' for the loop to work! */
     len = strlen(new_path);
-    char* tmp = realloc(new_path, len + 2);
+    char* tmp = (char*)realloc(new_path, len + 2);
     tmp[len] = '/';
     tmp[len + 1] = '\0';
     new_path = tmp;
@@ -358,7 +358,7 @@ char* fs_mode_to_string(mode_t mode) {
 char* fs_mode_to_string_alt(mode_t mode, char* res) {
     char* tmp;
     if (res == NULL)
-        tmp = calloc(11, sizeof(char));
+        tmp = (char*)calloc(11, sizeof(char));
     else
         tmp = res;
 
@@ -411,7 +411,7 @@ file_t f_init(const char* filepath) {
     if (S_ISREG(mode) == 0 && S_ISLNK(mode) == 0)
         return NULL; /* it isn't a file or symlink */
 
-    file_t f = calloc(1, sizeof(file_struct));
+    file_t f = (file_t)calloc(1, sizeof(file_struct));
     /* set the defaults */
     f->filename = NULL;
     f->extension = NULL;
@@ -506,7 +506,7 @@ const char* f_read_file(file_t f) {
     free(f->buffer);
 
     int blen = strlen(f->basepath), flen = strlen(f->filename);
-    char* full_path = calloc(blen + flen + 2, sizeof(char)); /* '/' and '\0' */
+    char* full_path = (char*)calloc(blen + flen + 2, sizeof(char)); /* '/' and '\0' */
     strcpy(full_path, f->basepath);
     full_path[blen] = '/';
     strcpy(full_path + blen + 1, f->filename);
@@ -518,7 +518,7 @@ const char* f_read_file(file_t f) {
     }
     free(full_path);
 
-    f->buffer = calloc(f->filesize + 1, sizeof(char));
+    f->buffer = (char*)calloc(f->filesize + 1, sizeof(char));
     size_t read = fread(f->buffer, sizeof(char), f->filesize, fobj);
     if (read != f->filesize) {
         fclose(fobj);
@@ -550,7 +550,7 @@ dir_t d_init(const char* path) {
         return NULL;  /* error state */
     }
 
-    dir_t d = calloc(1, sizeof(dir_struct));
+    dir_t d = (dir_t)calloc(1, sizeof(dir_struct));
     d->full_path = fs_resolve_path(path);
     d->num_subitems = 0;
     d->num_subfiles = 0;
@@ -637,11 +637,11 @@ int d_update_list(dir_t d) {
     /* now parse into different types */
     d->num_subdirs = 0;
     d->num_subfiles = 0;
-    d->subitems_fullpath = calloc(d->num_subitems, sizeof(char*));
-    d->subfiles = calloc(d->num_subitems, sizeof(char*));
-    d->subfiles_fullpath = calloc(d->num_subitems, sizeof(char*));
-    d->subdirs = calloc(d->num_subitems, sizeof(char*));
-    d->subdirs_fullpath = calloc(d->num_subitems, sizeof(char*));
+    d->subitems_fullpath = (char**)calloc(d->num_subitems, sizeof(char*));
+    d->subfiles = (char**)calloc(d->num_subitems, sizeof(char*));
+    d->subfiles_fullpath = (char**)calloc(d->num_subitems, sizeof(char*));
+    d->subdirs = (char**)calloc(d->num_subitems, sizeof(char*));
+    d->subdirs_fullpath = (char**)calloc(d->num_subitems, sizeof(char*));
 
     char full_path[2048] = {0};
     for (i = 0; i < d->num_subitems; ++i) {
@@ -661,13 +661,13 @@ int d_update_list(dir_t d) {
     }
 
     /* reduce the memory needed for subfiles and subdirs */
-    char** t = realloc(d->subdirs, sizeof(char*) * (d->num_subdirs));
+    char** t = (char**)realloc(d->subdirs, sizeof(char*) * (d->num_subdirs));
     d->subdirs = t;
-    char** q = realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs));
+    char** q = (char**)realloc(d->subdirs_fullpath, sizeof(char*) * (d->num_subdirs));
     d->subdirs_fullpath = q;
-    char** s = realloc(d->subfiles, sizeof(char*) * (d->num_subfiles));
+    char** s = (char**)realloc(d->subfiles, sizeof(char*) * (d->num_subfiles));
     d->subfiles = s;
-    char** w = realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles));
+    char** w = (char**)realloc(d->subfiles_fullpath, sizeof(char*) * (d->num_subfiles));
     d->subfiles_fullpath = w;
 
     return FS_SUCCESS;
@@ -733,7 +733,7 @@ static int __fs_rmdir(const char* path) {
 static char** __fs_list_dir(const char* path, int* elms) {
     int growth_num = 10;
     int cur_size = growth_num;
-    char** paths = calloc(cur_size, sizeof(char*));
+    char** paths = (char**)calloc(cur_size, sizeof(char*));
 
     DIR *d;
     d = opendir(path);
@@ -751,7 +751,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
 
             if (el_num == cur_size) {
                 cur_size += growth_num;
-                char** tmp = realloc(paths, sizeof(char*) * cur_size);
+                char** tmp = (char**)realloc(paths, sizeof(char*) * cur_size);
                 paths = tmp;
             }
         }
@@ -759,7 +759,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
     }
 
     if (cur_size != el_num) {
-        char** tmp = realloc(paths, sizeof(char*) * el_num);
+        char** tmp = (char**)realloc(paths, sizeof(char*) * el_num);
         paths = tmp;
     }
     *elms = el_num;
@@ -769,7 +769,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
 
 static char* __str_duplicate(const char* s) {
     size_t len = strlen(s);
-    char* buf = malloc((len + 1) * sizeof(char));
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
     strcpy(buf, s);
@@ -778,7 +778,7 @@ static char* __str_duplicate(const char* s) {
 }
 
 static int __str_find_reverse(const char* s, const char c) {
-    char* loc = strrchr(s, c);
+    char* loc = strrchr((char*)s, c);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -791,7 +791,7 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
     if (start + length > len)
         return __str_duplicate(s + start);
 
-    char* ret = calloc(length + 1, sizeof(char));
+    char* ret = (char*)calloc(length + 1, sizeof(char));
     return strncpy(ret, s + start, length);
 }
 
@@ -803,7 +803,7 @@ static char** __str_split_string_any(char* s, const char* s2, size_t* num) {
         find = s2;
 
     size_t max_size = __str_find_cnt_any(s, find);
-    char** results = calloc(max_size + 1,  sizeof(char*));
+    char** results = (char**)calloc(max_size + 1,  sizeof(char*));
     char* loc = s;
     int cnt = 0;
     int len = __str_find_any(loc, find);
@@ -823,12 +823,12 @@ static char** __str_split_string_any(char* s, const char* s2, size_t* num) {
         results[cnt++] = loc;
     *num = cnt;
 
-    char** v = realloc(results, cnt * sizeof(char*));
+    char** v = (char**)realloc(results, cnt * sizeof(char*));
     return v;
 }
 
 static int __str_find_any(const char* s, const char* s2) {
-    char* loc = strpbrk(s, s2);
+    char* loc = strpbrk((char*)s, s2);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -836,7 +836,7 @@ static int __str_find_any(const char* s, const char* s2) {
 
 static size_t __str_find_cnt_any(const char* s, const char* s2) {
     size_t res = 0;
-    char* loc = strpbrk(s, s2);
+    char* loc = strpbrk((char*)s, s2);
     while (loc != NULL) {
         ++res;
         loc = strpbrk(loc + 1, s2);

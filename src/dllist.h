@@ -34,6 +34,9 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct __doubly_linked_list dllist;
 typedef struct __doubly_linked_list *dllist_t;
@@ -87,4 +90,9 @@ void  dll_remove_alt(dllist_t l, size_t idx, bool free_data);
 /*  Traverse the list easily using the following macros */
 #define dll_traverse(l, node)               for (node = dll_first_node(l); node != NULL; node = node->next)
 #define dll_reverse_traverse(l, node)       for (node = dll_last_node(l); node != NULL; node = node->prev)
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

@@ -44,7 +44,7 @@ int main(int argc, char const *argv[]) {
     dllist_t l = dll_init();
 
     for (i = 0; i < NUM_ELEMENTS; i++) {
-        _person* p = malloc(sizeof(_person));
+        _person* p = (_person*)malloc(sizeof(_person));
         p->age = rand() % 110 + 1;
         p->gender = rand() % 2 == 0 ? 'm' : 'f';
         p->height = rand() % 7 + 1;

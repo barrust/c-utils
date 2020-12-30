@@ -9,7 +9,7 @@ char original_str[] = "  \tThe quick brown\nfox jumped\rover the lazy\tdog. \n\r
 
 
 void test_setup(void) {
-    foostring = calloc(strlen(original_str) + 1, sizeof(char));
+    foostring = (char*)calloc(strlen(original_str) + 1, sizeof(char));
     strcpy(foostring, original_str);
 }
 

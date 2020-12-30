@@ -26,6 +26,9 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct __file_struct file_struct;
 typedef struct __file_struct *file_t;
@@ -292,5 +295,8 @@ const char* f_read_file(file_t f);
 */
 char** f_parse_lines(file_t f);
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif      /*  BARRUST_FILE_UTILS_H__  */

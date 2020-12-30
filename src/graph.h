@@ -28,6 +28,10 @@
 ***     g_free(g);
 *******************************************************************************/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct __graph* graph_t;
 typedef struct __vertex_node* vertex_t;
 typedef struct __edge_node* edge_t;
@@ -176,5 +180,9 @@ unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size
     NOTE: size is set to the number of elements in the unsigned int array
     NOTE: The returned array contains the vertex ids of each vertex, in order */
 unsigned int* g_depth_first_traverse(graph_t g, vertex_t v, unsigned int* size);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif  /* BARRUST_GRAPH_H__ */

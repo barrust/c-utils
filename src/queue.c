@@ -17,7 +17,7 @@ typedef struct __doubly_linked_list {
 
 
 queue_list_t q_init() {
-    queue_list_t q = calloc(1, sizeof(doubly_linked_list));
+    queue_list_t q = (queue_list_t)calloc(1, sizeof(doubly_linked_list));
     q->head = NULL;
     q->tail = NULL;
     q->elms = 0;
@@ -58,7 +58,7 @@ queue_node* q_last_node(queue_list_t q) {
 
 int q_push(queue_list_t q, void* data) {
     /* setup the node to add */
-    queue_node* n = calloc(1, sizeof(queue_node));
+    queue_node* n = (queue_node*)calloc(1, sizeof(queue_node));
     if (n == NULL)
         return QUEUE_FAILURE;
 

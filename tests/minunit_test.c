@@ -10,7 +10,7 @@
 char* res_str;
 
 void test_setup(void) {
-    res_str = calloc(25, sizeof(char));
+    res_str = (char*)calloc(25, sizeof(char));
     strcpy(res_str, "This is a test!");
 }
 

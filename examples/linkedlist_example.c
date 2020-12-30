@@ -44,7 +44,7 @@ int main(int argc, char const *argv[]) {
     /* build out a list of points and add them to the stack*/
     int i;
     for (i = 0; i < NUM_ELEMENTS; i++) {
-        _point* p = malloc(sizeof(_point));
+        _point* p = (_point*)malloc(sizeof(_point));
         p->x = i;
         p->y = rand() % 50;
         p->z = i + 1;

@@ -664,7 +664,7 @@ static char* __str_snprintf(const char* fmt, ...) {
     size_t len = vsnprintf(NULL, 0, fmt, args);
     va_end(args);
 
-    char* buf = malloc((len + 1) * sizeof(char));
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
 
@@ -682,13 +682,13 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
     if (start + length > len)
         return __str_duplicate(s + start);
 
-    char* ret = calloc(length + 1, sizeof(char));
+    char* ret = (char*)calloc(length + 1, sizeof(char));
     return strncpy(ret, s + start, length);
 }
 
 static char* __str_duplicate(const char* s) {
     size_t len = strlen(s);
-    char* buf = malloc((len + 1) * sizeof(char));
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
     strcpy(buf, s);

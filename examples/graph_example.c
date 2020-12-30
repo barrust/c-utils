@@ -41,18 +41,18 @@ int main(int argc, char const *argv[]) {
     unsigned int i;
 
     /* add the vertices */
-    __add_city_as_vertex(g, "New York", 40.7128, 74.0060);
-    __add_city_as_vertex(g, "Washington D.C.", 38.9072, 77.0369);
-    __add_city_as_vertex(g, "Cleveland", 41.4993, 81.6944);
-    __add_city_as_vertex(g, "Detroit", 42.3314, 83.0458);
-    __add_city_as_vertex(g, "Atlanta", 33.7490, 84.3880);
-    __add_city_as_vertex(g, "St. Louis", 38.6270, 90.1994);
-    __add_city_as_vertex(g, "Dallas", 32.7767, 96.7970);
-    __add_city_as_vertex(g, "Salt Lake", 40.7608, 111.8910);
-    __add_city_as_vertex(g, "Pheonix", 33.4484, 112.0740);
-    __add_city_as_vertex(g, "Las Vegas", 36.1699, 115.1398);
-    __add_city_as_vertex(g, "Los Angeles", 34.0522, 118.2437);
-    __add_city_as_vertex(g, "San Fransisco", 37.7749, 122.4194);
+    __add_city_as_vertex(g, (char*)"New York", 40.7128, 74.0060);
+    __add_city_as_vertex(g, (char*)"Washington D.C.", 38.9072, 77.0369);
+    __add_city_as_vertex(g, (char*)"Cleveland", 41.4993, 81.6944);
+    __add_city_as_vertex(g, (char*)"Detroit", 42.3314, 83.0458);
+    __add_city_as_vertex(g, (char*)"Atlanta", 33.7490, 84.3880);
+    __add_city_as_vertex(g, (char*)"St. Louis", 38.6270, 90.1994);
+    __add_city_as_vertex(g, (char*)"Dallas", 32.7767, 96.7970);
+    __add_city_as_vertex(g, (char*)"Salt Lake", 40.7608, 111.8910);
+    __add_city_as_vertex(g, (char*)"Pheonix", 33.4484, 112.0740);
+    __add_city_as_vertex(g, (char*)"Las Vegas", 36.1699, 115.1398);
+    __add_city_as_vertex(g, (char*)"Los Angeles", 34.0522, 118.2437);
+    __add_city_as_vertex(g, (char*)"San Fransisco", 37.7749, 122.4194);
 
     /* add edges between the vertices */
     __add_highway_as_edge(g, 0, 1, 227);    /* NY - DC */
@@ -90,13 +90,13 @@ int main(int argc, char const *argv[]) {
 
     for (i = 0; i < size; i++) {
         v = g_vertex_get(g, bfs[i]);
-        city* c = g_vertex_metadata(v);
+        city* c = (city*)g_vertex_metadata(v);
         __print_city(c);
     }
 
     /* free things */
     g_iterate_vertices(g, v, i) {
-        city* c = g_vertex_metadata(v);
+        city* c = (city*)g_vertex_metadata(v);
         /*__print_city(c); */
         __free_city(c);
         g_vertex_metadata_update(v, NULL);
@@ -114,7 +114,7 @@ int main(int argc, char const *argv[]) {
 
 /* PRIVATE FUNCTIONS */
 static void __add_city_as_vertex(graph_t g, char* name, double latitude, double longitude) {
-    city* c = calloc(1, sizeof(city));
+    city* c = (city*)calloc(1, sizeof(city));
 
     c->name = __str_duplicate(name);
     c->latitude = latitude;
@@ -134,14 +134,14 @@ static void __free_city(city* c) {
 }
 
 static void __add_highway_as_edge(graph_t g, int src, int dest, int miles) {
-    highway* h = calloc(1, sizeof(highway));
+    highway* h = (highway*)calloc(1, sizeof(highway));
     h->miles = miles;
     g_edge_add(g, src, dest, h);
 }
 
 static char* __str_duplicate(const char* s) {
     size_t len = strlen(s);
-    char* buf = malloc((len + 1) * sizeof(char));
+    char* buf = (char*)malloc((len + 1) * sizeof(char));
     if (buf == NULL)
         return NULL;
     strcpy(buf, s);

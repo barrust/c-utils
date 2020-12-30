@@ -36,6 +36,9 @@
     #include <sys/time.h>  /* *nix based timing; doesn't support windows */
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define TIMING_VERSION "1.0.4"
 #define TIMING_MAJOR 1
@@ -127,7 +130,7 @@ char* format_time_diff(Timing *t) {
     struct timeval difference;
     timeval_diff(&difference, &t->end_time, &t->start_time);
     int len = snprintf(NULL, 0, "%02d:%02d:%02d:%03d.%03d", t->hours, t->minutes, t->seconds, t->milliseconds, t->microseconds);
-    char* res = calloc(len + 1, sizeof(char));
+    char* res = (char*)calloc(len + 1, sizeof(char));
     snprintf(res, len + 1, "%02d:%02d:%02d:%03d.%03d", t->hours, t->minutes, t->seconds, t->milliseconds, t->microseconds);
     return res;
 }
@@ -182,5 +185,8 @@ int gettimeofday(struct timeval *tp, struct timezone *tzp) {
 }
 #endif /* end defining windows gettimeofday function */
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* END OF BARRUST_TIMING_H__ */
