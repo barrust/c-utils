@@ -69,6 +69,18 @@ examples: libraries
 	$(CC) $(STD) $(LIBDIR)/graph-lib.o $(EXAMPLEDIR)/graph_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_graph
 	$(CC) $(STD) $(LIBDIR)/permutations-lib.o $(EXAMPLEDIR)/permutations_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_permutations
 
+runtests:
+	@ if [ -f "./$(DISTDIR)/fileutils" ]; then ./$(DISTDIR)/fileutils; fi
+	@ if [ -f "./$(DISTDIR)/bitarray" ]; then ./$(DISTDIR)/bitarray; fi
+	@ if [ -f "./$(DISTDIR)/strlib" ]; then ./$(DISTDIR)/strlib; fi
+	@ if [ -f "./$(DISTDIR)/timing" ]; then ./$(DISTDIR)/timing; fi
+	@ if [ -f "./$(DISTDIR)/linkedlist" ]; then ./$(DISTDIR)/linkedlist; fi
+	@ if [ -f "./$(DISTDIR)/doublelinkedlist" ]; then ./$(DISTDIR)/doublelinkedlist; fi
+	@ if [ -f "./$(DISTDIR)/queue" ]; then ./$(DISTDIR)/queue; fi
+	@ if [ -f "./$(DISTDIR)/stack" ]; then ./$(DISTDIR)/stack; fi
+	@ if [ -f "./$(DISTDIR)/graph" ]; then ./$(DISTDIR)/graph; fi
+	@ if [ -f "./$(DISTDIR)/permutations" ]; then ./$(DISTDIR)/permutations; fi
+
 clean:
 	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi
 	if [ -d "./$(LIBDIR)/" ]; then rm ./$(LIBDIR)/*; fi
