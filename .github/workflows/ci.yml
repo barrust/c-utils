@@ -18,8 +18,7 @@ jobs:
         ${{ matrix.compiler }} --version
         make test CC=${{ matrix.compiler }}
     - name: Run Unittests
-      run: |
-        dist/test
+      run: make runtests
     - name: Calculate Coverage
       run: gcov ./dist/*.gcno
     - name: Upload coverage to Codecov
