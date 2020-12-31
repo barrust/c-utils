@@ -824,6 +824,8 @@ static char** __str_split_string_any(char* s, const char* s2, size_t* num) {
     *num = cnt;
 
     char** v = (char**)realloc(results, cnt * sizeof(char*));
+    if (v == NULL)
+        return results;
     return v;
 }
 
