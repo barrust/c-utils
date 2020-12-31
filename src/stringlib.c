@@ -545,6 +545,8 @@ char** s_split_string_any(const char* s, const char* s2, int* num) {
     *num = cnt;
 
     char** v = (char**)realloc(results, cnt * sizeof(char*));
+    if (v == NULL)
+        return results;
     return v;
 }
 
