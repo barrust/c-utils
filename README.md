@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![GitHub release](https://img.shields.io/github/release/barrust/c-utils.svg)](https://github.com/barrust/c-utils/releases)
-[![Build Status](https://github.com/barrust/c-utils/workflows/C/C++%20CI/badge.svg)](https://github.com/barrust/c-utils/actions)
+[![C/C++ CI](https://github.com/barrust/c-utils/workflows/C/C++%20CI/badge.svg?branch=master)](https://github.com/barrust/c-utils/actions)
 [![codecov](https://codecov.io/gh/barrust/c-utils/branch/master/graph/badge.svg)](https://codecov.io/gh/barrust/c-utils)
 
 
