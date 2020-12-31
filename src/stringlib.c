@@ -479,6 +479,8 @@ char** s_split_string_c(const char* s, const char c, int* num) {
     *num = cnt;
 
     char** v = (char**)realloc(results, cnt * sizeof(char*));
+    if (v == NULL)
+        return results;
     return v;
 }
 
@@ -511,6 +513,8 @@ char** s_split_string_str(const char* s, const char* sub, int* num) {
     *num = cnt;
 
     char** v = (char**)realloc(results, cnt * sizeof(char*));
+    if (v == NULL)
+        return results;
     return v;
 }
 
@@ -545,6 +549,8 @@ char** s_split_string_any(const char* s, const char* s2, int* num) {
     *num = cnt;
 
     char** v = (char**)realloc(results, cnt * sizeof(char*));
+    if (v == NULL)
+        return results;
     return v;
 }
 
