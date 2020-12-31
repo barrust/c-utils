@@ -3,12 +3,12 @@ name: C/C++ CI
 on: [push, pull_request]
 
 jobs:
-  gcc:
+  linux:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
-        compiler: [gcc]
+        compiler: [gcc, g++, clang, gcc-10]
     steps:
     - uses: actions/checkout@v2
     - name: Compile Library
@@ -23,6 +23,16 @@ jobs:
       run: gcov ./dist/*.gcno
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
+
+
+  cppcheck:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        compiler: [gcc]
+    steps:
+    - uses: actions/checkout@v2
     # The following should be moved into a seperate action for only pull requests, etc.
     # where you it posts the information into the PR as a comment (optionally?)
     - name: Install cppcheck
@@ -30,28 +40,11 @@ jobs:
     - name: Code Quality (cppcheck)
       run: cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --template='{file}:{line},{severity},{id},{message}' ./src/
 
-  gpp:
+  macos:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        compiler: [g++]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Compile Library
-      env:
-        CCFLAGS: "-fsanitize=undefined"
-      run: |
-        ${{ matrix.compiler }} --version
-        make test CC=${{ matrix.compiler }}
-    - name: Run Unittests
-      run: make runtests
-
-  clang:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+        os: [macos-latest]
         compiler: [clang]
     steps:
     - uses: actions/checkout@v2
@@ -63,20 +56,3 @@ jobs:
         make test CC=${{ matrix.compiler }}
     - name: Run Unittests
       run: make runtests
-
-  # clang:
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       os: [macos-latest]
-  #       compiler: [clang]
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Compile Library
-  #     env:
-  #       CCFLAGS: "-fsanitize=undefined"
-  #     run: |
-  #       ${{ matrix.compiler }} --version
-  #       make test CC=${{ matrix.compiler }}
-  #   - name: Run Unittests
-  #     run: make runtests
