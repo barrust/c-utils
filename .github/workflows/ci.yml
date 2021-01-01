@@ -19,11 +19,27 @@ jobs:
         make test CC=${{ matrix.compiler }}
     - name: Run Unittests
       run: make runtests
-    - name: Calculate Coverage
-      run: gcov ./dist/*.gcno
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
 
+  coverage:
+      runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          os: [ubuntu-latest]
+          compiler: [gcc]
+      steps:
+      - uses: actions/checkout@v2
+      - name: Compile Library
+        env:
+          CCFLAGS: "-fsanitize=undefined"
+        run: |
+          ${{ matrix.compiler }} --version
+          make test CC=${{ matrix.compiler }}
+      - name: Run Unittests
+        run: make runtests
+      - name: Calculate Coverage
+        run: gcov ./dist/*.gcno
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
 
   cppcheck:
     runs-on: ${{ matrix.os }}
