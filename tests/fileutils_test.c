@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <unistd.h>   // symlink
 #include "../src/minunit.h"
 #include "../src/fileutils.h"
 
@@ -113,6 +114,39 @@ MU_TEST(test_identify_path) {
     mu_assert_int_eq(FS_NOT_VALID, fs_identify_path(NULL));
 }
 
+MU_TEST(test_symlinks_path) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath2 = __str_snprintf("%s/test-sym.txt", test_dir);
+
+    symlink(filepath, filepath2);
+
+    int res = fs_identify_path(filepath2);
+    fs_remove_file(filepath2);
+
+    mu_assert_int_eq(FS_FILE, res);
+}
+
+MU_TEST(test_fs_is_symlink) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath2 = __str_snprintf("%s/test-sym3.txt", test_dir);
+
+    symlink(filepath, filepath2);
+
+    int res = fs_is_symlink(filepath);
+    mu_assert_int_eq(FS_FAILURE, res);
+
+    res = fs_is_symlink(filepath2);
+    mu_assert_int_eq(FS_SUCCESS, res);
+
+    res = fs_is_symlink(NULL);
+    mu_assert_int_eq(FS_FAILURE, res);
+
+    // remove the symlink'd file and check again... it should be false!
+    fs_remove_file(filepath2);
+    res = fs_is_symlink(filepath2);
+    mu_assert_int_eq(FS_FAILURE, res);
+}
+
 /*******************************************************************************
 *    Test get / set permissions
 *******************************************************************************/
@@ -174,6 +208,20 @@ MU_TEST(test_touch) {
     fs_remove_file(filepath);
 
     free(filepath);
+}
+
+MU_TEST(test_retouch) {
+    char* filepath = __str_snprintf("%s/no-test-fail.txt", test_dir);
+    mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
+    mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
+    mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
+    mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
+    fs_remove_file(filepath);
+}
+
+MU_TEST(test_touch_fail) {
+    mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(test_dir));
+    mu_assert_int_eq(FS_FAILURE, fs_touch(test_dir));
 }
 
 /*******************************************************************************
@@ -435,7 +483,6 @@ MU_TEST(test_file_t_init) {
     mu_assert_int_eq(0 , f_number_lines(f));
     mu_assert_string_eq(NULL , f_buffer(f));
     mu_assert_null(f_lines(f));
-    // mu_assert(f_lines(f) == NULL, "Expected lines to be NULL, if was not...");
     free(filepath);
     f_free(f);
 }
@@ -448,6 +495,33 @@ MU_TEST(test_file_t_init_non_file) {
     f = f_init(filepath);
     mu_assert_null(f);
     free(filepath);
+}
+
+MU_TEST(test_file_t_init_symlink) {
+    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* sym = __str_snprintf("%s/test-symlink2.txt", test_dir);
+    symlink(filepath, sym);
+
+    file_t f = f_init(sym);
+
+    /* ensure things are correct! */
+    mu_assert_string_eq(sym, f_absolute_path(f));  /* vad test, but this is already absolute */
+    mu_assert_string_eq("test-symlink2.txt", f_filename(f));
+    mu_assert_string_eq(test_dir, f_basedir(f));
+    mu_assert_string_eq("txt", f_extension(f));
+    int vals[] = {0644, 0664};
+    mu_assert_int_in(vals, 2, f_permissions(f)); /* 0664 is the value for linux, 0644 OSX */
+    mu_assert_int_eq(3259 , f_filesize(f));
+    mu_assert_int_eq(true , f_is_symlink(f));
+    /* haven't loaded the file, so these should be the defaults! */
+    mu_assert_int_eq(0 , f_number_lines(f));
+    mu_assert_string_eq(NULL , f_buffer(f));
+    mu_assert_null(f_lines(f));
+
+    fs_remove_file(sym);
+    f_free(f);
+    free(filepath);
+    free(sym);
 }
 
 MU_TEST(test_file_t_read_file) {
@@ -593,6 +667,8 @@ MU_TEST_SUITE(test_suite) {
 
     /* fs_identify_path */
     MU_RUN_TEST(test_identify_path);
+    MU_RUN_TEST(test_symlinks_path);
+    MU_RUN_TEST(test_fs_is_symlink);
 
     /* get / set permissions */
     MU_RUN_TEST(test_get_permissions);
@@ -604,6 +680,8 @@ MU_TEST_SUITE(test_suite) {
 
     /* touch */
     MU_RUN_TEST(test_touch);
+    MU_RUN_TEST(test_retouch);
+    MU_RUN_TEST(test_touch_fail);
 
     /* rename / move */
     MU_RUN_TEST(test_rename);
@@ -631,6 +709,7 @@ MU_TEST_SUITE(test_suite) {
     ***************************************************************************/
     MU_RUN_TEST(test_file_t_init);
     MU_RUN_TEST(test_file_t_init_non_file);
+    MU_RUN_TEST(test_file_t_init_symlink);
     MU_RUN_TEST(test_file_t_read_file);
     MU_RUN_TEST(test_file_t_parse_lines);
 

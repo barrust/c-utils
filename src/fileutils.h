@@ -41,7 +41,7 @@ typedef struct __dir_struct *dir_t;
 #define FS_NOT_VALID        -10
 #define FS_FILE             -9
 #define FS_DIRECTORY        -8
-#define FS_SYMLINK          -7
+#define FS_SYMLINK          -7   /* currently not used */
 
 #define FS_NOT_EMPTY        -6
 
@@ -60,11 +60,17 @@ typedef struct __dir_struct *dir_t;
     Returns:
         FS_DIRECTORY    - Path is a directory
         FS_FILE         - Path is a file
-        FS_SYMLINK      - Path is a symlink
         FS_NO_EXISTS    - Path does not point to anything
         FS_NOT_VALID    - invalid path name
 */
 int fs_identify_path(const char* path);
+
+/*  Determines is a path is a symlink
+    Returns:
+        FS_SUCCESS      - If the path is a symlink
+        FS_FAILURE      - If the path is not a symlink
+*/
+int fs_is_symlink(const char* path);
 
 /*  Returns the current working directory
     NOTE: Up to the user to free the resulting memory */
