@@ -169,7 +169,7 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
 
 char* fs_cwd() {
     size_t malsize = 16; /* some defult power of 2... */
-    char* buf = (char*)malloc(malsize * sizeof(char));
+    char* buf = (char*)malloc(malsize);
     errno = 0;
     while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
         malsize *= 2;
