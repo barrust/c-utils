@@ -389,8 +389,8 @@ unsigned int* g_breadth_first_traverse(graph_t g, vertex_t v, unsigned int* size
     edge_t e;
     unsigned int i;
     while (cur_pos != pos) {  /* this signifies that we have hit the end */
-        vertex_t v = g_vertex_get(g, ret[cur_pos]);
-        g_iterate_edges(v, e, i) {
+        vertex_t ver = g_vertex_get(g, ret[cur_pos]);
+        g_iterate_edges(ver, e, i) {
             id = g_edge_dest(e);
             if (CHECK_BIT(bitarray, id) != 0)
                 continue;  /* already visited */

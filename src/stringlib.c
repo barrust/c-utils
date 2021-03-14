@@ -379,8 +379,14 @@ char* s_append_alt(char* (*s1), const char* s2) {
     char* res;
     if ((*s1) == NULL)
         res = (char*)calloc(strlen(s2) + 1, sizeof(char));
-    else
+    else {
         res = (char*)realloc(*s1, strlen(*s1) + strlen(s2) + 1);
+    }
+
+    if (res == NULL) {
+        return NULL;  // something went wrong getting memory
+    }
+
     strcat(res, s2);
     /* set s1 pointer to the res pointer */
     *s1 = res;
