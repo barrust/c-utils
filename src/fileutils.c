@@ -73,9 +73,22 @@ int fs_identify_path(const char* path) {
         return FS_DIRECTORY;
     if (S_ISREG(stats.st_mode) != 0)
         return FS_FILE;
-    if (S_ISLNK(stats.st_mode) != 0)
-        return FS_SYMLINK;
     return FS_NOT_VALID;
+}
+
+int fs_is_symlink(const char* path) {
+    if (path == NULL)
+        return FS_FAILURE;
+
+    errno = 0;
+    struct stat stats;
+    if (lstat(path, &stats) == -1) {
+        if (errno == ENOENT)
+            return FS_FAILURE;
+    }
+    if (S_ISLNK(stats.st_mode) != 0)
+        return FS_SUCCESS;
+    return FS_FAILURE;
 }
 
 char* fs_resolve_path(const char* path) {
@@ -156,7 +169,7 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
 
 char* fs_cwd() {
     size_t malsize = 16; /* some defult power of 2... */
-    char* buf = (char*)malloc(malsize * sizeof(char));
+    char* buf = (char*)malloc(malsize);
     errno = 0;
     while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
         malsize *= 2;
@@ -408,7 +421,7 @@ file_t f_init(const char* filepath) {
     }
 
     mode_t mode = stats.st_mode;
-    if (S_ISREG(mode) == 0 && S_ISLNK(mode) == 0)
+    if (S_ISREG(mode) == 0)
         return NULL; /* it isn't a file or symlink */
 
     file_t f = (file_t)calloc(1, sizeof(file_struct));
@@ -419,8 +432,9 @@ file_t f_init(const char* filepath) {
     f->filesize = 0;
     f->num_lines = 0;
     f->lines = NULL;
-    f->is_symlink = S_ISLNK(mode) == 0 ? false : true;
     f->mode = mode;
+    f->filesize = stats.st_size;
+    f->is_symlink = fs_is_symlink(filepath) == FS_SUCCESS ? true : false;
 
     char* path = NULL;
     __parse_file_info(filepath, &path, &f->filename);
@@ -430,7 +444,6 @@ file_t f_init(const char* filepath) {
     int ex_pos = __str_find_reverse(f->filename, '.');
     if (ex_pos != -1)
         f->extension = __str_extract_substring(f->filename, ex_pos + 1, strlen(f->filename));
-    f->filesize = stats.st_size;
 
     return f;
 }
