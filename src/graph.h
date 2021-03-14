@@ -165,7 +165,7 @@ void g_edge_free_alt(edge_t e, bool free_metadata);
         i   -   An unsigned int that will be modified during the loop */
 #define g_iterate_edges(v, e, i)       for (i = 0; i < g_vertex_num_edges_out(v); i++) if ((e = g_vertex_edge(v, i)) != NULL)
 
-/*  Return an array with a listing of the vertices in bredth first fashion;
+/*  Return an array with a listing of the vertices in breadth first fashion;
     this is useful for finding what order one should traverse the list starting
     at vertex v in a bredth first fashion.
     NOTE: Up to the caller to free the corresponding memory.
