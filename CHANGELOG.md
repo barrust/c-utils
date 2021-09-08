@@ -1,5 +1,13 @@
 # C-Utils
 
+## Future Release
+
+***Updates:***
+
+*c-utils*
+* Add check and set function to return value of bit prior to setting
+
+
 ## Version 0.2.4
 ***New Libraries:***
 * permutations
@@ -21,7 +29,6 @@
 
 *minunit.h*
 * Fix output for `between` checks on failed assertion
-
 
 
 ## Version 0.2.3
