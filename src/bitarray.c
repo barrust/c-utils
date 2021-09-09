@@ -85,6 +85,13 @@ int ba_check_bit(bitarray_t ba, size_t bit) {
     return (CHECK_BIT(ba->arr, bit) != 0) ? BIT_SET : BIT_NOT_SET;
 }
 
+int ba_check_and_set_bit(bitarray_t ba, size_t bit) {
+    int is_set = ba_check_bit(ba, bit);
+
+    if (is_set == BIT_NOT_SET)
+        ba_set_bit(ba, bit);
+    return is_set;
+}
 
 int ba_toggle_bit(bitarray_t ba, size_t bit) {
     if (bit >= ba->num_bits)

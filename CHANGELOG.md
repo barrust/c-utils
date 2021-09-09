@@ -1,5 +1,22 @@
 # C-Utils
 
+## Version 0.2.5
+
+***Updates:***
+
+*c-utils*
+* Add check and set function to return value of bit prior to setting
+
+*fileutils*
+* Add `fs_is_symlink()` function to check if a file or directory is actually a symlink
+
+*strlib*
+* Better memory check for `s_append_alt()`
+
+*graph*
+* Cleaned-up a re-used variable name to ensure no confusion for the user
+
+
 ## Version 0.2.4
 ***New Libraries:***
 * permutations
@@ -21,7 +38,6 @@
 
 *minunit.h*
 * Fix output for `between` checks on failed assertion
-
 
 
 ## Version 0.2.3
@@ -54,14 +70,14 @@
 ## Version 0.2.1
 ***Updates:***
 
-*Graph:*
+*graph*
 * Traversal of the graph from a particular vertex
 * Breadth First
 * Depth First
 * OpenMP support
 
-*StringLib:*
-* Micro optimizations for s_trim and s_standardize_whitespace
+*stringlib:*
+* Micro optimizations for `s_trim` and `s_standardize_whitespace`
 
 
 ## Version 0.2.0

@@ -65,6 +65,31 @@ MU_TEST(test_check_bit) {
     ba_free(ba);
 }
 
+/*******************************************************************************
+*   Test check and set bit
+*******************************************************************************/
+MU_TEST(test_check_and_set_bit) {
+    bitarray_t ba = ba_init(125);  /* bit array of length 125 */
+    int res;
+    res = ba_set_bit(ba, 0);
+    res = ba_set_bit(ba, 50);
+    res = ba_set_bit(ba, 75);
+
+    /* check out of bounds still caught */
+    res = ba_check_and_set_bit(ba, 125);
+    mu_assert_int_eq(BITARRAY_INDEX_ERROR, res);
+
+    res = ba_check_and_set_bit(ba, 0);
+    mu_assert_int_eq(BIT_SET, res);
+
+    res = ba_check_and_set_bit(ba, 55);
+    mu_assert_int_eq(BIT_NOT_SET, res);
+
+    res = ba_check_and_set_bit(ba, 55);
+    mu_assert_int_eq(BIT_SET, res);
+
+    ba_free(ba);
+}
 
 /*******************************************************************************
 *   Test clear bit
@@ -189,6 +214,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_default_setup);
     MU_RUN_TEST(test_set_bit);
     MU_RUN_TEST(test_check_bit);
+    MU_RUN_TEST(test_check_and_set_bit);
     MU_RUN_TEST(test_clear_bit);
     MU_RUN_TEST(test_reset_bitarray);
     MU_RUN_TEST(test_print_array);

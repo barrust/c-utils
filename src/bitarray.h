@@ -6,7 +6,7 @@
 ***  Author: Tyler Barrus
 ***  email:  barrust@gmail.com
 ***
-***  Version: 0.1.1
+***  Version: 0.1.2
 ***  Purpose: Simple bit array library
 ***
 ***  License: MIT 2019
@@ -55,6 +55,10 @@ int ba_set_bit(bitarray_t ba, size_t bit);
 /*  Check if bit `bit` was previously set; return BIT_SET if true and
     BIT_NOT_SET if false */
 int ba_check_bit(bitarray_t ba, size_t bit);
+
+/*  Check if bit `bit` was previously set; return BIT_SET if true and
+    BIT_NOT_SET if false and set the bit to 1 */
+int ba_check_and_set_bit(bitarray_t ba, size_t bit);
 
 /*  Toggle the bit by setting it to BIT_NOT_SET if currently is BIT_SET or
     vice versa; returns the updated value of the bit */
