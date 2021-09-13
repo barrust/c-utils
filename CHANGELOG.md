@@ -1,10 +1,18 @@
 # C-Utils
 
+## Future Release
+
+***Updates:***
+
+*bitarray*
+* Remove unnecessary if statements and input checks from `ba_check_and_set_bit()`
+
+
 ## Version 0.2.5
 
 ***Updates:***
 
-*c-utils*
+*bitarray*
 * Add check and set function to return value of bit prior to setting
 
 *fileutils*
