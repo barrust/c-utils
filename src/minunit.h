@@ -66,7 +66,7 @@
 #include <math.h>
 
 /*  Maximum length of last message */
-#define MINUNIT_MESSAGE_LEN 1024
+#define MINUNIT_MESSAGE_LEN 4096
 /*  Accuracy with which floats are compared */
 #define MINUNIT_EPSILON 1E-12
 
