@@ -187,7 +187,7 @@ int s_find(const char* s, const char c) {
     if (s == NULL)
         return -1;
 
-    char* loc = strchr((char*)s, c);
+    const char* loc = strchr((char*)s, c);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -198,7 +198,7 @@ int s_find_reverse(const char* s, const char c) {
     if (s == NULL)
         return -1;
 
-    char* loc = strrchr((char*)s, c);
+    const char* loc = strrchr((char*)s, c);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -210,7 +210,7 @@ int s_find_cnt(const char* s, const char c) {
         return -1;
 
     int res = 0;
-    char* loc = strchr((char*)s, c);
+    const char* loc = strchr((char*)s, c);
     while (loc != NULL) {
         ++res;
         loc = strchr(loc + 1, c);
@@ -224,7 +224,7 @@ int s_find_alt(const char*s, const char c, int idx) {
         return -1;
 
     int i = 0;
-    char* loc = strchr((char*)s, c);
+    const char* loc = strchr((char*)s, c);
     while (loc != NULL) {
         if (++i == idx)
             break;
@@ -240,7 +240,7 @@ int s_find_str(const char* s, const char* sub) {
     if (s == NULL || sub == NULL)
         return -1;
 
-    char* loc = strstr((char*)s, sub);
+    const char* loc = strstr((char*)s, sub);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -267,7 +267,7 @@ int s_find_str_reverse(const char* s, const char* sub) {
     if (s == NULL || sub == NULL)
         return -1;
 
-    char* loc = s_strrstr(s, sub);
+    const char* loc = s_strrstr(s, sub);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -311,7 +311,7 @@ int s_find_any(const char* s, const char* s2) {
     if (s == NULL || s2 == NULL)
         return -1;
 
-    char* loc = strpbrk((char*)s, s2);
+    const char* loc = strpbrk((char*)s, s2);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -322,7 +322,7 @@ int s_find_any_reverse(const char* s, const char* s2) {
     if (s == NULL || s2 == NULL)
         return -1;
 
-    char* res = NULL;
+    const char* res = NULL;
     char* loc = strpbrk((char*)s, s2);
     if (loc == NULL)  /* quick exit */
         return -1;
@@ -340,7 +340,7 @@ int s_find_cnt_any(const char* s, const char* s2) {
         return 0;
 
     int res = 0;
-    char* loc = strpbrk((char*)s, s2);
+    const char* loc = strpbrk((char*)s, s2);
     while (loc != NULL) {
         ++res;
         loc = strpbrk(loc + 1, s2);
@@ -354,7 +354,7 @@ int s_find_alt_any(const char*s, const char* s2, int idx) {
         return -1;
 
     int i = 0;
-    char* loc = strpbrk((char*)s, s2);
+    const char* loc = strpbrk((char*)s, s2);
     while (loc != NULL) {
         if (++i == idx)
             break;
@@ -440,7 +440,8 @@ char* s_extract_substring(const char* s, size_t start, size_t length) {
         return s_duplicate(s + start);
 
     char* ret = (char*)calloc(length + 1, sizeof(char));
-    return strncpy(ret, s + start, length);
+    strncpy(ret, s + start, length);
+    return ret;
 }
 
 

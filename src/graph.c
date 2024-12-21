@@ -160,7 +160,7 @@ vertex_t g_vertex_add_alt(graph_t g, unsigned int id, void* metadata) {
         {
             __graph_vertices_grow(g, id);
         }
-    } else if (id < g->_max_verts && g->verts[id] != NULL) {
+    } else if (/*id < g->_max_verts &&*/ g->verts[id] != NULL) {
         return NULL;
     }
 

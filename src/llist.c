@@ -99,7 +99,8 @@ void* ll_remove(llist_t l, size_t idx) {
             ret = ret->next;
         }
         /* update the trailing "next" */
-        t->next = ret->next;
+        if (t != NULL)
+            t->next = ret->next;
     }
 
     void* data = ret->data;

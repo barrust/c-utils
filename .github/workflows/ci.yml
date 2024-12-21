@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        compiler: [gcc, g++, clang, gcc-10]
+        compiler: [gcc, g++, clang, gcc-12, gcc-13, gcc-14]
     steps:
     - uses: actions/checkout@v2
     - name: Compile Library
@@ -55,7 +55,7 @@ jobs:
     - name: Install cppcheck
       run: sudo apt install cppcheck
     - name: Code Quality (cppcheck)
-      run: cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --template='{file}:{line},{severity},{id},{message}' ./src/
+      run: cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --suppress=missingIncludeSystem --check-level=exhaustive --template='{file}:{line},{severity},{id},{message}' ./src/ 
 
   macos:
     runs-on: ${{ matrix.os }}
