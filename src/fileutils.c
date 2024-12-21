@@ -6,7 +6,7 @@
 #include <string.h>         /* strlen, strcmp, strchr, strncpy, strpbrk */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>         /* getcwd */
+
 #include <sys/stat.h>
 #include <fcntl.h>          /* O_CREAT */
 #include <dirent.h>         /* */
@@ -14,12 +14,14 @@
 #include "fileutils.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-#define __ON_WINDOWS__ 
-#ifndef _S_ISTYPE
-#define _S_ISTYPE(mode, mask)  (((mode) & _S_IFMT) == (mask))
-#define S_ISREG(mode) _S_ISTYPE((mode), _S_IFREG)
-#define S_ISDIR(mode) _S_ISTYPE((mode), _S_IFDIR)
-#endif
+    #define __ON_WINDOWS__ 
+    #ifndef _S_ISTYPE
+        #define _S_ISTYPE(mode, mask)  (((mode) & _S_IFMT) == (mask))
+        #define S_ISREG(mode) _S_ISTYPE((mode), _S_IFREG)
+        #define S_ISDIR(mode) _S_ISTYPE((mode), _S_IFDIR)
+    #endif
+#else
+#include <unistd.h>         /* getcwd */
 #endif
 
 
