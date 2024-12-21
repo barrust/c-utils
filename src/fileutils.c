@@ -136,7 +136,7 @@ char* fs_resolve_path(const char* path) {
         tmp[pos] = '\0';
         char* p = realpath(tmp, NULL);
         if (p != NULL) {
-            char* s = tmp + (pos + 1);
+            const char* s = tmp + (pos + 1);
             int p_len = strlen(p), t_len = strlen(s);
             new_path = (char*)calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
             snprintf(new_path, p_len + 2 + t_len, "%s/%s", p, s);
@@ -175,11 +175,13 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
         return strcpy(res, path);
     }
 
-    int p_len = strlen(path);
-    int f_len = strlen(filename);
+    
+    int p_len = 0;
+    if (path != NULL)
+        p_len = strlen(path);
 
     if (res == NULL)
-        res = (char*)calloc(p_len + f_len + 2, sizeof(char)); /* 2 for / and NULL */
+        res = (char*)calloc(p_len + strlen(filename) + 2, sizeof(char)); /* 2 for / and NULL */
 
     strcpy(res, path);
     if (res[p_len - 1] == '/') {
@@ -297,8 +299,8 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     char* p;
     for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
         *p = '\0';
-        int res = __fs_mkdir(new_path, mode);
-        if (res == FS_FAILURE) {
+        int t_res = __fs_mkdir(new_path, mode);
+        if (t_res == FS_FAILURE) {
             free(new_path);
             return FS_FAILURE;
         }
@@ -809,7 +811,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
     d = opendir(path);
     int el_num = 0;
     if (d) {
-        struct dirent *dir;
+        const struct dirent *dir;
         while ((dir = readdir(d)) != NULL) {
             /* need to skip "." and ".." */
             int item_len = strlen(dir->d_name);
@@ -848,7 +850,7 @@ static char* __str_duplicate(const char* s) {
 }
 
 static int __str_find_reverse(const char* s, const char c) {
-    char* loc = strrchr((char*)s, c);
+    const char* loc = strrchr((char*)s, c);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -901,7 +903,7 @@ static char** __str_split_string_any(char* s, const char* s2, size_t* num) {
 }
 
 static int __str_find_any(const char* s, const char* s2) {
-    char* loc = strpbrk((char*)s, s2);
+    const char* loc = strpbrk((char*)s, s2);
     if (loc == NULL)
         return -1;
     return loc - s;
@@ -909,7 +911,7 @@ static int __str_find_any(const char* s, const char* s2) {
 
 static size_t __str_find_cnt_any(const char* s, const char* s2) {
     size_t res = 0;
-    char* loc = strpbrk((char*)s, s2);
+    const char* loc = strpbrk((char*)s, s2);
     while (loc != NULL) {
         ++res;
         loc = strpbrk(loc + 1, s2);
