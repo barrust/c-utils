@@ -72,7 +72,7 @@ jobs:
     - name: Install cppcheck
       run: sudo apt install cppcheck
     - name: Code Quality (cppcheck)
-      run: cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --check-level=exhaustive --template='{file}:{line},{severity},{id},{message}' ./src/
+      run: cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --suppress=missingIncludeSystem --check-level=exhaustive --template='{file}:{line},{severity},{id},{message}' ./src/
 
   macos:
     runs-on: ${{ matrix.os }}
