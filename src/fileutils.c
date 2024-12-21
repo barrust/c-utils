@@ -15,7 +15,15 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #define __ON_WINDOWS__ 
+#ifndef _S_ISTYPE
+#define _S_ISTYPE(mode, mask)  (((mode) & _S_IFMT) == (mask))
+#define S_ISREG(mode) _S_ISTYPE((mode), _S_IFREG)
+#define S_ISDIR(mode) _S_ISTYPE((mode), _S_IFDIR)
 #endif
+#endif
+
+
+
 
 #ifdef __ON_WINDOWS__
     #include <windows.h>
