@@ -14,6 +14,12 @@
 #include "fileutils.h"
 
 
+#ifdef WIN32
+    #define realpath(N,R) _fullpath((R),(N),PATH_MAX)
+    #define lstat(N,R) _stat((R), (N))
+    #define mkdir(D,M) _mkdir((D))
+#endif
+
 typedef struct __file_struct {
     size_t filesize;
     mode_t mode;
