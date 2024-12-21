@@ -76,7 +76,7 @@ int fs_identify_path(const char* path) {
 
     #ifdef WIN32
     struct _stat stats;
-    int res = _stat(path, &stats)
+    int res = _stat(path, &stats);
     #else
     struct stat stats;
     int res = stat(path, &stats);
@@ -100,7 +100,7 @@ int fs_is_symlink(const char* path) {
     errno = 0;
     #ifdef WIN32
     struct _stat stats;
-    int res = _stat(path, &stats)
+    int res = _stat(path, &stats);
     #else
     struct stat stats;
     int res = lstat(path, &stats);
@@ -267,13 +267,12 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     errno = 0;
     #ifdef WIN32
     struct _stat stats;
-    int res = _stat(path, &stats)
+    int res = _stat(path, &stats);
     #else
     struct stat stats;
     int res = stat(path, &stats);
     #endif
 
-    struct stat stats;
     if (res != -1) {
         return FS_EXISTS;
     }
@@ -372,13 +371,12 @@ int fs_get_raw_mode(const char* path) {
 
     #ifdef WIN32
     struct _stat stats;
-    int res = _stat(path, &stats)
+    int res = _stat(path, &stats);
     #else
     struct stat stats;
     int res = stat(path, &stats);
     #endif
 
-    struct stat stats;
     if (res == -1) {
         if (errno == ENOENT)
             return FS_NO_EXISTS;
@@ -458,7 +456,7 @@ file_t f_init(const char* filepath) {
 
     #ifdef WIN32
     struct _stat stats;
-    int res = _stat(filepath, &stats)
+    int res = _stat(filepath, &stats);
     #else
     struct stat stats;
     int res = stat(filepath, &stats);
