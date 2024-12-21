@@ -13,10 +13,14 @@
 #include <errno.h>
 #include "fileutils.h"
 
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+#define __ON_WINDOWS__ 
+#endif
 
-#ifdef WIN32
+#ifdef __ON_WINDOWS__
+    #include <windows.h>
     #define realpath(N,R) _fullpath((R),(N),PATH_MAX)
-    # define getcwd(N,R) _getcwd((N), (R))
+    #define getcwd(N,R) _getcwd((N), (R))
 #endif
 
 typedef struct __file_struct {
@@ -62,10 +66,6 @@ static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
 static char**  __fs_list_dir(const char* path, int* elms);
 
-// #ifdef WIN32
-// #else
-// #endif
-
 
 
 int fs_identify_path(const char* path) {
@@ -74,7 +74,7 @@ int fs_identify_path(const char* path) {
 
     errno = 0;
 
-    #ifdef WIN32
+    #ifdef __ON_WINDOWS__
     struct _stat stats;
     int res = _stat(path, &stats);
     #else
@@ -98,7 +98,7 @@ int fs_is_symlink(const char* path) {
         return FS_FAILURE;
 
     errno = 0;
-    #ifdef WIN32
+    #ifdef __ON_WINDOWS__
     struct _stat stats;
     int res = _stat(path, &stats);
     #else
@@ -265,7 +265,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
         return FS_NOT_VALID;
 
     errno = 0;
-    #ifdef WIN32
+    #ifdef __ON_WINDOWS__
     struct _stat stats;
     int res = _stat(path, &stats);
     #else
@@ -369,7 +369,7 @@ int fs_get_raw_mode(const char* path) {
     if (path == NULL)
         return FS_NOT_VALID;
 
-    #ifdef WIN32
+    #ifdef __ON_WINDOWS__
     struct _stat stats;
     int res = _stat(path, &stats);
     #else
@@ -454,7 +454,7 @@ unsigned short fs_string_to_mode(const char* s) {
 file_t f_init(const char* filepath) {
     errno = 0;
 
-    #ifdef WIN32
+    #ifdef __ON_WINDOWS__
     struct _stat stats;
     int res = _stat(filepath, &stats);
     #else
@@ -771,7 +771,7 @@ char** d_dirs_full_path(dir_t d) {
 static int __fs_mkdir(const char* path, mode_t mode) {
     errno = 0;
     
-    #ifdef WIN32
+    #ifdef __ON_WINDOWS__
     int res = _mkdir(path);
     #else
     int res = mkdir(path, mode);
@@ -787,7 +787,7 @@ static int __fs_mkdir(const char* path, mode_t mode) {
 static int __fs_rmdir(const char* path) {
     errno = 0;
 
-    #ifdef WIN32
+    #ifdef __ON_WINDOWS__
     int res = _rmdir(path);
     #else
     int res = rmdir(path);
