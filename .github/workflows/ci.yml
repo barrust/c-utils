@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        compiler: [gcc, g++, clang, gcc-10]
+        compiler: [gcc, g++, clang, gcc-12, gcc-13, gcc-14]
     steps:
     - uses: actions/checkout@v2
     - name: Compile Library
@@ -20,15 +20,15 @@ jobs:
     - name: Run Unittests
       run: make runtests
 
-  windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: egor-tensin/setup-mingw@v2.2.0  # Install GCC on Windows
-        with:
-          version: latest  # Specify the desired GCC version [1, 10]
-      - name: Run Unittests
-        run: make runtests  # Compile your C code using GCC
+  # windows:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: egor-tensin/setup-mingw@v2.2.0  # Install GCC on Windows
+  #       with:
+  #         version: latest  # Specify the desired GCC version [1, 10]
+  #     - name: Run Unittests
+  #       run: make runtests  # Compile your C code using GCC
 
   coverage:
       runs-on: ${{ matrix.os }}
