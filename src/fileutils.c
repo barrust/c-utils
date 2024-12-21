@@ -16,8 +16,7 @@
 
 #ifdef WIN32
     #define realpath(N,R) _fullpath((R),(N),PATH_MAX)
-    #define lstat(N,R) _stat((R), (N))
-    #define mkdir(D,M) _mkdir((D))
+    # define getcwd(N,R) _getcwd((N), (R))
 #endif
 
 typedef struct __file_struct {
@@ -63,6 +62,10 @@ static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
 static char**  __fs_list_dir(const char* path, int* elms);
 
+// #ifdef WIN32
+// #else
+// #endif
+
 
 
 int fs_identify_path(const char* path) {
@@ -70,8 +73,16 @@ int fs_identify_path(const char* path) {
         return FS_NOT_VALID;
 
     errno = 0;
+
+    #ifdef WIN32
+    struct _stat stats;
+    int res = _stat(path, &stats)
+    #else
     struct stat stats;
-    if (stat(path, &stats) == -1) {
+    int res = stat(path, &stats);
+    #endif
+
+    if (res == -1) {
         if (errno == ENOENT)
             return FS_NO_EXISTS;
     }
@@ -87,8 +98,15 @@ int fs_is_symlink(const char* path) {
         return FS_FAILURE;
 
     errno = 0;
+    #ifdef WIN32
+    struct _stat stats;
+    int res = _stat(path, &stats)
+    #else
     struct stat stats;
-    if (lstat(path, &stats) == -1) {
+    int res = lstat(path, &stats);
+    #endif
+
+    if (res == -1) {
         if (errno == ENOENT)
             return FS_FAILURE;
     }
@@ -247,8 +265,16 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
         return FS_NOT_VALID;
 
     errno = 0;
+    #ifdef WIN32
+    struct _stat stats;
+    int res = _stat(path, &stats)
+    #else
     struct stat stats;
-    if (stat(path, &stats) != -1) {
+    int res = stat(path, &stats);
+    #endif
+
+    struct stat stats;
+    if (res != -1) {
         return FS_EXISTS;
     }
 
@@ -343,8 +369,17 @@ char** fs_list_dir(const char* path, int* items) {
 int fs_get_raw_mode(const char* path) {
     if (path == NULL)
         return FS_NOT_VALID;
+
+    #ifdef WIN32
+    struct _stat stats;
+    int res = _stat(path, &stats)
+    #else
     struct stat stats;
-    if (stat(path, &stats) == -1) {
+    int res = stat(path, &stats);
+    #endif
+
+    struct stat stats;
+    if (res == -1) {
         if (errno == ENOENT)
             return FS_NO_EXISTS;
         return FS_FAILURE;
@@ -420,8 +455,16 @@ unsigned short fs_string_to_mode(const char* s) {
 
 file_t f_init(const char* filepath) {
     errno = 0;
+
+    #ifdef WIN32
+    struct _stat stats;
+    int res = _stat(filepath, &stats)
+    #else
     struct stat stats;
-    if (stat(filepath, &stats) == -1) {
+    int res = stat(filepath, &stats);
+    #endif
+
+    if (res == -1) {
         /*__print_out_stat_errno(errno); */
         return NULL;
     }
@@ -729,7 +772,12 @@ char** d_dirs_full_path(dir_t d) {
 *******************************************************************************/
 static int __fs_mkdir(const char* path, mode_t mode) {
     errno = 0;
+    
+    #ifdef WIN32
+    int res = _mkdir(path);
+    #else
     int res = mkdir(path, mode);
+    #endif
     if (res == -1) {
         if (errno != EEXIST) {
             return FS_FAILURE;
@@ -740,7 +788,12 @@ static int __fs_mkdir(const char* path, mode_t mode) {
 
 static int __fs_rmdir(const char* path) {
     errno = 0;
+
+    #ifdef WIN32
+    int res = _rmdir(path);
+    #else
     int res = rmdir(path);
+    #endif
     if (res == -1) {
         if (errno == EEXIST || errno == ENOTEMPTY)
             return FS_NOT_EMPTY;
