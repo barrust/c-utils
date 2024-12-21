@@ -20,15 +20,22 @@ jobs:
     - name: Run Unittests
       run: make runtests
 
-  # windows:
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: egor-tensin/setup-mingw@v2.2.0  # Install GCC on Windows
-  #       with:
-  #         version: latest  # Specify the desired GCC version [1, 10]
-  #     - name: Run Unittests
-  #       run: make runtests  # Compile your C code using GCC
+  windows:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        compiler: [gcc]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Compile Library
+      env:
+        CCFLAGS: "-fsanitize=undefined"
+      run: |
+        ${{ matrix.compiler }} --version
+        make test CC=${{ matrix.compiler }}
+    - name: Run Unittests
+      run: make runtests
 
   coverage:
       runs-on: ${{ matrix.os }}
