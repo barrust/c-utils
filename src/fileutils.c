@@ -862,7 +862,8 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
         return __str_duplicate(s + start);
 
     char* ret = (char*)calloc(length + 1, sizeof(char));
-    return strncpy(ret, s + start, length);
+    strncpy(ret, s + start, length);
+    return ret;
 }
 
 static char** __str_split_string_any(char* s, const char* s2, size_t* num) {

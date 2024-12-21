@@ -440,7 +440,8 @@ char* s_extract_substring(const char* s, size_t start, size_t length) {
         return s_duplicate(s + start);
 
     char* ret = (char*)calloc(length + 1, sizeof(char));
-    return strncpy(ret, s + start, length);
+    strncpy(ret, s + start, length);
+    return ret;
 }
 
 
