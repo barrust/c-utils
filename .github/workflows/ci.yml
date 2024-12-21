@@ -35,7 +35,9 @@ jobs:
         ${{ matrix.compiler }} --version
         make test CC=${{ matrix.compiler }}
     - name: Run Unittests
-      run: make runtests
+      run: |
+        $env:PATH = "C:\msys64\ucrt64\bin;C:\msys64\usr\bin;$env:PATH"
+        make runtests
 
   coverage:
       runs-on: ${{ matrix.os }}
