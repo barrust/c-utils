@@ -5,7 +5,7 @@
 #include "../src/permutations.h"
 
 
-int main() {
+int main(void) {
 
     permutations_t p = perm_init(5, "0123456789");
 

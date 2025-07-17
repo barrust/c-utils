@@ -32,6 +32,9 @@
 #ifdef _WIN32
     #include <Windows.h>
     #include <stdint.h>    /* portable: uint64_t   MSVC: __int64 */
+    #if defined(__MINGW32__) || defined(__MINGW64__)
+        #include <sys/time.h>  /* MinGW provides timeval */
+    #endif
 #else
     #include <sys/time.h>  /* *nix based timing; doesn't support windows */
 #endif
@@ -78,11 +81,14 @@ char* format_time_diff(Timing *t);
 void calc_difference(Timing *t); /* only necessary, very occasionally */
 
 #ifdef _WIN32
+#if !defined(__MINGW32__) && !defined(__MINGW64__)
+/* Only define timeval for non-MinGW Windows builds (e.g., MSVC) */
 struct timeval {
     long tv_sec;
     long tv_usec;
 };
 int gettimeofday(struct timeval *tp, struct timezone *tzp);
+#endif
 #endif
 
 
@@ -162,9 +168,10 @@ static long long timeval_diff(struct timeval *difference, struct timeval *end_ti
 /*******************************************************************************
 ***	Define a gettimeofday function for windows machines
 *******************************************************************************/
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__)
 /*
     NOTE: this ignores the timezone information since we don't need it
+    Only provide this implementation for non-MinGW Windows builds
 */
 int gettimeofday(struct timeval *tp, struct timezone *tzp) {
     /* Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's */

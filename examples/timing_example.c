@@ -16,7 +16,7 @@
 #define ARBITRARY_THRESHOLD 15  /* This is just to do something with the result... */
 
 
-int main() {
+int main(void) {
     /* set up the tests */
     int* nums = (int*)calloc(ITERATIONS, sizeof(int));
     int* denoms = (int*)calloc(ITERATIONS, sizeof(int));

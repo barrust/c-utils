@@ -482,7 +482,7 @@ MU_TEST_SUITE(test_suite) {
 
 
 
-int main() {
+int main(void) {
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
     printf("Number failed tests: %d\n", minunit_fail);

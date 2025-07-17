@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "src/fileutils.h"
 
-int main() {
+int main(void) {
     printf("=== Cross-Platform File Utils Test ===\n\n");
     
     // Test current working directory
