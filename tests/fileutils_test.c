@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include <unistd.h>   // symlink
+#ifndef _WIN32
+#include <unistd.h>   // symlink - not available on Windows
+#endif
 #include "../src/minunit.h"
 #include "../src/fileutils.h"
 
@@ -114,6 +116,8 @@ MU_TEST(test_identify_path) {
     mu_assert_int_eq(FS_NOT_VALID, fs_identify_path(NULL));
 }
 
+#ifndef _WIN32
+/* Symlink tests - not supported on Windows */
 MU_TEST(test_symlinks_path) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
     char* filepath2 = __str_snprintf("%s/test-sym.txt", test_dir);
@@ -146,6 +150,7 @@ MU_TEST(test_fs_is_symlink) {
     res = fs_is_symlink(filepath2);
     mu_assert_int_eq(FS_FAILURE, res);
 }
+#endif /* !_WIN32 */
 
 /*******************************************************************************
 *    Test get / set permissions
@@ -497,6 +502,8 @@ MU_TEST(test_file_t_init_non_file) {
     free(filepath);
 }
 
+#ifndef _WIN32
+/* Symlink file_t test - not supported on Windows */
 MU_TEST(test_file_t_init_symlink) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
     char* sym = __str_snprintf("%s/test-symlink2.txt", test_dir);
@@ -523,6 +530,7 @@ MU_TEST(test_file_t_init_symlink) {
     free(filepath);
     free(sym);
 }
+#endif /* !_WIN32 */
 
 MU_TEST(test_file_t_read_file) {
     char* filepath = __str_snprintf("%s/test.txt", test_dir);
@@ -667,8 +675,11 @@ MU_TEST_SUITE(test_suite) {
 
     /* fs_identify_path */
     MU_RUN_TEST(test_identify_path);
+#ifndef _WIN32
+    /* Symlink tests - not supported on Windows */
     MU_RUN_TEST(test_symlinks_path);
     MU_RUN_TEST(test_fs_is_symlink);
+#endif
 
     /* get / set permissions */
     MU_RUN_TEST(test_get_permissions);
@@ -709,7 +720,10 @@ MU_TEST_SUITE(test_suite) {
     ***************************************************************************/
     MU_RUN_TEST(test_file_t_init);
     MU_RUN_TEST(test_file_t_init_non_file);
+#ifndef _WIN32
+    /* Symlink file_t test - not supported on Windows */
     MU_RUN_TEST(test_file_t_init_symlink);
+#endif
     MU_RUN_TEST(test_file_t_read_file);
     MU_RUN_TEST(test_file_t_parse_lines);
 

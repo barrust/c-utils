@@ -170,34 +170,34 @@ int fs_is_symlink(const char* path) {
     if (path == NULL)
         return FS_FAILURE;
 
-#ifdef _WIN32
-    /* Windows: Use GetFileAttributes to check for reparse points (symlinks) */
-    DWORD attrs = GetFileAttributesA(path);
-    if (attrs == INVALID_FILE_ATTRIBUTES)
-        return FS_FAILURE;
-    
-    if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
-        /* Further check if it's actually a symlink */
-        WIN32_FIND_DATAA findData;
-        HANDLE hFind = FindFirstFileA(path, &findData);
-        if (hFind != INVALID_HANDLE_VALUE) {
-            FindClose(hFind);
-            if (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
-                return FS_SUCCESS;
-        }
-    }
-    return FS_FAILURE;
-#else
-    errno = 0;
-    struct stat stats;
-    if (lstat(path, &stats) == -1) {
-        if (errno == ENOENT)
+    #ifdef _WIN32
+        /* Windows: Use GetFileAttributes to check for reparse points (symlinks) */
+        DWORD attrs = GetFileAttributesA(path);
+        if (attrs == INVALID_FILE_ATTRIBUTES)
             return FS_FAILURE;
-    }
-    if (S_ISLNK(stats.st_mode) != 0)
-        return FS_SUCCESS;
-    return FS_FAILURE;
-#endif
+        
+        if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+            /* Further check if it's actually a symlink */
+            WIN32_FIND_DATAA findData;
+            HANDLE hFind = FindFirstFileA(path, &findData);
+            if (hFind != INVALID_HANDLE_VALUE) {
+                FindClose(hFind);
+                if (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
+                    return FS_SUCCESS;
+            }
+        }
+        return FS_FAILURE;
+    #else
+        errno = 0;
+        struct stat stats;
+        if (lstat(path, &stats) == -1) {
+            if (errno == ENOENT)
+                return FS_FAILURE;
+        }
+        if (S_ISLNK(stats.st_mode) != 0)
+            return FS_SUCCESS;
+        return FS_FAILURE;
+    #endif
 }
 
 char* fs_resolve_path(const char* path) {
@@ -219,37 +219,37 @@ char* fs_resolve_path(const char* path) {
         return new_path;
     }
 
-#ifdef _WIN32
-    /* Windows: use GetFullPathName for path resolution */
-    DWORD result_len = GetFullPathNameA(path, 0, NULL, NULL);
-    if (result_len > 0) {
-        new_path = (char*)calloc(result_len, sizeof(char));
-        DWORD actual_len = GetFullPathNameA(path, result_len, new_path, NULL);
-        if (actual_len == 0 || actual_len >= result_len) {
-            free(new_path);
+    #ifdef _WIN32
+        /* Windows: use GetFullPathName for path resolution */
+        DWORD result_len = GetFullPathNameA(path, 0, NULL, NULL);
+        if (result_len > 0) {
+            new_path = (char*)calloc(result_len, sizeof(char));
+            DWORD actual_len = GetFullPathNameA(path, result_len, new_path, NULL);
+            if (actual_len == 0 || actual_len >= result_len) {
+                free(new_path);
+                new_path = __str_duplicate(path);
+            }
+        } else {
             new_path = __str_duplicate(path);
         }
-    } else {
-        new_path = __str_duplicate(path);
-    }
-#else
-    /* POSIX: use realpath for components that exist */
-    while (pos != -1) {
-        tmp[pos] = '\0';
-        char* p = __platform_realpath(tmp, NULL);
-        if (p != NULL) {
-            const char* s = tmp + (pos + 1);
-            int p_len = strlen(p), t_len = strlen(s);
-            new_path = (char*)calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
-            snprintf(new_path, p_len + 2 + t_len, "%s%c%s", p, PATH_SEPARATOR, s);
-            free(p);
-            break;
+    #else
+        /* POSIX: use realpath for components that exist */
+        while (pos != -1) {
+            tmp[pos] = '\0';
+            char* p = __platform_realpath(tmp, NULL);
+            if (p != NULL) {
+                const char* s = tmp + (pos + 1);
+                int p_len = strlen(p), t_len = strlen(s);
+                new_path = (char*)calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
+                snprintf(new_path, p_len + 2 + t_len, "%s%c%s", p, PATH_SEPARATOR, s);
+                free(p);
+                break;
+            }
+            int tmp_pos = __str_find_last_path_separator(tmp);
+            tmp[pos] = PATH_SEPARATOR;
+            pos = tmp_pos;
         }
-        int tmp_pos = __str_find_last_path_separator(tmp);
-        tmp[pos] = PATH_SEPARATOR;
-        pos = tmp_pos;
-    }
-#endif
+    #endif
     
     free(tmp);
 
@@ -299,32 +299,32 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
 }
 
 char* fs_cwd(void) {
-#ifdef _WIN32
-    size_t malsize = 256; /* start with a reasonable size for Windows paths */
-    char* buf = (char*)malloc(malsize);
-    DWORD res = GetCurrentDirectoryA(malsize, buf);
-    while (res >= malsize) {
-        malsize = res + 1;  /* GetCurrentDirectory returns required size */
-        char* tmp = (char*)realloc(buf, malsize * sizeof(char));
-        buf = tmp;
-        res = GetCurrentDirectoryA(malsize, buf);
-    }
-    if (res == 0) {
-        free(buf);
-        return NULL;
-    }
-    return buf;
-#else
-    size_t malsize = 16; /* some default power of 2... */
-    char* buf = (char*)malloc(malsize);
-    errno = 0;
-    while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
-        malsize *= 2;
-        char* tmp = (char*)realloc(buf, malsize * sizeof(char));
-        buf = tmp;
-    }
-    return buf;
-#endif
+    #ifdef _WIN32
+        size_t malsize = 256; /* start with a reasonable size for Windows paths */
+        char* buf = (char*)malloc(malsize);
+        DWORD res = GetCurrentDirectoryA(malsize, buf);
+        while (res >= malsize) {
+            malsize = res + 1;  /* GetCurrentDirectory returns required size */
+            char* tmp = (char*)realloc(buf, malsize * sizeof(char));
+            buf = tmp;
+            res = GetCurrentDirectoryA(malsize, buf);
+        }
+        if (res == 0) {
+            free(buf);
+            return NULL;
+        }
+        return buf;
+    #else
+        size_t malsize = 16; /* some default power of 2... */
+        char* buf = (char*)malloc(malsize);
+        errno = 0;
+        while(getcwd(buf, malsize) == NULL && errno == ERANGE) {
+            malsize *= 2;
+            char* tmp = (char*)realloc(buf, malsize * sizeof(char));
+            buf = tmp;
+        }
+        return buf;
+    #endif
 }
 
 int fs_rename(const char* path, const char* new_path) {
@@ -418,11 +418,11 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
 
     char* p;
     /* Start from position 1 to skip root on POSIX, or from position 3 on Windows (C:\) */
-#ifdef _WIN32
-    int start_pos = (len >= 3 && new_path[1] == ':' && new_path[2] == PATH_SEPARATOR) ? 3 : 1;
-#else
-    int start_pos = 1;
-#endif
+    #ifdef _WIN32
+        int start_pos = (len >= 3 && new_path[1] == ':' && new_path[2] == PATH_SEPARATOR) ? 3 : 1;
+    #else
+        int start_pos = 1;
+    #endif
     
     for (p = strchr(new_path + start_pos, PATH_SEPARATOR); p != NULL; p = strchr(p + 1, PATH_SEPARATOR)) {
         *p = '\0';
@@ -909,68 +909,68 @@ static char** __fs_list_dir(const char* path, int* elms) {
     char** paths = (char**)calloc(cur_size, sizeof(char*));
     int el_num = 0;
 
-#ifdef _WIN32
-    WIN32_FIND_DATAA findFileData;
-    HANDLE hFind;
-    
-    /* Create search pattern - path\* */
-    int path_len = strlen(path);
-    char* search_path = (char*)malloc(path_len + 3); /* path + \* + \0 */
-    strcpy(search_path, path);
-    if (search_path[path_len - 1] != '\\' && search_path[path_len - 1] != '/') {
-        search_path[path_len] = '\\';
-        search_path[path_len + 1] = '*';
-        search_path[path_len + 2] = '\0';
-    } else {
-        search_path[path_len] = '*';
-        search_path[path_len + 1] = '\0';
-    }
-    
-    hFind = FindFirstFileA(search_path, &findFileData);
-    free(search_path);
-    
-    if (hFind != INVALID_HANDLE_VALUE) {
-        do {
-            /* need to skip "." and ".." */
-            int item_len = strlen(findFileData.cFileName);
-            if (item_len == 1 && findFileData.cFileName[0] == '.')
-                continue;
-            else if (item_len == 2 && strcmp(findFileData.cFileName, "..") == 0)
-                continue;
-                
-            paths[el_num++] = __str_duplicate(findFileData.cFileName);
-
-            if (el_num == cur_size) {
-                cur_size += growth_num;
-                char** tmp = (char**)realloc(paths, sizeof(char*) * cur_size);
-                paths = tmp;
-            }
-        } while (FindNextFileA(hFind, &findFileData) != 0);
-        FindClose(hFind);
-    }
-#else
-    DIR *d;
-    d = opendir(path);
-    if (d) {
-        const struct dirent *dir;
-        while ((dir = readdir(d)) != NULL) {
-            /* need to skip "." and ".." */
-            int item_len = strlen(dir->d_name);
-            if (item_len == 1 && dir->d_name[0] == '.')
-                continue;
-            else if (item_len == 2 && strcmp(dir->d_name, "..") == 0)
-                continue;
-            paths[el_num++] = __str_duplicate(dir->d_name);
-
-            if (el_num == cur_size) {
-                cur_size += growth_num;
-                char** tmp = (char**)realloc(paths, sizeof(char*) * cur_size);
-                paths = tmp;
-            }
+    #ifdef _WIN32
+        WIN32_FIND_DATAA findFileData;
+        HANDLE hFind;
+        
+        /* Create search pattern - path\* */
+        int path_len = strlen(path);
+        char* search_path = (char*)malloc(path_len + 3); /* path + \* + \0 */
+        strcpy(search_path, path);
+        if (search_path[path_len - 1] != '\\' && search_path[path_len - 1] != '/') {
+            search_path[path_len] = '\\';
+            search_path[path_len + 1] = '*';
+            search_path[path_len + 2] = '\0';
+        } else {
+            search_path[path_len] = '*';
+            search_path[path_len + 1] = '\0';
         }
-        closedir(d);
-    }
-#endif
+        
+        hFind = FindFirstFileA(search_path, &findFileData);
+        free(search_path);
+        
+        if (hFind != INVALID_HANDLE_VALUE) {
+            do {
+                /* need to skip "." and ".." */
+                int item_len = strlen(findFileData.cFileName);
+                if (item_len == 1 && findFileData.cFileName[0] == '.')
+                    continue;
+                else if (item_len == 2 && strcmp(findFileData.cFileName, "..") == 0)
+                    continue;
+                    
+                paths[el_num++] = __str_duplicate(findFileData.cFileName);
+
+                if (el_num == cur_size) {
+                    cur_size += growth_num;
+                    char** tmp = (char**)realloc(paths, sizeof(char*) * cur_size);
+                    paths = tmp;
+                }
+            } while (FindNextFileA(hFind, &findFileData) != 0);
+            FindClose(hFind);
+        }
+    #else
+        DIR *d;
+        d = opendir(path);
+        if (d) {
+            const struct dirent *dir;
+            while ((dir = readdir(d)) != NULL) {
+                /* need to skip "." and ".." */
+                int item_len = strlen(dir->d_name);
+                if (item_len == 1 && dir->d_name[0] == '.')
+                    continue;
+                else if (item_len == 2 && strcmp(dir->d_name, "..") == 0)
+                    continue;
+                paths[el_num++] = __str_duplicate(dir->d_name);
+
+                if (el_num == cur_size) {
+                    cur_size += growth_num;
+                    char** tmp = (char**)realloc(paths, sizeof(char*) * cur_size);
+                    paths = tmp;
+                }
+            }
+            closedir(d);
+        }
+    #endif
 
     if (cur_size != el_num) {
         char** tmp = (char**)realloc(paths, sizeof(char*) * el_num);
