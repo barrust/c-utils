@@ -44,7 +44,7 @@ typedef struct __dll_node {
         NULL        - If error allocating the memory
         dllist_t
 */
-queue_list_t q_init();
+queue_list_t q_init(void);
 
 /*  Free the data from the doubly linked list;
     NOTE: does not free the data element */

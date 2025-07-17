@@ -56,7 +56,7 @@ typedef struct __ll_node {
         NULL    - if unable to allocate the memory
         llist_t
 */
-llist_t ll_init();
+llist_t ll_init(void);
 
 /*  Free the data from the linked list
     NOTE: does not free the data element */

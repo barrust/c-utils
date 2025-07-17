@@ -144,7 +144,7 @@ char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
     if (s == NULL || unwanted == NULL)
         return s;
 
-    size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
+    size_t j = 0, unwanted_len = strlen(unwanted);
     while (s[j] != '\0') {
         size_t q;
         for (q = 0; q < unwanted_len; ++q) {
@@ -154,7 +154,6 @@ char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
             }
         }
 
-        ++i;
         ++j;
     }
     return s;

@@ -43,7 +43,7 @@ typedef struct __stack_node {
         NULL        - If error allocating the memory
         stack_list_t
 */
-stack_list_t stk_init();
+stack_list_t stk_init(void);
 
 /*  Free the data from the singly linked list;
     NOTE: does not free the data element */

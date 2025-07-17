@@ -62,7 +62,7 @@ static void __vertex_edges_grow(vertex_t v_src, unsigned int outs);
 /*******************************************************************************
 *   Graph Properties / Functions
 *******************************************************************************/
-graph_t g_init() {
+graph_t g_init(void) {
     return g_init_alt(1024);
 }
 

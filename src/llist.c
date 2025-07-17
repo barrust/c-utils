@@ -16,7 +16,7 @@ typedef struct __linked_list {
 } linked_list;
 
 
-llist_t ll_init() {
+llist_t ll_init(void) {
     llist_t l = (llist_t)calloc(1, sizeof(linked_list));
     l->head = NULL;
     l->elms = 0;
