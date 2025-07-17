@@ -77,3 +77,60 @@ jobs:
         make test CC=${{ matrix.compiler }}
     - name: Run Unittests
       run: make runtests
+
+  windows:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        compiler: [gcc, clang]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        msys: MINGW64
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-clang
+          mingw-w64-x86_64-make
+          make
+    - name: Compile Library (Windows)
+      shell: msys2 {0}
+      run: |
+        ${{ matrix.compiler }} --version
+        # Create Windows-compatible Makefile targets
+        make clean
+        # Compile all source files
+        ${{ matrix.compiler }} -D_WIN32 -c src/stringlib.c -o libs/string-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/bitarray.c -o libs/bitarray-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/fileutils.c -o libs/fileutils-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/llist.c -o libs/llist-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/dllist.c -o libs/dllist-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/graph.c -o libs/graph-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/queue.c -o libs/queue-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/stack.c -o libs/stack-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+        ${{ matrix.compiler }} -D_WIN32 -c src/permutations.c -o libs/permutations-lib.o -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+    - name: Build Windows Test Programs
+      shell: msys2 {0}
+      run: |
+        # Build test executables
+        ${{ matrix.compiler }} -D_WIN32 libs/fileutils-lib.o tests/fileutils_test.c -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long -o ./dist/fileutils.exe
+        ${{ matrix.compiler }} -D_WIN32 libs/string-lib.o tests/stringlib_test.c -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long -o ./dist/strlib.exe
+        ${{ matrix.compiler }} -D_WIN32 libs/bitarray-lib.o tests/bitarray_test.c -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long -o ./dist/bitarray.exe
+        ${{ matrix.compiler }} -D_WIN32 libs/llist-lib.o tests/linked_list_test.c -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long -o ./dist/linkedlist.exe
+        # Build cross-platform test
+        ${{ matrix.compiler }} -D_WIN32 -o cross_platform_test.exe cross_platform_test.c src/fileutils.c -Wall -Wpedantic -Winline -Wextra -Wno-unknown-pragmas -Wno-long-long
+    - name: Run Windows Tests
+      shell: msys2 {0}
+      run: |
+        echo "Running fileutils tests on Windows..."
+        ./dist/fileutils.exe
+        echo "Running stringlib tests on Windows..."
+        ./dist/strlib.exe
+        echo "Running bitarray tests on Windows..."
+        ./dist/bitarray.exe
+        echo "Running linkedlist tests on Windows..."
+        ./dist/linkedlist.exe
+        echo "Running cross-platform test on Windows..."
+        ./cross_platform_test.exe

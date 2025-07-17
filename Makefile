@@ -81,8 +81,61 @@ runtests:
 	@ if [ -f "./$(DISTDIR)/graph" ]; then ./$(DISTDIR)/graph; fi
 	@ if [ -f "./$(DISTDIR)/permutations" ]; then ./$(DISTDIR)/permutations; fi
 
+# Windows-specific targets
+windows: CCFLAGS += -D_WIN32
+windows: LIBEXT = .exe
+windows: windows-libraries windows-test windows-examples
+
+windows-libraries:
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/stringlib.c -o $(LIBDIR)/string-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/bitarray.c -o $(LIBDIR)/bitarray-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/fileutils.c -o $(LIBDIR)/fileutils-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/llist.c -o $(LIBDIR)/llist-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/dllist.c -o $(LIBDIR)/dllist-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/graph.c -o $(LIBDIR)/graph-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/queue.c -o $(LIBDIR)/queue-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/stack.c -o $(LIBDIR)/stack-lib.o $(CCFLAGS) $(COMPFLAGS)
+	$(CC) $(STD) -D_WIN32 -c $(SRCDIR)/permutations.c -o $(LIBDIR)/permutations-lib.o $(CCFLAGS) $(COMPFLAGS)
+
+windows-test: windows-libraries
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/string-lib.o $(TESTDIR)/stringlib_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/strlib.exe
+	$(CC) $(STD) -D_WIN32 $(TESTDIR)/timing_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/timing.exe
+	$(CC) $(STD) -D_WIN32 $(TESTDIR)/minunit_test.c $(CCFLAGS) $(COMPFLAGS) -lm -o ./$(DISTDIR)/minunit.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/bitarray-lib.o $(TESTDIR)/bitarray_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/bitarray.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/fileutils-lib.o $(TESTDIR)/fileutils_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/fileutils.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/llist-lib.o $(TESTDIR)/linked_list_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/linkedlist.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/dllist-lib.o $(TESTDIR)/doubly_linked_list_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/doublelinkedlist.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/queue-lib.o $(TESTDIR)/queue_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/queue.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/stack-lib.o $(TESTDIR)/stack_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/stack.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/graph-lib.o $(TESTDIR)/graph_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/graph.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/permutations-lib.o $(TESTDIR)/permutations_test.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/permutations.exe
+
+windows-examples: windows-libraries
+	$(CC) $(STD) -D_WIN32 $(EXAMPLEDIR)/timing_example.c $(CCFLAGS) $(COMPFLAGS) -lm -o ./$(DISTDIR)/ex_timing.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/bitarray-lib.o $(EXAMPLEDIR)/bitarray_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_bitarray.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/fileutils-lib.o $(EXAMPLEDIR)/fileutils_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_fileutils.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/string-lib.o $(EXAMPLEDIR)/stringlib_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_stringlib.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/llist-lib.o $(EXAMPLEDIR)/linkedlist_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_linkedlist.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/dllist-lib.o $(EXAMPLEDIR)/doublylinkedlist_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_doublylinkedlist.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/queue-lib.o $(EXAMPLEDIR)/queue_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_queue.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/stack-lib.o $(EXAMPLEDIR)/stack_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_stack.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/graph-lib.o $(EXAMPLEDIR)/graph_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_graph.exe
+	$(CC) $(STD) -D_WIN32 $(LIBDIR)/permutations-lib.o $(EXAMPLEDIR)/permutations_example.c $(CCFLAGS) $(COMPFLAGS) -o ./$(DISTDIR)/ex_permutations.exe
+
+windows-runtests:
+	@ if [ -f "./$(DISTDIR)/fileutils.exe" ]; then ./$(DISTDIR)/fileutils.exe; fi
+	@ if [ -f "./$(DISTDIR)/bitarray.exe" ]; then ./$(DISTDIR)/bitarray.exe; fi
+	@ if [ -f "./$(DISTDIR)/strlib.exe" ]; then ./$(DISTDIR)/strlib.exe; fi
+	@ if [ -f "./$(DISTDIR)/timing.exe" ]; then ./$(DISTDIR)/timing.exe; fi
+	@ if [ -f "./$(DISTDIR)/linkedlist.exe" ]; then ./$(DISTDIR)/linkedlist.exe; fi
+	@ if [ -f "./$(DISTDIR)/doublelinkedlist.exe" ]; then ./$(DISTDIR)/doublelinkedlist.exe; fi
+	@ if [ -f "./$(DISTDIR)/queue.exe" ]; then ./$(DISTDIR)/queue.exe; fi
+	@ if [ -f "./$(DISTDIR)/stack.exe" ]; then ./$(DISTDIR)/stack.exe; fi
+	@ if [ -f "./$(DISTDIR)/graph.exe" ]; then ./$(DISTDIR)/graph.exe; fi
+	@ if [ -f "./$(DISTDIR)/permutations.exe" ]; then ./$(DISTDIR)/permutations.exe; fi
+
 clean:
-	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi
+	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi  # will remove all compiled files
 	if [ -d "./$(LIBDIR)/" ]; then rm ./$(LIBDIR)/*; fi
 	rm -f ./*.gcno
 	rm -f ./*.gcda

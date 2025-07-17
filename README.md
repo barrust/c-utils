@@ -8,6 +8,8 @@
 
 This project provides a collection of utility libraries to help reduce the need to write similar code for each project on an ad-hoc basis. The need is based on what I have needed in most projects but are ended up written, as needed, and usually differently each time and without unit tests. The goal is to provide a single place to store each of these libraries and to provide unit tests.
 
+**Cross-Platform Support**: All libraries support both POSIX (Linux, macOS, Unix) and Windows platforms. See [WINDOWS_SUPPORT.md](WINDOWS_SUPPORT.md) for Windows-specific details.
+
 If there are other commonly used code or data-structures that should be added, please add a feature request!
 
 ##### Table of Contents:
