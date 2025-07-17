@@ -26,6 +26,19 @@
 
 #include <stdbool.h>
 
+/* Platform-specific includes for type definitions */
+#ifdef _WIN32
+    #include <sys/stat.h>
+    /* For MinGW/MSYS2 Windows builds, sys/stat.h should provide mode_t */
+    /* If mode_t is still not defined, define it */
+    #if !defined(_MODE_T_) && !defined(_MODE_T_DEFINED) && !defined(__mode_t_defined)
+        typedef unsigned int mode_t;
+        #define _MODE_T_DEFINED
+    #endif
+#else
+    #include <sys/stat.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -74,7 +87,7 @@ int fs_is_symlink(const char* path);
 
 /*  Returns the current working directory
     NOTE: Up to the user to free the resulting memory */
-char* fs_cwd();
+char* fs_cwd(void);
 
 /*  Resolve the path provided by turning it into an absolute path;
     does not keep filename!

@@ -66,6 +66,26 @@ static int __platform_rmdir(const char* path) {
 static int __attribute__((unused)) __platform_access(const char* path, int mode) {
     return _access(path, mode);
 }
+static char* __platform_realpath(const char* path, char* resolved_path) {
+    (void)resolved_path;  /* Windows GetFullPathName allocates its own buffer */
+    DWORD result_len = GetFullPathNameA(path, 0, NULL, NULL);
+    if (result_len == 0) {
+        return NULL;
+    }
+    
+    char* result = (char*)malloc(result_len);
+    if (result == NULL) {
+        return NULL;
+    }
+    
+    DWORD actual_len = GetFullPathNameA(path, result_len, result, NULL);
+    if (actual_len == 0 || actual_len >= result_len) {
+        free(result);
+        return NULL;
+    }
+    
+    return result;
+}
 #else
 static int __platform_mkdir(const char* path, mode_t mode) {
     return mkdir(path, mode);
@@ -75,6 +95,9 @@ static int __platform_rmdir(const char* path) {
 }
 static int __attribute__((unused)) __platform_access(const char* path, int mode) {
     return access(path, mode);
+}
+static char* __platform_realpath(const char* path, char* resolved_path) {
+    return realpath(path, resolved_path);
 }
 #endif
 
@@ -213,7 +236,7 @@ char* fs_resolve_path(const char* path) {
     /* POSIX: use realpath for components that exist */
     while (pos != -1) {
         tmp[pos] = '\0';
-        char* p = realpath(tmp, NULL);
+        char* p = __platform_realpath(tmp, NULL);
         if (p != NULL) {
             const char* s = tmp + (pos + 1);
             int p_len = strlen(p), t_len = strlen(s);
@@ -275,7 +298,7 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
     return res;
 }
 
-char* fs_cwd() {
+char* fs_cwd(void) {
 #ifdef _WIN32
     size_t malsize = 256; /* start with a reasonable size for Windows paths */
     char* buf = (char*)malloc(malsize);
@@ -575,7 +598,7 @@ file_t f_init(const char* filepath) {
 
     char* path = NULL;
     __parse_file_info(filepath, &path, &f->filename);
-    f->basepath = realpath(path, NULL);
+    f->basepath = __platform_realpath(path, NULL);
     f->absolute_path = fs_combine_filepath(f->basepath, f->filename);
     free(path);
     int ex_pos = __str_find_reverse(f->filename, '.');
