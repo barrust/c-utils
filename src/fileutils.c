@@ -17,10 +17,7 @@
     #include <sys/stat.h>
     #include <fcntl.h>      /* O_CREAT */
     
-    /* Windows compatibility macros */
-    #define mkdir(path, mode) _mkdir(path)
-    #define rmdir(path) _rmdir(path)
-    #define access(path, mode) _access(path, mode)
+    /* Windows compatibility - use function calls instead of macros */
     #define PATH_SEPARATOR '\\'
     #define PATH_SEPARATOR_STR "\\"
     #define ALT_PATH_SEPARATOR '/'
@@ -55,6 +52,30 @@
     #define PATH_SEPARATOR '/'
     #define PATH_SEPARATOR_STR "/"
     #define ALT_PATH_SEPARATOR '\\'
+#endif
+
+/* Platform-specific wrapper functions - declared here to avoid macro issues */
+#ifdef _WIN32
+static int __platform_mkdir(const char* path, mode_t mode) {
+    (void)mode;  /* Windows _mkdir doesn't use mode */
+    return _mkdir(path);
+}
+static int __platform_rmdir(const char* path) {
+    return _rmdir(path);
+}
+static int __attribute__((unused)) __platform_access(const char* path, int mode) {
+    return _access(path, mode);
+}
+#else
+static int __platform_mkdir(const char* path, mode_t mode) {
+    return mkdir(path, mode);
+}
+static int __platform_rmdir(const char* path) {
+    return rmdir(path);
+}
+static int __attribute__((unused)) __platform_access(const char* path, int mode) {
+    return access(path, mode);
+}
 #endif
 
 
@@ -839,12 +860,7 @@ char** d_dirs_full_path(dir_t d) {
 *******************************************************************************/
 static int __fs_mkdir(const char* path, mode_t mode) {
     errno = 0;
-#ifdef _WIN32
-    int res = mkdir(path);  /* Windows _mkdir doesn't take mode parameter */
-    (void)mode;  /* suppress unused parameter warning */
-#else
-    int res = mkdir(path, mode);
-#endif
+    int res = __platform_mkdir(path, mode);
     if (res == -1) {
         if (errno != EEXIST) {
             return FS_FAILURE;
@@ -855,7 +871,7 @@ static int __fs_mkdir(const char* path, mode_t mode) {
 
 static int __fs_rmdir(const char* path) {
     errno = 0;
-    int res = rmdir(path);
+    int res = __platform_rmdir(path);
     if (res == -1) {
         if (errno == EEXIST || errno == ENOTEMPTY)
             return FS_NOT_EMPTY;

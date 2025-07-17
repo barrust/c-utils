@@ -135,8 +135,10 @@ windows-runtests:
 	@ if [ -f "./$(DISTDIR)/permutations.exe" ]; then ./$(DISTDIR)/permutations.exe; fi
 
 clean:
-	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi 
-	if [ -d "./$(LIBDIR)/" ]; then rm ./$(LIBDIR)/*; fi
+	if [ -d "./$(DISTDIR)/" ]; then rm -f ./$(DISTDIR)/*; fi 
+	if [ -d "./$(LIBDIR)/" ]; then rm -f ./$(LIBDIR)/*; fi
 	rm -f ./*.gcno
 	rm -f ./*.gcda
 	rm -f ./*.gcov
+	rm -f ./*.exe
+	rm -f ./cross_platform_test.exe
