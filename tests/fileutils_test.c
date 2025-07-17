@@ -30,9 +30,9 @@ void test_setup(void) {
         curr_dir = tmp;
         tmp = NULL;
 
-        test_dir_rel = __str_snprintf("./tests/tmp");
+        test_dir_rel = __combine_path_platform("./tests", "tmp");
     } else {
-        test_dir_rel = __str_snprintf("./tmp");
+        test_dir_rel = __combine_path_platform("./", "tmp");
     }
     test_dir = __combine_path_platform(curr_dir, "tmp");
     free(curr_dir);
@@ -77,7 +77,7 @@ MU_TEST(test_setup_resolve_paths) {
 }
 
 MU_TEST(test_resolve_path_file) {
-    char* tmp = __str_snprintf("%s/tmp/test.txt", test_dir_rel);
+    char* tmp = __combine_three_paths(test_dir_rel, "tmp", "test.txt");
     char* res = __combine_three_paths(test_dir, "tmp", "test.txt");
     char* path = fs_resolve_path(tmp);
     mu_assert_string_eq(res, path);
@@ -87,7 +87,7 @@ MU_TEST(test_resolve_path_file) {
 }
 
 MU_TEST(test_resolve_path_no_exist) {
-    char* tmp = __str_snprintf("%s/blah/test.txt", test_dir_rel);
+    char* tmp = __combine_three_paths(test_dir_rel, "blah", "test.txt");
     char* res = __combine_three_paths(test_dir, "blah", "test.txt");
     char* path = fs_resolve_path(tmp);
     mu_assert_string_eq(res, path);
