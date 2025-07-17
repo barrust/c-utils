@@ -82,7 +82,7 @@ struct timeval {
     long tv_sec;
     long tv_usec;
 };
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 #endif
 
 
