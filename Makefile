@@ -135,7 +135,7 @@ windows-runtests:
 	@ if [ -f "./$(DISTDIR)/permutations.exe" ]; then ./$(DISTDIR)/permutations.exe; fi
 
 clean:
-	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi  # will remove all compiled files
+	if [ -d "./$(DISTDIR)/" ]; then rm ./$(DISTDIR)/*; fi 
 	if [ -d "./$(LIBDIR)/" ]; then rm ./$(LIBDIR)/*; fi
 	rm -f ./*.gcno
 	rm -f ./*.gcda
