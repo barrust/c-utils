@@ -17,13 +17,15 @@ static char* __str_snprintf(const char* fmt, ...);
 static char* __str_extract_substring(const char* s, size_t start, size_t length);
 static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
+static char* __combine_path_platform(const char* path1, const char* path2);
+static char* __combine_three_paths(const char* path1, const char* path2, const char* path3);
 
 
 void test_setup(void) {
     char* curr_dir = fs_resolve_path("./");
     int len = strlen(curr_dir);
     if (strncmp(&curr_dir[len - 5], "tests", 5) != 0) {
-        char* tmp = __str_snprintf("%s/%s", curr_dir, "tests");
+        char* tmp = __combine_path_platform(curr_dir, "tests");
         free(curr_dir);
         curr_dir = tmp;
         tmp = NULL;
@@ -32,7 +34,7 @@ void test_setup(void) {
     } else {
         test_dir_rel = __str_snprintf("./tmp");
     }
-    test_dir = __str_snprintf("%s/%s", curr_dir, "tmp");
+    test_dir = __combine_path_platform(curr_dir, "tmp");
     free(curr_dir);
 }
 
@@ -76,7 +78,7 @@ MU_TEST(test_setup_resolve_paths) {
 
 MU_TEST(test_resolve_path_file) {
     char* tmp = __str_snprintf("%s/tmp/test.txt", test_dir_rel);
-    char* res = __str_snprintf("%s/tmp/test.txt", test_dir);
+    char* res = __combine_three_paths(test_dir, "tmp", "test.txt");
     char* path = fs_resolve_path(tmp);
     mu_assert_string_eq(res, path);
     free(tmp);
@@ -86,7 +88,7 @@ MU_TEST(test_resolve_path_file) {
 
 MU_TEST(test_resolve_path_no_exist) {
     char* tmp = __str_snprintf("%s/blah/test.txt", test_dir_rel);
-    char* res = __str_snprintf("%s/blah/test.txt", test_dir);
+    char* res = __combine_three_paths(test_dir, "blah", "test.txt");
     char* path = fs_resolve_path(tmp);
     mu_assert_string_eq(res, path);
     free(tmp);
@@ -441,7 +443,7 @@ MU_TEST(test_list_dir) {
 }
 
 MU_TEST(test_combine_filepath) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __combine_path_platform(test_dir, "test.txt");
 
     /* test error cases */
     mu_assert_null(fs_combine_filepath(NULL, NULL));
@@ -472,7 +474,7 @@ MU_TEST(test_combine_filepath) {
 *   file_t - usage
 ***************************************************************************/
 MU_TEST(test_file_t_init) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __combine_path_platform(test_dir, "test.txt");
     file_t f = f_init(filepath);
 
     /* ensure things are correct! */
@@ -496,7 +498,7 @@ MU_TEST(test_file_t_init_non_file) {
     file_t f = f_init(test_dir);
     mu_assert_null(f);
 
-    char* filepath = __str_snprintf("%s/test-2.txt", test_dir);
+    char* filepath = __combine_path_platform(test_dir, "test-2.txt");
     f = f_init(filepath);
     mu_assert_null(f);
     free(filepath);
@@ -794,4 +796,22 @@ static int __make_test_file(char* s, size_t len, char c) {
     s[len - 5] = c;
     fs_touch(s);
     return fs_identify_path(s);
+}
+
+static char* __combine_path_platform(const char* path1, const char* path2) {
+    /* Platform-aware path combination for tests */
+    #ifdef _WIN32
+        return __str_snprintf("%s\\%s", path1, path2);
+    #else
+        return __str_snprintf("%s/%s", path1, path2);
+    #endif
+}
+
+static char* __combine_three_paths(const char* path1, const char* path2, const char* path3) {
+    /* Platform-aware path combination for three components */
+    #ifdef _WIN32
+        return __str_snprintf("%s\\%s\\%s", path1, path2, path3);
+    #else
+        return __str_snprintf("%s/%s/%s", path1, path2, path3);
+    #endif
 }
