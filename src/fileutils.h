@@ -64,6 +64,17 @@ typedef struct __dir_struct *dir_t;
 #define FS_SUCCESS           0
 #define FS_FAILURE          -1
 
+/* Platform-specific path separator */
+#ifdef _WIN32
+    #define FS_PATH_SEPARATOR "\\"
+    #define FS_PATH_SEPARATOR_CHAR '\\'
+    #define FS_ALT_PATH_SEPARATOR_CHAR '/'
+#else
+    #define FS_PATH_SEPARATOR "/"
+    #define FS_PATH_SEPARATOR_CHAR '/'
+    #define FS_ALT_PATH_SEPARATOR_CHAR '\\'
+#endif
+
 
 /*******************************************************************************
 *   Utility Functions

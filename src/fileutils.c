@@ -18,9 +18,6 @@
     #include <fcntl.h>      /* O_CREAT */
     
     /* Windows compatibility - use function calls instead of macros */
-    #define PATH_SEPARATOR '\\'
-    #define PATH_SEPARATOR_STR "\\"
-    #define ALT_PATH_SEPARATOR '/'
     
     /* Windows doesn't have these POSIX constants */
     #ifndef S_IRUSR
@@ -48,10 +45,6 @@
     #include <sys/stat.h>
     #include <fcntl.h>      /* O_CREAT */
     #include <dirent.h>
-    
-    #define PATH_SEPARATOR '/'
-    #define PATH_SEPARATOR_STR "/"
-    #define ALT_PATH_SEPARATOR '\\'
 #endif
 
 /* Platform-specific wrapper functions - declared here to avoid macro issues */
@@ -213,7 +206,7 @@ char* fs_resolve_path(const char* path) {
     if (pos == -1) {
         char* cwd = fs_cwd();
         new_path = (char*)calloc(strlen(cwd) + 2 + strlen(path), sizeof(char));
-        snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s%c%s", cwd, PATH_SEPARATOR, path);
+        snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s%c%s", cwd, FS_PATH_SEPARATOR_CHAR, path);
         free(cwd);
         free(tmp);
         return new_path;
@@ -241,12 +234,12 @@ char* fs_resolve_path(const char* path) {
                 const char* s = tmp + (pos + 1);
                 int p_len = strlen(p), t_len = strlen(s);
                 new_path = (char*)calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
-                snprintf(new_path, p_len + 2 + t_len, "%s%c%s", p, PATH_SEPARATOR, s);
+                snprintf(new_path, p_len + 2 + t_len, "%s%c%s", p, FS_PATH_SEPARATOR_CHAR, s);
                 free(p);
                 break;
             }
             int tmp_pos = __str_find_last_path_separator(tmp);
-            tmp[pos] = PATH_SEPARATOR;
+            tmp[pos] = FS_PATH_SEPARATOR_CHAR;
             pos = tmp_pos;
         }
     #endif
@@ -256,7 +249,7 @@ char* fs_resolve_path(const char* path) {
     if (new_path != NULL) {
         /* ensure no trailing path separator */
         int len = strlen(new_path);
-        if (len > 1 && (new_path[len - 1] == PATH_SEPARATOR || new_path[len - 1] == ALT_PATH_SEPARATOR))
+        if (len > 1 && (new_path[len - 1] == FS_PATH_SEPARATOR_CHAR || new_path[len - 1] == FS_ALT_PATH_SEPARATOR_CHAR))
             new_path[len - 1] = '\0';
     }
 
@@ -289,10 +282,10 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
         res = (char*)calloc(p_len + strlen(filename) + 2, sizeof(char)); /* 2 for separator and NULL */
 
     strcpy(res, path);
-    if (res[p_len - 1] == PATH_SEPARATOR || res[p_len - 1] == ALT_PATH_SEPARATOR) {
+    if (res[p_len - 1] == FS_PATH_SEPARATOR_CHAR || res[p_len - 1] == FS_ALT_PATH_SEPARATOR_CHAR) {
         --p_len;
     }
-    res[p_len] = PATH_SEPARATOR;
+    res[p_len] = FS_PATH_SEPARATOR_CHAR;
     strcpy(res + 1 + p_len, filename);
 
     return res;
@@ -411,7 +404,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     /* add a trailing path separator for the loop to work! */
     len = strlen(new_path);
     char* tmp = (char*)realloc(new_path, len + 2);
-    tmp[len] = PATH_SEPARATOR;
+    tmp[len] = FS_PATH_SEPARATOR_CHAR;
     tmp[len + 1] = '\0';
     new_path = tmp;
     tmp = NULL;
@@ -419,19 +412,19 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     char* p;
     /* Start from position 1 to skip root on POSIX, or from position 3 on Windows (C:\) */
     #ifdef _WIN32
-        int start_pos = (len >= 3 && new_path[1] == ':' && new_path[2] == PATH_SEPARATOR) ? 3 : 1;
+        int start_pos = (len >= 3 && new_path[1] == ':' && new_path[2] == FS_PATH_SEPARATOR_CHAR) ? 3 : 1;
     #else
         int start_pos = 1;
     #endif
     
-    for (p = strchr(new_path + start_pos, PATH_SEPARATOR); p != NULL; p = strchr(p + 1, PATH_SEPARATOR)) {
+    for (p = strchr(new_path + start_pos, FS_PATH_SEPARATOR_CHAR); p != NULL; p = strchr(p + 1, FS_PATH_SEPARATOR_CHAR)) {
         *p = '\0';
         int res = __fs_mkdir(new_path, mode);
         if (res == FS_FAILURE) {
             free(new_path);
             return FS_FAILURE;
         }
-        *p = PATH_SEPARATOR;
+        *p = FS_PATH_SEPARATOR_CHAR;
     }
     free(new_path);
     return FS_SUCCESS;
@@ -679,9 +672,9 @@ const char* f_read_file(file_t f) {
     free(f->buffer);
 
     int blen = strlen(f->basepath), flen = strlen(f->filename);
-    char* full_path = (char*)calloc(blen + flen + 2, sizeof(char)); /* PATH_SEPARATOR and '\0' */
+    char* full_path = (char*)calloc(blen + flen + 2, sizeof(char)); /* FS_PATH_SEPARATOR and '\0' */
     strcpy(full_path, f->basepath);
-    full_path[blen] = PATH_SEPARATOR;
+    full_path[blen] = FS_PATH_SEPARATOR_CHAR;
     strcpy(full_path + blen + 1, f->filename);
 
     FILE* fobj = fopen(full_path, "rb");
@@ -1089,7 +1082,7 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
         return;
     }
 
-    *filepath = __str_extract_substring(full_filepath, 0, slash_loc + 1);
+    *filepath = __str_extract_substring(full_filepath, 0, slash_loc);  /* Don't include the separator */
     *filename = __str_extract_substring(full_filepath, slash_loc + 1, pathlen);
     return;
 }
@@ -1104,7 +1097,7 @@ static int __str_find_last_path_separator(const char* s) {
     int len = strlen(s);
     
     for (int i = len - 1; i >= 0; i--) {
-        if (s[i] == PATH_SEPARATOR || s[i] == ALT_PATH_SEPARATOR) {
+        if (s[i] == FS_PATH_SEPARATOR_CHAR || s[i] == FS_ALT_PATH_SEPARATOR_CHAR) {
             last_pos = i;
             break;
         }
@@ -1124,8 +1117,8 @@ static char* __normalize_path_separators(const char* path) {
         
     int len = strlen(result);
     for (int i = 0; i < len; i++) {
-        if (result[i] == ALT_PATH_SEPARATOR) {
-            result[i] = PATH_SEPARATOR;
+        if (result[i] == FS_ALT_PATH_SEPARATOR_CHAR) {
+            result[i] = FS_PATH_SEPARATOR_CHAR;
         }
     }
     
