@@ -464,10 +464,12 @@ MU_TEST(test_combine_filepath) {
     mu_assert_string_eq("./test", tmp);
     fs_combine_filepath_alt(NULL, "./t", tmp);
     mu_assert_string_eq("./t", tmp);
-    fs_combine_filepath_alt("./test/a/", "foo.txt", tmp);
+    char *tmp2 = __str_snprintf("./test%sa%s", FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
+    fs_combine_filepath_alt(tmp2, "foo.txt", tmp);
     char* expected = __str_snprintf("./test%sa%sfoo.txt", FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     mu_assert_string_eq(expected, tmp);
     free(expected);
+    free(tmp2);
 }
 
 /***************************************************************************
