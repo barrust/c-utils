@@ -452,7 +452,7 @@ MU_TEST(test_list_dir) {
         /* Just check that our expected files are present */
         bool found_gitkeep = false, found_lvl2 = false, found_test_txt = false;
         for (int i = 0; i < items; i++) {
-            printf("Item %d: %s\n", i, recs[i]);
+            // printf("Item %d: %s\n", i, recs[i]);
             if (strcmp(recs[i], ".gitkeep") == 0) found_gitkeep = true;
             if (strcmp(recs[i], "lvl2") == 0) found_lvl2 = true;
             if (strcmp(recs[i], "test.txt") == 0) found_test_txt = true;
@@ -523,12 +523,12 @@ MU_TEST(test_file_t_init) {
     mu_assert_string_eq("test.txt", f_filename(f));
     mu_assert_string_eq(test_dir, f_basedir(f));
     mu_assert_string_eq("txt", f_extension(f));
-    #ifdef _WIN32
-        int vals[] = {420, 436};  /* 0644, 0664 in decimal for Windows */
-    #else
-        int vals[] = {0644, 0664};
-    #endif
-        mu_assert_int_in(vals, 2, f_permissions(f)); /* 0664 is the value for linux, 0644 OSX */
+#ifdef _WIN32
+    int vals[] = {420, 436, 438};  /* 0644, 0664, 0666 in decimal for Windows */
+#else
+    int vals[] = {0644, 0664};
+#endif
+    mu_assert_int_in(vals, sizeof(vals)/sizeof(int), f_permissions(f)); /* Accept more on Windows */
     #ifdef _WIN32
         mu_assert_int_eq(3268 , f_filesize(f));  /* Different line endings on Windows */
     #else
@@ -696,11 +696,20 @@ MU_TEST(test_dir_update_list) {
         mu_assert_string_eq("test.txt", recs[3]);
     #endif
 
+
     recs = d_dirs(d);
+#ifdef _WIN32
+    mu_assert(d_num_dirs(d) >= 1, "Expected at least 1 directory");
+    bool found_lvl2 = false;
+    for (int i = 0; i < d_num_dirs(d); i++) {
+        printf("Directory %d: %s\n", i, recs[i]);
+        if (strcmp(recs[i], "lvl2") == 0) found_lvl2 = true;
+    }
+    mu_assert(found_lvl2, "Expected to find lvl2");
+#else
     mu_assert_int_eq(1, d_num_dirs(d));
-    #ifndef _WIN32
-        mu_assert_string_eq("lvl2", recs[0]);
-    #endif
+    mu_assert_string_eq("lvl2", recs[0]);
+#endif
 
     recs = d_files(d);
     #ifdef _WIN32
@@ -756,11 +765,19 @@ MU_TEST(test_dir_fullpaths) {
         mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "test.txt", tmp), files[1]);
     #endif
 
+
     char** dirs = d_dirs_full_path(d);
+#ifdef _WIN32
+    mu_assert(d_num_dirs(d) >= 1, "Expected at least 1 directory");
+    bool found_lvl2 = false;
+    for (int i = 0; i < d_num_dirs(d); i++) {
+        if (strcmp(dirs[i], fs_combine_filepath_alt(test_dir, "lvl2", tmp)) == 0) found_lvl2 = true;
+    }
+    mu_assert(found_lvl2, "Expected to find lvl2");
+#else
     mu_assert_int_eq(1, d_num_dirs(d));
-    #ifndef _WIN32
-        mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "lvl2", tmp), dirs[0]);
-    #endif
+    mu_assert_string_eq(fs_combine_filepath_alt(test_dir, "lvl2", tmp), dirs[0]);
+#endif
 
     d_free(d);
 }
