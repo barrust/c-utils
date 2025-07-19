@@ -16,9 +16,9 @@
     #include <io.h>         /* _access */
     #include <sys/stat.h>
     #include <fcntl.h>      /* O_CREAT */
-    
+
     /* Windows compatibility - use function calls instead of macros */
-    
+
     /* Windows doesn't have these POSIX constants */
     #ifndef S_IRUSR
         #define S_IRUSR 0000400
@@ -34,12 +34,12 @@
         #define S_IRWXG (S_IRGRP | S_IWGRP | S_IXGRP)
         #define S_IRWXO (S_IROTH | S_IWOTH | S_IXOTH)
     #endif
-    
+
     /* Windows reparse tag constants */
     #ifndef IO_REPARSE_TAG_SYMLINK
         #define IO_REPARSE_TAG_SYMLINK 0xA000000C
     #endif
-    
+
 #else
     #include <unistd.h>     /* getcwd */
     #include <sys/stat.h>
@@ -65,18 +65,18 @@ static char* __platform_realpath(const char* path, char* resolved_path) {
     if (result_len == 0) {
         return NULL;
     }
-    
+
     char* result = (char*)malloc(result_len);
     if (result == NULL) {
         return NULL;
     }
-    
+
     DWORD actual_len = GetFullPathNameA(path, result_len, result, NULL);
     if (actual_len == 0 || actual_len >= result_len) {
         free(result);
         return NULL;
     }
-    
+
     return result;
 }
 #else
@@ -146,16 +146,38 @@ int fs_identify_path(const char* path) {
     if (path == NULL)
         return FS_NOT_VALID;
 
+#ifdef _WIN32
+    char* norm_path = __normalize_path_separators(path);
+    const char* stat_path = norm_path ? norm_path : path;
+#else
+    const char* stat_path = path;
+#endif
+
     errno = 0;
     struct stat stats;
-    if (stat(path, &stats) == -1) {
+    if (stat(stat_path, &stats) == -1) {
+#ifdef _WIN32
+        free(norm_path);
+#endif
         if (errno == ENOENT)
             return FS_NO_EXISTS;
+        return FS_NOT_VALID;
     }
-    if (S_ISDIR(stats.st_mode) != 0)
+    if (S_ISDIR(stats.st_mode) != 0) {
+#ifdef _WIN32
+        free(norm_path);
+#endif
         return FS_DIRECTORY;
-    if (S_ISREG(stats.st_mode) != 0)
+    }
+    if (S_ISREG(stats.st_mode) != 0) {
+#ifdef _WIN32
+        free(norm_path);
+#endif
         return FS_FILE;
+    }
+#ifdef _WIN32
+    free(norm_path);
+#endif
     return FS_NOT_VALID;
 }
 
@@ -168,7 +190,7 @@ int fs_is_symlink(const char* path) {
         DWORD attrs = GetFileAttributesA(path);
         if (attrs == INVALID_FILE_ATTRIBUTES)
             return FS_FAILURE;
-        
+
         if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
             /* Further check if it's actually a symlink */
             WIN32_FIND_DATAA findData;
@@ -243,7 +265,7 @@ char* fs_resolve_path(const char* path) {
             pos = tmp_pos;
         }
     #endif
-    
+
     free(tmp);
 
     if (new_path != NULL) {
@@ -277,7 +299,7 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
     int p_len = 0;
     if (path != NULL)
         p_len = strlen(path);
-    
+
     if (res == NULL)
         res = (char*)calloc(p_len + strlen(filename) + 2, sizeof(char)); /* 2 for separator and NULL */
 
@@ -416,7 +438,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     #else
         int start_pos = 1;
     #endif
-    
+
     for (p = strchr(new_path + start_pos, FS_PATH_SEPARATOR_CHAR); p != NULL; p = strchr(p + 1, FS_PATH_SEPARATOR_CHAR)) {
         *p = '\0';
         int res = __fs_mkdir(new_path, mode);
@@ -905,7 +927,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
     #ifdef _WIN32
         WIN32_FIND_DATAA findFileData;
         HANDLE hFind;
-        
+
         /* Create search pattern - path\* */
         int path_len = strlen(path);
         char* search_path = (char*)malloc(path_len + 3); /* path + \* + \0 */
@@ -918,10 +940,10 @@ static char** __fs_list_dir(const char* path, int* elms) {
             search_path[path_len] = '*';
             search_path[path_len + 1] = '\0';
         }
-        
+
         hFind = FindFirstFileA(search_path, &findFileData);
         free(search_path);
-        
+
         if (hFind != INVALID_HANDLE_VALUE) {
             do {
                 /* need to skip "." and ".." */
@@ -930,7 +952,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
                     continue;
                 else if (item_len == 2 && strcmp(findFileData.cFileName, "..") == 0)
                     continue;
-                    
+
                 paths[el_num++] = __str_duplicate(findFileData.cFileName);
 
                 if (el_num == cur_size) {
@@ -1095,32 +1117,32 @@ static int __cmp_str(const void* a, const void* b) {
 static int __str_find_last_path_separator(const char* s) {
     int last_pos = -1;
     int len = strlen(s);
-    
+
     for (int i = len - 1; i >= 0; i--) {
         if (s[i] == FS_PATH_SEPARATOR_CHAR || s[i] == FS_ALT_PATH_SEPARATOR_CHAR) {
             last_pos = i;
             break;
         }
     }
-    
+
     return last_pos;
 }
 
 /* Normalize path separators to the platform's preferred separator */
 static char* __normalize_path_separators(const char* path) {
-    if (path == NULL) 
+    if (path == NULL)
         return NULL;
-        
+
     char* result = __str_duplicate(path);
     if (result == NULL)
         return NULL;
-        
+
     int len = strlen(result);
     for (int i = 0; i < len; i++) {
         if (result[i] == FS_ALT_PATH_SEPARATOR_CHAR) {
             result[i] = FS_PATH_SEPARATOR_CHAR;
         }
     }
-    
+
     return result;
 }
