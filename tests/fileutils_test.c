@@ -767,7 +767,7 @@ MU_TEST(test_dir_fullpaths) {
     char** dirs = d_dirs_full_path(d);
 #ifdef _WIN32
     mu_assert(d_num_dirs(d) >= 1, "Expected at least 1 directory");
-    bool found_lvl2 = false;
+    found_lvl2 = false;
     for (int i = 0; i < d_num_dirs(d); i++) {
         if (strcmp(dirs[i], fs_combine_filepath_alt(test_dir, "lvl2", tmp)) == 0) found_lvl2 = true;
     }
