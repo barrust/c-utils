@@ -523,15 +523,13 @@ MU_TEST(test_file_t_init) {
     mu_assert_string_eq("test.txt", f_filename(f));
     mu_assert_string_eq(test_dir, f_basedir(f));
     mu_assert_string_eq("txt", f_extension(f));
-#ifdef _WIN32
-    int vals[] = {420, 436, 438};  /* 0644, 0664, 0666 in decimal for Windows */
-#else
-    int vals[] = {0644, 0664};
-#endif
-    mu_assert_int_in(vals, sizeof(vals)/sizeof(int), f_permissions(f)); /* Accept more on Windows */
     #ifdef _WIN32
+        int vals[] = {420, 436, 438};  /* 0644, 0664, 0666 in decimal for Windows */
+        mu_assert_int_in(vals, 3, f_permissions(f)); /* Accept more on Windows */
         mu_assert_int_eq(3268 , f_filesize(f));  /* Different line endings on Windows */
     #else
+        int vals[] = {0644, 0664};
+        mu_assert_int_in(vals, 2, f_permissions(f));
         mu_assert_int_eq(3259 , f_filesize(f));
     #endif
     mu_assert_int_eq(false , f_is_symlink(f));
