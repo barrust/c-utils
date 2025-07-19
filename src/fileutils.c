@@ -143,41 +143,54 @@ static char**  __fs_list_dir(const char* path, int* elms);
 
 
 int fs_identify_path(const char* path) {
-    if (path == NULL)
+    if (path == NULL) {
+        printf("[DEBUG] fs_identify_path: path is NULL\n");
         return FS_NOT_VALID;
+    }
 
 #ifdef _WIN32
     char* norm_path = __normalize_path_separators(path);
     const char* stat_path = norm_path ? norm_path : path;
+    printf("[DEBUG] fs_identify_path: input='%s', norm_path='%s', stat_path='%s'\n", path, norm_path ? norm_path : "(null)", stat_path);
 #else
     const char* stat_path = path;
+    printf("[DEBUG] fs_identify_path: input='%s', stat_path='%s'\n", path, stat_path);
 #endif
 
     errno = 0;
     struct stat stats;
-    if (stat(stat_path, &stats) == -1) {
+    int stat_ret = stat(stat_path, &stats);
+    printf("[DEBUG] fs_identify_path: stat('%s') returned %d, errno=%d\n", stat_path, stat_ret, errno);
+    if (stat_ret == -1) {
 #ifdef _WIN32
         free(norm_path);
 #endif
-        if (errno == ENOENT)
+        if (errno == ENOENT) {
+            printf("[DEBUG] fs_identify_path: stat ENOENT (no such file or directory)\n");
             return FS_NO_EXISTS;
+        }
+        printf("[DEBUG] fs_identify_path: stat failed, returning FS_NOT_VALID\n");
         return FS_NOT_VALID;
     }
+    printf("[DEBUG] fs_identify_path: stat.st_mode=0x%X\n", (unsigned int)stats.st_mode);
     if (S_ISDIR(stats.st_mode) != 0) {
 #ifdef _WIN32
         free(norm_path);
 #endif
+        printf("[DEBUG] fs_identify_path: S_ISDIR true, returning FS_DIRECTORY\n");
         return FS_DIRECTORY;
     }
     if (S_ISREG(stats.st_mode) != 0) {
 #ifdef _WIN32
         free(norm_path);
 #endif
+        printf("[DEBUG] fs_identify_path: S_ISREG true, returning FS_FILE\n");
         return FS_FILE;
     }
 #ifdef _WIN32
     free(norm_path);
 #endif
+    printf("[DEBUG] fs_identify_path: not a file or directory, returning FS_NOT_VALID\n");
     return FS_NOT_VALID;
 }
 
@@ -397,26 +410,37 @@ int fs_mkdir(const char* path, bool recursive) {
 }
 
 int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
-    if (path == NULL)
+    if (path == NULL) {
+        printf("[DEBUG] fs_mkdir_alt: path is NULL\n");
         return FS_NOT_VALID;
+    }
     size_t len = strlen(path);
-    if (len == 0)
+    if (len == 0) {
+        printf("[DEBUG] fs_mkdir_alt: path is empty string\n");
         return FS_NOT_VALID;
+    }
 
     errno = 0;
     struct stat stats;
-    if (stat(path, &stats) != -1) {
+    int stat_ret = stat(path, &stats);
+    printf("[DEBUG] fs_mkdir_alt: stat('%s') returned %d, errno=%d\n", path, stat_ret, errno);
+    if (stat_ret != -1) {
+        printf("[DEBUG] fs_mkdir_alt: path already exists\n");
         return FS_EXISTS;
     }
 
     if (!recursive) {
-        return __fs_mkdir(path, mode);
+        int mkres = __fs_mkdir(path, mode);
+        printf("[DEBUG] fs_mkdir_alt: __fs_mkdir('%s', mode=0x%X) returned %d\n", path, (unsigned int)mode, mkres);
+        return mkres;
     }
 
     /* need to start by finding a way to resolve the relative paths! */
     char* new_path = fs_resolve_path(path);
-    if (new_path == NULL)
+    if (new_path == NULL) {
+        printf("[DEBUG] fs_mkdir_alt: fs_resolve_path returned NULL for '%s'\n", path);
         return FS_NOT_VALID;
+    }
 
     /* normalize path separators */
     char* normalized_path = __normalize_path_separators(new_path);
@@ -432,7 +456,7 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     tmp = NULL;
 
     char* p;
-    /* Start from position 1 to skip root on POSIX, or from position 3 on Windows (C:\) */
+    /* Start from position 1 to skip root on POSIX, or from position 3 on Windows (C:\\) */
     #ifdef _WIN32
         int start_pos = (len >= 3 && new_path[1] == ':' && new_path[2] == FS_PATH_SEPARATOR_CHAR) ? 3 : 1;
     #else
@@ -441,14 +465,18 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
 
     for (p = strchr(new_path + start_pos, FS_PATH_SEPARATOR_CHAR); p != NULL; p = strchr(p + 1, FS_PATH_SEPARATOR_CHAR)) {
         *p = '\0';
+        printf("[DEBUG] fs_mkdir_alt: __fs_mkdir('%s', mode=0x%X)\n", new_path, (unsigned int)mode);
         int res = __fs_mkdir(new_path, mode);
+        printf("[DEBUG] fs_mkdir_alt: __fs_mkdir returned %d\n", res);
         if (res == FS_FAILURE) {
+            printf("[DEBUG] fs_mkdir_alt: __fs_mkdir failed for '%s'\n", new_path);
             free(new_path);
             return FS_FAILURE;
         }
         *p = FS_PATH_SEPARATOR_CHAR;
     }
     free(new_path);
+    printf("[DEBUG] fs_mkdir_alt: returning FS_SUCCESS\n");
     return FS_SUCCESS;
 }
 
