@@ -584,7 +584,20 @@ int fs_set_permissions(const char* path, mode_t mode) {
     if (res != FS_FILE && res != FS_DIRECTORY)
         return FS_NOT_VALID;
 
-    res = chmod(path, mode);
+    #ifdef _WIN32
+    char* norm_path = __normalize_path_separators(path);
+    if (norm_path) {
+        int nlen = strlen(norm_path);
+        // Only strip trailing separator if not root (e.g., C:\)
+        if (nlen > 3 && norm_path[nlen - 1] == FS_PATH_SEPARATOR_CHAR) {
+            norm_path[nlen - 1] = '\0';
+        }
+    }
+    #else
+    char* norm_path = (char*)path;  /* POSIX systems can use the path directly */
+    #endif
+    res = chmod(norm_path, mode);
+    free(norm_path);
     if (res == 0)
         return FS_SUCCESS;
     return FS_FAILURE;
