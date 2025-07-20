@@ -148,18 +148,21 @@ int fs_identify_path(const char* path) {
         return FS_NOT_VALID;
     }
 
-#ifdef _WIN32
+    #ifdef _WIN32
     char* norm_path = __normalize_path_separators(path);
+    if (norm_path) {
+        int nlen = strlen(norm_path);
+        // Only strip trailing separator if not root (e.g., C:\)
+        if (nlen > 3 && norm_path[nlen - 1] == FS_PATH_SEPARATOR_CHAR) {
+            norm_path[nlen - 1] = '\0';
+        }
+    }
     const char* stat_path = norm_path ? norm_path : path;
     printf("[DEBUG] fs_identify_path: input='%s', norm_path='%s', stat_path='%s'\n", path, norm_path ? norm_path : "(null)", stat_path);
-    int stat_path_len = strlen(stat_path);
-    if (stat_path[stat_path_len - 1] == FS_PATH_SEPARATOR_CHAR) {
-        stat_path[stat_path_len - 1] = '\0';  /* remove trailing separator */
-    }
-#else
+    #else
     const char* stat_path = path;
     printf("[DEBUG] fs_identify_path: input='%s', stat_path='%s'\n", path, stat_path);
-#endif
+    #endif
 
     errno = 0;
     struct stat stats;
