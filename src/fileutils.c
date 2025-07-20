@@ -529,18 +529,38 @@ int fs_get_raw_mode(const char* path) {
         return FS_NOT_VALID;
 #ifdef _WIN32
     printf("[DEBUG] fs_get_raw_mode: path='%s'\n", path);
+    char* norm_path = __normalize_path_separators(path);
+    if (norm_path) {
+        int nlen = strlen(norm_path);
+        // Only strip trailing separator if not root (e.g., C:\)
+        if (nlen > 3 && norm_path[nlen - 1] == FS_PATH_SEPARATOR_CHAR) {
+            norm_path[nlen - 1] = '\0';
+            printf("[DEBUG] fs_get_raw_mode: stripped trailing separator, now path='%s'\n", norm_path);
+        }
+    }
+    const char* stat_path = norm_path;
+#else
+    const char* stat_path = path;
 #endif
+
     struct stat stats;
-    if (stat(path, &stats) == -1) {
+    int ret = stat(stat_path, &stats);
 #ifdef _WIN32
+    if (ret == -1) {
         printf("[DEBUG] fs_get_raw_mode: stat failed, errno=%d\n", errno);
-#endif
+        free(norm_path);
         if (errno == ENOENT)
             return FS_NO_EXISTS;
         return FS_FAILURE;
     }
-#ifdef _WIN32
     printf("[DEBUG] fs_get_raw_mode: stat.st_mode=0x%X\n", (unsigned int)stats.st_mode);
+    free(norm_path);
+#else
+    if (ret == -1) {
+        if (errno == ENOENT)
+            return FS_NO_EXISTS;
+        return FS_FAILURE;
+    }
 #endif
     return stats.st_mode;
 }
