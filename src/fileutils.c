@@ -99,12 +99,12 @@ char* fs_resolve_path(const char* path) {
 
     char* new_path = NULL;
     char* tmp = __str_duplicate(path);
-    int pos = __str_find_reverse(tmp, '/');
+    int pos = __str_find_reverse(tmp, FS_PATH_SEPARATOR);
 
     if (pos == -1) {
         char* cwd = fs_cwd();
         new_path = (char*)calloc(strlen(cwd) + 2 + strlen(path), sizeof(char));
-        snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s/%s", cwd, path);
+        snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s%c%s", cwd, FS_PATH_SEPARATOR, path);
         free(cwd);
     }
 
@@ -115,19 +115,19 @@ char* fs_resolve_path(const char* path) {
             const char* s = tmp + (pos + 1);
             int p_len = strlen(p), t_len = strlen(s);
             new_path = (char*)calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
-            snprintf(new_path, p_len + 2 + t_len, "%s/%s", p, s);
+            snprintf(new_path, p_len + 2 + t_len, "%s%c%s", p, FS_PATH_SEPARATOR, s);
             free(p);
             break;
         }
-        int tmp_pos = __str_find_reverse(tmp, '/');
-        pos[tmp] = '/';
+        int tmp_pos = __str_find_reverse(tmp, FS_PATH_SEPARATOR);
+        pos[tmp] = FS_PATH_SEPARATOR;
         pos = tmp_pos;
     }
     free(tmp);
 
-    /* ensure no trailing '/' */
+    /* ensure no trailing FS_PATH_SEPARATOR */
     int len = strlen(new_path);
-    if (new_path[len - 1] == '/')
+    if (new_path[len - 1] == FS_PATH_SEPARATOR)
         new_path[len - 1] = '\0';
 
     return new_path;
@@ -154,15 +154,15 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
     int p_len = 0;
     if (path != NULL)
         p_len = strlen(path);
-    
+
     if (res == NULL)
-        res = (char*)calloc(p_len + strlen(filename) + 2, sizeof(char)); /* 2 for / and NULL */
+        res = (char*)calloc(p_len + strlen(filename) + 2, sizeof(char)); /* 2 for FS_PATH_SEPARATOR and NULL */
 
     strcpy(res, path);
-    if (res[p_len - 1] == '/') {
+    if (res[p_len - 1] == FS_PATH_SEPARATOR) {
         --p_len;
     }
-    res[p_len] = '/';
+    res[p_len] = FS_PATH_SEPARATOR;
     strcpy(res + 1 + p_len, filename);
 
     return res;
@@ -256,23 +256,23 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     if (new_path == NULL)
         return FS_NOT_VALID;
 
-    /* add a trailing '/' for the loop to work! */
+    /* add a trailing FS_PATH_SEPARATOR for the loop to work! */
     len = strlen(new_path);
     char* tmp = (char*)realloc(new_path, len + 2);
-    tmp[len] = '/';
+    tmp[len] = FS_PATH_SEPARATOR;
     tmp[len + 1] = '\0';
     new_path = tmp;
     tmp = NULL;
 
     char* p;
-    for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
+    for (p = strchr(new_path + 1, FS_PATH_SEPARATOR); p != NULL; p = strchr(p + 1, FS_PATH_SEPARATOR)) {
         *p = '\0';
         int res = __fs_mkdir(new_path, mode);
         if (res == FS_FAILURE) {
             free(new_path);
             return FS_FAILURE;
         }
-        *p = '/';
+        *p = FS_PATH_SEPARATOR;
     }
     free(new_path);
     return FS_SUCCESS;
@@ -520,9 +520,9 @@ const char* f_read_file(file_t f) {
     free(f->buffer);
 
     int blen = strlen(f->basepath), flen = strlen(f->filename);
-    char* full_path = (char*)calloc(blen + flen + 2, sizeof(char)); /* '/' and '\0' */
+    char* full_path = (char*)calloc(blen + flen + 2, sizeof(char)); /* FS_PATH_SEPARATOR and '\0' */
     strcpy(full_path, f->basepath);
-    full_path[blen] = '/';
+    full_path[blen] = FS_PATH_SEPARATOR;
     strcpy(full_path + blen + 1, f->filename);
 
     FILE* fobj = fopen(full_path, "rb");
@@ -882,7 +882,7 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
 
     int pathlen = strlen(full_filepath);
 
-    int slash_loc = __str_find_reverse(full_filepath, '/');
+    int slash_loc = __str_find_reverse(full_filepath, FS_PATH_SEPARATOR);
     if (slash_loc == -1) {
         (*filepath) = __str_duplicate(".");
         (*filename) = __str_duplicate(full_filepath);

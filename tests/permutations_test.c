@@ -121,7 +121,9 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_sub_overflow);
 }
 
+
 int main() {
+    printf("\nRunning permutations tests...\n");
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
     printf("Number failed tests: %d\n", minunit_fail);

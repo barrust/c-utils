@@ -21,16 +21,16 @@ void test_setup(void) {
     char* curr_dir = fs_resolve_path("./");
     int len = strlen(curr_dir);
     if (strncmp(&curr_dir[len - 5], "tests", 5) != 0) {
-        char* tmp = __str_snprintf("%s/%s", curr_dir, "tests");
+        char* tmp = __str_snprintf("%s%c%s", curr_dir, FS_PATH_SEPARATOR, "tests");
         free(curr_dir);
         curr_dir = tmp;
         tmp = NULL;
 
-        test_dir_rel = __str_snprintf("./tests/tmp");
+        test_dir_rel = __str_snprintf("./tests%ctmp", FS_PATH_SEPARATOR);
     } else {
         test_dir_rel = __str_snprintf("./tmp");
     }
-    test_dir = __str_snprintf("%s/%s", curr_dir, "tmp");
+    test_dir = __str_snprintf("%s%c%s", curr_dir, FS_PATH_SEPARATOR, "tmp");
     free(curr_dir);
 }
 
@@ -723,8 +723,8 @@ MU_TEST_SUITE(test_suite) {
 }
 
 
-
 int main() {
+    printf("\nRunning fileutils tests...\n");
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
     printf("Number failed tests: %d\n", minunit_fail);
