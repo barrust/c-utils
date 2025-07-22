@@ -742,6 +742,9 @@ char** d_dirs_full_path(dir_t d) {
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
 static int __fs_mkdir(const char* path, mode_t mode) {
+#ifdef _WIN32
+    (void)mode; /* unused parameter on Windows */
+#endif
     errno = 0;
     int res = mkdir(path, mode);
     if (res == -1) {

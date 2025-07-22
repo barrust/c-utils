@@ -82,6 +82,10 @@ struct timeval {
     long tv_sec;
     long tv_usec;
 };
+struct timezone {
+    int tz_minuteswest;
+    int tz_dsttime;
+};
 int gettimeofday(struct timeval * tp, struct timezone * tzp);
 #endif
 
@@ -167,6 +171,7 @@ static long long timeval_diff(struct timeval *difference, struct timeval *end_ti
     NOTE: this ignores the timezone information since we don't need it
 */
 int gettimeofday(struct timeval *tp, struct timezone *tzp) {
+    (void)tzp; /* unused parameter */
     /* Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's */
     static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
 

@@ -90,7 +90,7 @@ jobs:
     - name: Setup MinGW
       uses: msys2/setup-msys2@v2
       with:
-        msys: MINGW64
+        msystem: MINGW64
         install: >-
           mingw-w64-x86_64-gcc
           mingw-w64-x86_64-clang
