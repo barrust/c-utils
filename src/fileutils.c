@@ -21,7 +21,12 @@
     /* Windows doesn't have these, so we'll define fallbacks */
     #define lstat stat
     #define S_ISLNK(mode) (0)  /* Windows doesn't have symlinks in the same way */
-    #define realpath(path, resolved) _fullpath(resolved, path, _MAX_PATH)
+    /* realpath wrapper for Windows - _fullpath has different parameter order and behavior */
+    static char* __realpath_wrapper(const char* path, char* resolved) {
+        (void)resolved; /* unused parameter */
+        return _fullpath(NULL, path, _MAX_PATH);
+    }
+    #define realpath(path, resolved) __realpath_wrapper(path, resolved)
 #else
     #include <unistd.h>         /* getcwd */
     #include <dirent.h>
@@ -763,6 +768,33 @@ static char** __fs_list_dir(const char* path, int* elms) {
     int cur_size = growth_num;
     char** paths = (char**)calloc(cur_size, sizeof(char*));
 
+#ifdef _WIN32
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind;
+    char search_path[MAX_PATH];
+    snprintf(search_path, MAX_PATH, "%s\\*", path);
+
+    hFind = FindFirstFile(search_path, &findFileData);
+    int el_num = 0;
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            /* need to skip "." and ".." */
+            int item_len = strlen(findFileData.cFileName);
+            if (item_len == 1 && findFileData.cFileName[0] == '.')
+                continue;
+            else if (item_len == 2 && strcmp(findFileData.cFileName, "..") == 0)
+                continue;
+            paths[el_num++] = __str_duplicate(findFileData.cFileName);
+
+            if (el_num == cur_size) {
+                cur_size += growth_num;
+                char** tmp = (char**)realloc(paths, sizeof(char*) * cur_size);
+                paths = tmp;
+            }
+        } while (FindNextFile(hFind, &findFileData) != 0);
+        FindClose(hFind);
+    }
+#else
     DIR *d;
     d = opendir(path);
     int el_num = 0;
@@ -785,6 +817,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
         }
         closedir(d);
     }
+#endif
 
     if (cur_size != el_num) {
         char** tmp = (char**)realloc(paths, sizeof(char*) * el_num);
