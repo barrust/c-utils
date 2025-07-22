@@ -115,8 +115,11 @@ char* fs_resolve_path(const char* path) {
         return NULL;
     else if (path[0] == '.' && strlen(path) == 1)
         return fs_cwd();
-    else if (path[0] == '.' && strlen(path) == 2 && (path[1] == FS_PATH_SEPARATOR || path[1] == '/'))
-        return fs_cwd();
+    #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    // special case for Windows where the path is ./ or ./somepath
+    else if (strlen(path) >= 2 && path[1] == '/')
+        path[1] = FS_PATH_SEPARATOR
+    #endif
 
     char* new_path = NULL;
     char* tmp = __str_duplicate(path);
