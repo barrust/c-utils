@@ -78,10 +78,12 @@ char* format_time_diff(Timing *t);
 void calc_difference(Timing *t); /* only necessary, very occasionally */
 
 #ifdef _WIN32
+#ifndef _TIMEVAL_DEFINED
 struct timeval {
     long tv_sec;
     long tv_usec;
 };
+#endif
 struct timezone {
     int tz_minuteswest;
     int tz_dsttime;

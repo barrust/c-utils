@@ -119,7 +119,7 @@ MU_TEST_SUITE(test_suite) {
 }
 
 
-int main() {
+int main(void) {
     printf("\nRunning timing tests...\n");
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
