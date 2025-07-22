@@ -6,12 +6,31 @@
 #include <string.h>         /* strlen, strcmp, strchr, strncpy, strpbrk */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>         /* getcwd */
 #include <sys/stat.h>
 #include <fcntl.h>          /* O_CREAT */
-#include <dirent.h>         /* */
 #include <errno.h>
 #include "fileutils.h"
+
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    #include <windows.h>
+    #include <io.h>
+    #include <direct.h>     /* _mkdir */
+    #define mkdir(path, mode) _mkdir(path)
+    #define rmdir(path) _rmdir(path)
+    #define getcwd(buf, size) _getcwd(buf, size)
+    /* Windows doesn't have these, so we'll define fallbacks */
+    #define lstat stat
+    #define S_ISLNK(mode) (0)  /* Windows doesn't have symlinks in the same way */
+    /* realpath wrapper for Windows - _fullpath has different parameter order and behavior */
+    static char* __realpath_wrapper(const char* path, char* resolved) {
+        (void)resolved; /* unused parameter */
+        return _fullpath(NULL, path, _MAX_PATH);
+    }
+    #define realpath(path, resolved) __realpath_wrapper(path, resolved)
+#else
+    #include <unistd.h>         /* getcwd */
+    #include <dirent.h>
+#endif
 
 
 typedef struct __file_struct {
@@ -99,12 +118,12 @@ char* fs_resolve_path(const char* path) {
 
     char* new_path = NULL;
     char* tmp = __str_duplicate(path);
-    int pos = __str_find_reverse(tmp, '/');
+    int pos = __str_find_reverse(tmp, FS_PATH_SEPARATOR);
 
     if (pos == -1) {
         char* cwd = fs_cwd();
         new_path = (char*)calloc(strlen(cwd) + 2 + strlen(path), sizeof(char));
-        snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s/%s", cwd, path);
+        snprintf(new_path, strlen(cwd) + 2 + strlen(path), "%s%c%s", cwd, FS_PATH_SEPARATOR, path);
         free(cwd);
     }
 
@@ -115,19 +134,19 @@ char* fs_resolve_path(const char* path) {
             const char* s = tmp + (pos + 1);
             int p_len = strlen(p), t_len = strlen(s);
             new_path = (char*)calloc(p_len + t_len + 3, sizeof(char));  /* include slash x2 and \0 */
-            snprintf(new_path, p_len + 2 + t_len, "%s/%s", p, s);
+            snprintf(new_path, p_len + 2 + t_len, "%s%c%s", p, FS_PATH_SEPARATOR, s);
             free(p);
             break;
         }
-        int tmp_pos = __str_find_reverse(tmp, '/');
-        pos[tmp] = '/';
+        int tmp_pos = __str_find_reverse(tmp, FS_PATH_SEPARATOR);
+        pos[tmp] = FS_PATH_SEPARATOR;
         pos = tmp_pos;
     }
     free(tmp);
 
-    /* ensure no trailing '/' */
+    /* ensure no trailing FS_PATH_SEPARATOR */
     int len = strlen(new_path);
-    if (new_path[len - 1] == '/')
+    if (new_path[len - 1] == FS_PATH_SEPARATOR)
         new_path[len - 1] = '\0';
 
     return new_path;
@@ -154,21 +173,21 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
     int p_len = 0;
     if (path != NULL)
         p_len = strlen(path);
-    
+
     if (res == NULL)
-        res = (char*)calloc(p_len + strlen(filename) + 2, sizeof(char)); /* 2 for / and NULL */
+        res = (char*)calloc(p_len + strlen(filename) + 2, sizeof(char)); /* 2 for FS_PATH_SEPARATOR and NULL */
 
     strcpy(res, path);
-    if (res[p_len - 1] == '/') {
+    if (res[p_len - 1] == FS_PATH_SEPARATOR) {
         --p_len;
     }
-    res[p_len] = '/';
+    res[p_len] = FS_PATH_SEPARATOR;
     strcpy(res + 1 + p_len, filename);
 
     return res;
 }
 
-char* fs_cwd() {
+char* fs_cwd(void) {
     size_t malsize = 16; /* some defult power of 2... */
     char* buf = (char*)malloc(malsize);
     errno = 0;
@@ -256,23 +275,23 @@ int fs_mkdir_alt(const char* path, bool recursive, mode_t mode) {
     if (new_path == NULL)
         return FS_NOT_VALID;
 
-    /* add a trailing '/' for the loop to work! */
+    /* add a trailing FS_PATH_SEPARATOR for the loop to work! */
     len = strlen(new_path);
     char* tmp = (char*)realloc(new_path, len + 2);
-    tmp[len] = '/';
+    tmp[len] = FS_PATH_SEPARATOR;
     tmp[len + 1] = '\0';
     new_path = tmp;
     tmp = NULL;
 
     char* p;
-    for (p = strchr(new_path + 1, '/'); p != NULL; p = strchr(p + 1, '/')) {
+    for (p = strchr(new_path + 1, FS_PATH_SEPARATOR); p != NULL; p = strchr(p + 1, FS_PATH_SEPARATOR)) {
         *p = '\0';
         int res = __fs_mkdir(new_path, mode);
         if (res == FS_FAILURE) {
             free(new_path);
             return FS_FAILURE;
         }
-        *p = '/';
+        *p = FS_PATH_SEPARATOR;
     }
     free(new_path);
     return FS_SUCCESS;
@@ -520,9 +539,9 @@ const char* f_read_file(file_t f) {
     free(f->buffer);
 
     int blen = strlen(f->basepath), flen = strlen(f->filename);
-    char* full_path = (char*)calloc(blen + flen + 2, sizeof(char)); /* '/' and '\0' */
+    char* full_path = (char*)calloc(blen + flen + 2, sizeof(char)); /* FS_PATH_SEPARATOR and '\0' */
     strcpy(full_path, f->basepath);
-    full_path[blen] = '/';
+    full_path[blen] = FS_PATH_SEPARATOR;
     strcpy(full_path + blen + 1, f->filename);
 
     FILE* fobj = fopen(full_path, "rb");
@@ -723,6 +742,9 @@ char** d_dirs_full_path(dir_t d) {
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
 static int __fs_mkdir(const char* path, mode_t mode) {
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    (void)mode; /* unused parameter on Windows */
+#endif
     errno = 0;
     int res = mkdir(path, mode);
     if (res == -1) {
@@ -749,6 +771,33 @@ static char** __fs_list_dir(const char* path, int* elms) {
     int cur_size = growth_num;
     char** paths = (char**)calloc(cur_size, sizeof(char*));
 
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind;
+    char search_path[MAX_PATH];
+    snprintf(search_path, MAX_PATH, "%s\\*", path);
+
+    hFind = FindFirstFile(search_path, &findFileData);
+    int el_num = 0;
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            /* need to skip "." and ".." */
+            int item_len = strlen(findFileData.cFileName);
+            if (item_len == 1 && findFileData.cFileName[0] == '.')
+                continue;
+            else if (item_len == 2 && strcmp(findFileData.cFileName, "..") == 0)
+                continue;
+            paths[el_num++] = __str_duplicate(findFileData.cFileName);
+
+            if (el_num == cur_size) {
+                cur_size += growth_num;
+                char** tmp = (char**)realloc(paths, sizeof(char*) * cur_size);
+                paths = tmp;
+            }
+        } while (FindNextFile(hFind, &findFileData) != 0);
+        FindClose(hFind);
+    }
+#else
     DIR *d;
     d = opendir(path);
     int el_num = 0;
@@ -771,6 +820,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
         }
         closedir(d);
     }
+#endif
 
     if (cur_size != el_num) {
         char** tmp = (char**)realloc(paths, sizeof(char*) * el_num);
@@ -882,7 +932,7 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
 
     int pathlen = strlen(full_filepath);
 
-    int slash_loc = __str_find_reverse(full_filepath, '/');
+    int slash_loc = __str_find_reverse(full_filepath, FS_PATH_SEPARATOR);
     if (slash_loc == -1) {
         (*filepath) = __str_duplicate(".");
         (*filename) = __str_duplicate(full_filepath);

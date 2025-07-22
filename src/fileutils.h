@@ -51,6 +51,12 @@ typedef struct __dir_struct *dir_t;
 #define FS_SUCCESS           0
 #define FS_FAILURE          -1
 
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+#define FS_PATH_SEPARATOR '\\'
+#else
+#define FS_PATH_SEPARATOR '/'
+#endif
+
 
 /*******************************************************************************
 *   Utility Functions
@@ -74,7 +80,7 @@ int fs_is_symlink(const char* path);
 
 /*  Returns the current working directory
     NOTE: Up to the user to free the resulting memory */
-char* fs_cwd();
+char* fs_cwd(void);
 
 /*  Resolve the path provided by turning it into an absolute path;
     does not keep filename!

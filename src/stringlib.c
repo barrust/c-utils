@@ -123,17 +123,15 @@ char* s_remove_unwanted_chars(char* s, const char* unwanted) {
         for (q = 0; q < unwanted_len; ++q) {
             if (s[j] == unwanted[q]) {
                 changes = 1;
-                ++j;
                 break;
             }
         }
 
-        s[i] = s[j];
-
         if (changes == 0) {
+            s[i] = s[j];
             ++i;
-            ++j;
         }
+        ++j;
     }
     s[i] = '\0';
     return s;
@@ -144,18 +142,16 @@ char* s_replace_unwanted_chars(char* s, const char* unwanted, const char c) {
     if (s == NULL || unwanted == NULL)
         return s;
 
-    size_t i = 0, j = 0, unwanted_len = strlen(unwanted);
-    while (s[j] != '\0') {
+    size_t i = 0, unwanted_len = strlen(unwanted);
+    while (s[i] != '\0') {
         size_t q;
         for (q = 0; q < unwanted_len; ++q) {
-            if (s[j] == unwanted[q]) {
-                s[j] = c;
+            if (s[i] == unwanted[q]) {
+                s[i] = c;
                 break;
             }
         }
-
         ++i;
-        ++j;
     }
     return s;
 }

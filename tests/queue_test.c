@@ -112,7 +112,8 @@ MU_TEST_SUITE(test_suite) {
 }
 
 
-int main() {
+int main(void) {
+    printf("\nRunning queue tests...\n");
     MU_RUN_SUITE(test_suite);
     MU_REPORT();
     printf("Number failed tests: %d\n", minunit_fail);

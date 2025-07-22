@@ -58,7 +58,7 @@ typedef struct __dll_node {
         NULL        - If error allocating the memory
         dllist_t
 */
-dllist_t dll_init();
+dllist_t dll_init(void);
 
 /*  Free the data from the doubly linked list;
     NOTE: does not free the data element */

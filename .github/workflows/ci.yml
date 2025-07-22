@@ -59,7 +59,7 @@ jobs:
     - name: Install cppcheck
       run: sudo apt install cppcheck
     - name: Code Quality (cppcheck)
-      run: cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --suppress=missingIncludeSystem --check-level=exhaustive --template='{file}:{line},{severity},{id},{message}' ./src/ 
+      run: cppcheck --error-exitcode=1 --inline-suppr --enable=warning,performance,information,style --suppress=missingIncludeSystem --check-level=exhaustive --template='{file}:{line},{severity},{id},{message}' ./src/
 
   macos:
     runs-on: ${{ matrix.os }}
@@ -77,3 +77,31 @@ jobs:
         make test CC=${{ matrix.compiler }}
     - name: Run Unittests
       run: make runtests
+
+  windows:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        os: [windows-latest]
+        compiler: [gcc, clang]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-clang
+          mingw-w64-x86_64-make
+          make
+    - name: Compile Library (Windows)
+      shell: msys2 {0}
+      run: |
+        ${{ matrix.compiler }} --version
+        make windows-test CC=${{ matrix.compiler }}
+    # - name: Run Windows Tests
+    #   shell: msys2 {0}
+    #   run: |
+    #     make windows-runtests

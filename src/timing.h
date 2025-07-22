@@ -29,7 +29,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifdef _WIN32
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
     #include <Windows.h>
     #include <stdint.h>    /* portable: uint64_t   MSVC: __int64 */
 #else
@@ -77,10 +77,16 @@ char* format_time_diff(Timing *t);
 /* Force a time difference calculation */
 void calc_difference(Timing *t); /* only necessary, very occasionally */
 
-#ifdef _WIN32
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+#ifndef _TIMEVAL_DEFINED
 struct timeval {
     long tv_sec;
     long tv_usec;
+};
+#endif
+struct timezone {
+    int tz_minuteswest;
+    int tz_dsttime;
 };
 int gettimeofday(struct timeval * tp, struct timezone * tzp);
 #endif
@@ -162,11 +168,12 @@ static long long timeval_diff(struct timeval *difference, struct timeval *end_ti
 /*******************************************************************************
 ***	Define a gettimeofday function for windows machines
 *******************************************************************************/
-#ifdef _WIN32
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
 /*
     NOTE: this ignores the timezone information since we don't need it
 */
 int gettimeofday(struct timeval *tp, struct timezone *tzp) {
+    (void)tzp; /* unused parameter */
     /* Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's */
     static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
 
