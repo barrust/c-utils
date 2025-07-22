@@ -101,7 +101,7 @@ jobs:
       run: |
         ${{ matrix.compiler }} --version
         make windows-test CC=${{ matrix.compiler }}
-    # - name: Run Windows Tests
-    #   shell: msys2 {0}
-    #   run: |
-    #     make windows-runtests
+    - name: Run Windows Tests
+      shell: msys2 {0}
+      run: |
+        make windows-runtests
