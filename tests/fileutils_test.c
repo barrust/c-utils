@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include <unistd.h>   // symlink
+#include <unistd.h>   /*symlink*/
 #include "../src/minunit.h"
 #include "../src/fileutils.h"
 
@@ -16,7 +16,7 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
 static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
 
-#if defined _WIN32 || defined _WIN64 || __WIN32__ || __WIN64__
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
 // if src is a directory, val should be 0, if it is a file, val should be 1, 2 is unprivileged
 #define symlink(src, dest) CreateSymbolicLinkA(src, dest, 2) /*unprivledged*/
 #endif
@@ -61,7 +61,7 @@ MU_TEST(test_setup_resolve_paths) {
     char* path = fs_resolve_path(test_dir_rel);
     mu_assert_string_eq(test_dir, path);
     int len = strlen(path);
-    mu_assert_int_eq('p', path[len-1]);  /* make sure no trailing '/' */
+    mu_assert_int_eq('p', path[len-1]);  /* make sure no trailing FS_PATH_SEPARATOR */
     free(path);
 
     path = fs_resolve_path(".");
@@ -77,8 +77,8 @@ MU_TEST(test_setup_resolve_paths) {
 }
 
 MU_TEST(test_resolve_path_file) {
-    char* tmp = __str_snprintf("%s/tmp/test.txt", test_dir_rel);
-    char* res = __str_snprintf("%s/tmp/test.txt", test_dir);
+    char* tmp = __str_snprintf("%s%ctmp%ctest.txt", test_dir_rel, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
+    char* res = __str_snprintf("%s%ctmp%ctest.txt", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     char* path = fs_resolve_path(tmp);
     mu_assert_string_eq(res, path);
     free(tmp);
@@ -87,8 +87,8 @@ MU_TEST(test_resolve_path_file) {
 }
 
 MU_TEST(test_resolve_path_no_exist) {
-    char* tmp = __str_snprintf("%s/blah/test.txt", test_dir_rel);
-    char* res = __str_snprintf("%s/blah/test.txt", test_dir);
+    char* tmp = __str_snprintf("%s%cblah%ctest.txt", test_dir_rel, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
+    char* res = __str_snprintf("%s%cblah%ctest.txt", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     char* path = fs_resolve_path(tmp);
     mu_assert_string_eq(res, path);
     free(tmp);
@@ -107,11 +107,11 @@ MU_TEST(test_identify_path) {
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(test_dir));
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(test_dir_rel));
 
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
     free(filepath);
 
-    filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    filepath = __str_snprintf("%s%cno-test.txt", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
     free(filepath);
 
@@ -119,8 +119,8 @@ MU_TEST(test_identify_path) {
 }
 
 MU_TEST(test_symlinks_path) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
-    char* filepath2 = __str_snprintf("%s/test-sym.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
+    char* filepath2 = __str_snprintf("%s%ctest-sym.txt", test_dir, FS_PATH_SEPARATOR);
 
     symlink(filepath, filepath2);
 
@@ -131,8 +131,8 @@ MU_TEST(test_symlinks_path) {
 }
 
 MU_TEST(test_fs_is_symlink) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
-    char* filepath2 = __str_snprintf("%s/test-sym3.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
+    char* filepath2 = __str_snprintf("%s%ctest-sym3.txt", test_dir, FS_PATH_SEPARATOR);
 
     symlink(filepath, filepath2);
 
@@ -152,11 +152,11 @@ MU_TEST(test_fs_is_symlink) {
 }
 
 /*******************************************************************************
-*    Test get / set permissions
+*    Test get & set permissions
 *******************************************************************************/
 MU_TEST(test_get_permissions) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
-    char* filepath2 = __str_snprintf("%s/test-2.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
+    char* filepath2 = __str_snprintf("%s%ctest-2.txt", test_dir, FS_PATH_SEPARATOR);
     int vals[] = {0664, 0644};
     mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
     mu_assert_int_eq(FS_NOT_VALID, fs_get_permissions(NULL));
@@ -169,7 +169,7 @@ MU_TEST(test_get_permissions) {
 }
 
 MU_TEST(test_set_permissions) {
-    char* filepath = __str_snprintf("%s/test-3.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest-3.txt", test_dir, FS_PATH_SEPARATOR);
     /* test errors */
     mu_assert_int_eq(FS_NOT_VALID, fs_set_permissions(NULL, 0777));
 
@@ -204,7 +204,7 @@ MU_TEST(test_string_to_mode) {
 *    Test touch
 *******************************************************************************/
 MU_TEST(test_touch) {
-    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%cno-test.txt", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
     mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
@@ -215,7 +215,7 @@ MU_TEST(test_touch) {
 }
 
 MU_TEST(test_retouch) {
-    char* filepath = __str_snprintf("%s/no-test-fail.txt", test_dir);
+    char* filepath = __str_snprintf("%s%cno-test-fail.txt", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
     mu_assert_int_eq(FS_SUCCESS, fs_touch(filepath));
     mu_assert_int_eq(FS_FILE, fs_identify_path(filepath));
@@ -232,7 +232,7 @@ MU_TEST(test_touch_fail) {
 *    Test remove
 *******************************************************************************/
 MU_TEST(test_remove) {
-    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%cno-test.txt", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NOT_VALID, fs_remove_file(test_dir));
     fs_touch(filepath);
     mu_assert_int_eq(FS_SUCCESS, fs_remove_file(filepath));
@@ -240,11 +240,11 @@ MU_TEST(test_remove) {
 }
 
 /*******************************************************************************
-*    Test rename / move     NOTE: rename and move are synonymous
+*    Test rename & move     NOTE: rename and move are synonymous
 *******************************************************************************/
 MU_TEST(test_rename) {
-    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
-    char* new_filepath = __str_snprintf("%s/no-test_2.txt", test_dir);
+    char* filepath = __str_snprintf("%s%cno-test.txt", test_dir, FS_PATH_SEPARATOR);
+    char* new_filepath = __str_snprintf("%s%cno-test_2.txt", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(new_filepath));
 
@@ -266,8 +266,8 @@ MU_TEST(test_rename) {
 }
 
 MU_TEST(test_move) {
-    char* filepath = __str_snprintf("%s/no-test.txt", test_dir);
-    char* new_filepath = __str_snprintf("%s/lvl2/no-test_2.txt", test_dir);
+    char* filepath = __str_snprintf("%s%cno-test.txt", test_dir, FS_PATH_SEPARATOR);
+    char* new_filepath = __str_snprintf("%s%clvl2%cno-test_2.txt", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(new_filepath));
 
@@ -293,7 +293,7 @@ MU_TEST(test_mkdir_errors) {
 }
 
 MU_TEST(test_mkdir_non_recursive) {
-    char* filepath = __str_snprintf("%s/test/", test_dir);
+    char* filepath = __str_snprintf("%s%ctest%c", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
     mu_assert_int_eq(FS_SUCCESS, fs_mkdir(filepath, false)); /* start with non-recursive; one level */
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
@@ -305,7 +305,7 @@ MU_TEST(test_mkdir_non_recursive) {
 }
 
 MU_TEST(test_mkdir_non_recursive_error) {
-    char* filepath = __str_snprintf("%s/test/second/", test_dir);
+    char* filepath = __str_snprintf("%s%ctest%csecond%c", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
     mu_assert_int_eq(FS_FAILURE, fs_mkdir(filepath, false)); /* start with non-recursive; multi-level */
     free(filepath);
@@ -313,9 +313,9 @@ MU_TEST(test_mkdir_non_recursive_error) {
 
 MU_TEST(test_mkdir_recursive) {
     /* Build filepaths we can test */
-    char* filepath = __str_snprintf("%s/test-rec", test_dir);
-    char* filepath2 = __str_snprintf("%s/foo", filepath);
-    char* filepath3 = __str_snprintf("%s/bar", filepath2);
+    char* filepath = __str_snprintf("%s%ctest-rec", test_dir, FS_PATH_SEPARATOR);
+    char* filepath2 = __str_snprintf("%s%cfolder", filepath, FS_PATH_SEPARATOR);
+    char* filepath3 = __str_snprintf("%s%cbar", filepath2, FS_PATH_SEPARATOR);
     /* ensure directories are missing */
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath3));
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath2));
@@ -346,11 +346,11 @@ MU_TEST(test_mkdir_recursive) {
 *    Test rmdir
 *******************************************************************************/
 MU_TEST(test_rmdir_errors) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NOT_VALID, fs_rmdir(filepath));
     free(filepath);
 
-    filepath = __str_snprintf("%s/nodir", test_dir);  // doesn't exist, nothing to do!
+    filepath = __str_snprintf("%s%cnodir", test_dir, FS_PATH_SEPARATOR);  // doesn't exist, nothing to do!
     mu_assert_int_eq(FS_NO_EXISTS, fs_rmdir(filepath));
     free(filepath);
 
@@ -358,7 +358,7 @@ MU_TEST(test_rmdir_errors) {
 }
 
 MU_TEST(test_rmdir_non_recursive) {
-    char* filepath = __str_snprintf("%s/newlevl", test_dir);
+    char* filepath = __str_snprintf("%s%cnewlevl", test_dir, FS_PATH_SEPARATOR);
 
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));
     fs_mkdir(filepath, false);
@@ -371,17 +371,17 @@ MU_TEST(test_rmdir_non_recursive) {
 
 
 MU_TEST(test_rmdir_recursive) {
-    char* path = __str_snprintf("%s/newlevl", test_dir);
+    char* path = __str_snprintf("%s%cnewlevl", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(path));
     fs_mkdir(path, false);
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(path));
 
-    char* full_depth = __str_snprintf("%s/a/b/c/d/e/f/g", path);
+    char* full_depth = __str_snprintf("%s%ca%cb%cc%cd%ce%cf%cg", path, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     fs_mkdir(full_depth, true);
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(full_depth));
 
     /* add some files */
-    char* tmp = __str_snprintf("%s/a.txt", full_depth);
+    char* tmp = __str_snprintf("%s%ca.txt", full_depth, FS_PATH_SEPARATOR);
     int len = strlen(tmp);
     mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'a'));
     mu_assert_int_eq(FS_FILE, __make_test_file(tmp, len, 'b'));
@@ -440,7 +440,7 @@ MU_TEST(test_list_dir) {
 }
 
 MU_TEST(test_combine_filepath) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
 
     /* test error cases */
     mu_assert_null(fs_combine_filepath(NULL, NULL));
@@ -463,15 +463,15 @@ MU_TEST(test_combine_filepath) {
     mu_assert_string_eq("./test", tmp);
     fs_combine_filepath_alt(NULL, "./t", tmp);
     mu_assert_string_eq("./t", tmp);
-    fs_combine_filepath_alt("./test/a/", "foo.txt", tmp);
-    mu_assert_string_eq("./test/a/foo.txt", tmp);
+    fs_combine_filepath_alt(__str_snprintf("./test%ca%c", FS_PATH_SEPARATOR, FS_PATH_SEPARATOR), "foo.txt", tmp);
+    mu_assert_string_eq(__str_snprintf("./test%ca%cfoo.txt", FS_PATH_SEPARATOR, FS_PATH_SEPARATOR), tmp);
 }
 
 /***************************************************************************
 *   file_t - usage
 ***************************************************************************/
 MU_TEST(test_file_t_init) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     file_t f = f_init(filepath);
 
     /* ensure things are correct! */
@@ -495,15 +495,15 @@ MU_TEST(test_file_t_init_non_file) {
     file_t f = f_init(test_dir);
     mu_assert_null(f);
 
-    char* filepath = __str_snprintf("%s/test-2.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest-2.txt", test_dir, FS_PATH_SEPARATOR);
     f = f_init(filepath);
     mu_assert_null(f);
     free(filepath);
 }
 
 MU_TEST(test_file_t_init_symlink) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
-    char* sym = __str_snprintf("%s/test-symlink2.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
+    char* sym = __str_snprintf("%s%ctest-symlink2.txt", test_dir, FS_PATH_SEPARATOR);
     symlink(filepath, sym);
 
     file_t f = f_init(sym);
@@ -529,7 +529,7 @@ MU_TEST(test_file_t_init_symlink) {
 }
 
 MU_TEST(test_file_t_read_file) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     file_t f = f_init(filepath);
     free(filepath);
     const char* buf = f_read_file(f);
@@ -544,7 +544,7 @@ MU_TEST(test_file_t_read_file) {
 }
 
 MU_TEST(test_file_t_parse_lines) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     file_t f = f_init(filepath);
     free(filepath);
     char** buf = f_parse_lines(f);
@@ -588,7 +588,7 @@ MU_TEST(test_dir_t_init) {
 }
 
 MU_TEST(test_dir_init_fail) {
-    char* filepath = __str_snprintf("%s/test.txt", test_dir);
+    char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     dir_t d = d_init(filepath);
     mu_assert_null(d);
     free(filepath);
@@ -598,7 +598,7 @@ MU_TEST(test_dir_init_fail) {
 MU_TEST(test_dir_update_list) {
     dir_t d = d_init(test_dir_rel);
     /* now that everything is updated, let us add a new file... */
-    char* newfile = __str_snprintf("%s/new_file.txt", d_fullpath(d));
+    char* newfile = __str_snprintf("%s%cnew_file.txt", d_fullpath(d), FS_PATH_SEPARATOR);
     fs_touch(newfile);
 
     d_update_list(d);
@@ -674,7 +674,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_symlinks_path);
     MU_RUN_TEST(test_fs_is_symlink);
 
-    /* get / set permissions */
+    /* get & set permissions */
     MU_RUN_TEST(test_get_permissions);
     MU_RUN_TEST(test_set_permissions);
 
@@ -687,7 +687,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(test_retouch);
     MU_RUN_TEST(test_touch_fail);
 
-    /* rename / move */
+    /* rename & move */
     MU_RUN_TEST(test_rename);
     MU_RUN_TEST(test_move);
 

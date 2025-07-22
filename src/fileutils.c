@@ -11,7 +11,7 @@
 #include <errno.h>
 #include "fileutils.h"
 
-#ifdef _WIN32
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
     #include <windows.h>
     #include <io.h>
     #include <direct.h>     /* _mkdir */
@@ -742,7 +742,7 @@ char** d_dirs_full_path(dir_t d) {
 *   PRIVATE FUNCTIONS
 *******************************************************************************/
 static int __fs_mkdir(const char* path, mode_t mode) {
-#ifdef _WIN32
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
     (void)mode; /* unused parameter on Windows */
 #endif
     errno = 0;
@@ -771,7 +771,7 @@ static char** __fs_list_dir(const char* path, int* elms) {
     int cur_size = growth_num;
     char** paths = (char**)calloc(cur_size, sizeof(char*));
 
-#ifdef _WIN32
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
     WIN32_FIND_DATA findFileData;
     HANDLE hFind;
     char search_path[MAX_PATH];

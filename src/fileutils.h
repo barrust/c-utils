@@ -51,7 +51,7 @@ typedef struct __dir_struct *dir_t;
 #define FS_SUCCESS           0
 #define FS_FAILURE          -1
 
-#if defined(__WIN32__) || defined(_WIN32)
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
 #define FS_PATH_SEPARATOR '\\'
 #else
 #define FS_PATH_SEPARATOR '/'
