@@ -38,7 +38,7 @@ typedef struct __edge_node* edge_t;
 
 /*  Initialize the graph either using the default start size or based on the
     passed in size parameter */
-graph_t g_init();
+graph_t g_init(void);
 graph_t g_init_alt(unsigned int size);
 
 /*  Free the graph and all edges & vertices; defaults to free'ing the metadata

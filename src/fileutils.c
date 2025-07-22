@@ -6,12 +6,26 @@
 #include <string.h>         /* strlen, strcmp, strchr, strncpy, strpbrk */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>         /* getcwd */
 #include <sys/stat.h>
 #include <fcntl.h>          /* O_CREAT */
-#include <dirent.h>         /* */
 #include <errno.h>
 #include "fileutils.h"
+
+#ifdef _WIN32
+    #include <windows.h>
+    #include <io.h>
+    #include <direct.h>     /* _mkdir */
+    #define mkdir(path, mode) _mkdir(path)
+    #define rmdir(path) _rmdir(path)
+    #define getcwd(buf, size) _getcwd(buf, size)
+    /* Windows doesn't have these, so we'll define fallbacks */
+    #define lstat stat
+    #define S_ISLNK(mode) (0)  /* Windows doesn't have symlinks in the same way */
+    #define realpath(path, resolved) _fullpath(resolved, path, _MAX_PATH)
+#else
+    #include <unistd.h>         /* getcwd */
+    #include <dirent.h>
+#endif
 
 
 typedef struct __file_struct {
@@ -168,7 +182,7 @@ char* fs_combine_filepath_alt(const char* path, const char* filename, char* res)
     return res;
 }
 
-char* fs_cwd() {
+char* fs_cwd(void) {
     size_t malsize = 16; /* some defult power of 2... */
     char* buf = (char*)malloc(malsize);
     errno = 0;
