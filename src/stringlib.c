@@ -123,17 +123,15 @@ char* s_remove_unwanted_chars(char* s, const char* unwanted) {
         for (q = 0; q < unwanted_len; ++q) {
             if (s[j] == unwanted[q]) {
                 changes = 1;
-                ++j;
                 break;
             }
         }
 
-        s[i] = s[j];
-
         if (changes == 0) {
+            s[i] = s[j];
             ++i;
-            ++j;
         }
+        ++j;
     }
     s[i] = '\0';
     return s;

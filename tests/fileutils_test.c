@@ -16,6 +16,10 @@ static char* __str_extract_substring(const char* s, size_t start, size_t length)
 static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
 
+#if defined _WIN32 || defined _WIN64 || __WIN32__ || __WIN64__
+// if src is a directory, val should be 0, if it is a file, val should be 1, 2 is unprivileged
+#define symlink(src, dest) CreateSymbolicLinkA(src, dest, 2) /*unprivledged*/
+#endif
 
 void test_setup(void) {
     char* curr_dir = fs_resolve_path("./");
