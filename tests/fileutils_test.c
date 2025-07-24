@@ -661,9 +661,52 @@ MU_TEST(test_file_t_parse_lines) {
 
 
 /***************************************************************************
+*   Helper function to clean up test directory before directory listing tests
+***************************************************************************/
+void cleanup_test_directory() {
+    // Clean up potential leftover files from previous tests
+    char* test_files[] = {
+        "test-sym.txt",
+        "test-sym3.txt",
+        "test-symlink2.txt",
+        "test-3.txt",
+        "new_file.txt",
+        NULL
+    };
+
+    char* test_dirs[] = {
+        "test",
+        "test-rec",
+        NULL
+    };
+
+    // Remove leftover files
+    for (int i = 0; test_files[i] != NULL; i++) {
+        char* filepath = __str_snprintf("%s%c%s", test_dir, FS_PATH_SEPARATOR, test_files[i]);
+        if (fs_identify_path(filepath) != FS_NO_EXISTS) {
+            printf("DEBUG: Cleaning up leftover file: %s\n", filepath);
+            fs_remove_file(filepath);
+        }
+        free(filepath);
+    }
+
+    // Remove leftover directories (recursively)
+    for (int i = 0; test_dirs[i] != NULL; i++) {
+        char* dirpath = __str_snprintf("%s%c%s", test_dir, FS_PATH_SEPARATOR, test_dirs[i]);
+        if (fs_identify_path(dirpath) == FS_DIRECTORY) {
+            printf("DEBUG: Cleaning up leftover directory: %s\n", dirpath);
+            fs_rmdir_alt(dirpath, true);  // Remove recursively
+        }
+        free(dirpath);
+    }
+}
+
+/***************************************************************************
 *   dir_t - usage
 ***************************************************************************/
 MU_TEST(test_dir_t_init) {
+    cleanup_test_directory();  // Clean up before test
+
     dir_t d = d_init(test_dir_rel);
 
     // Debug: Print what files are actually found
@@ -719,6 +762,8 @@ MU_TEST(test_dir_update_list) {
 }
 
 MU_TEST(test_dir_fullpaths) {
+    cleanup_test_directory();  // Clean up before test
+
     dir_t d = d_init(test_dir_rel);
     char** items = d_items_full_path(d);
 
