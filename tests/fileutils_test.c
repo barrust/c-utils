@@ -75,9 +75,9 @@ void test_setup(void) {
     }
     test_dir = __str_snprintf("%s%c%s", curr_dir, FS_PATH_SEPARATOR, "tmp");
     free(curr_dir);
-    
+
     // Clean up any leftover files from previous test runs
-    cleanup_test_directory();
+    // cleanup_test_directory();
 }
 
 void test_teardown(void) {
@@ -165,32 +165,32 @@ MU_TEST(test_symlinks_path) {
     char* filepath2 = __str_snprintf("%s%ctest-sym.txt", test_dir, FS_PATH_SEPARATOR);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
-    printf("\nDEBUG: Attempting to create symlink from '%s' to '%s'\n", filepath, filepath2);
+    // printf("\nDEBUG: Attempting to create symlink from '%s' to '%s'\n", filepath, filepath2);
     int symlink_result = symlink(filepath, filepath2);
-    printf("DEBUG: Symlink creation result: %d\n", symlink_result);
+    // printf("DEBUG: Symlink creation result: %d\n", symlink_result);
     if (symlink_result == 0) {
         // Symlink creation failed (likely due to insufficient privileges)
         // Skip this test gracefully
-        printf("DEBUG: Symlink creation failed, skipping test\n");
+        // printf("DEBUG: Symlink creation failed, skipping test\n");
         free(filepath);
         free(filepath2);
         return;
     }
-    printf("DEBUG: Symlink creation succeeded\n");
+    // printf("DEBUG: Symlink creation succeeded\n");
 #else
     symlink(filepath, filepath2);
 #endif
 
     int res = fs_identify_path(filepath2);
-    printf("DEBUG: Before cleanup - fs_identify_path result: %d\n", res);
+    // printf("DEBUG: Before cleanup - fs_identify_path result: %d\n", res);
 
     // Use unlink which is now mapped to Windows-specific removal
     int cleanup_result = unlink(filepath2);
-    printf("DEBUG: Cleanup result: %d\n", cleanup_result);
+    // printf("DEBUG: Cleanup result: %d\n", cleanup_result);
 
     // Verify cleanup worked
     int after_cleanup = fs_identify_path(filepath2);
-    printf("DEBUG: After cleanup - fs_identify_path result: %d\n", after_cleanup);
+    // printf("DEBUG: After cleanup - fs_identify_path result: %d\n", after_cleanup);
 
     mu_assert_int_eq(FS_FILE, res);
     free(filepath);
@@ -202,18 +202,18 @@ MU_TEST(test_fs_is_symlink) {
     char* filepath2 = __str_snprintf("%s%ctest-sym3.txt", test_dir, FS_PATH_SEPARATOR);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
-    printf("\nDEBUG: test_fs_is_symlink - Attempting to create symlink from '%s' to '%s'\n", filepath, filepath2);
+    // printf("\nDEBUG: test_fs_is_symlink - Attempting to create symlink from '%s' to '%s'\n", filepath, filepath2);
     int symlink_result = symlink(filepath, filepath2);
-    printf("DEBUG: test_fs_is_symlink - Symlink creation result: %d\n", symlink_result);
+    // printf("DEBUG: test_fs_is_symlink - Symlink creation result: %d\n", symlink_result);
     if (symlink_result == 0) {
         // Symlink creation failed (likely due to insufficient privileges)
         // Skip this test gracefully
-        printf("DEBUG: test_fs_is_symlink - Symlink creation failed, skipping test\n");
+        // printf("DEBUG: test_fs_is_symlink - Symlink creation failed, skipping test\n");
         free(filepath);
         free(filepath2);
         return;
     }
-    printf("DEBUG: test_fs_is_symlink - Symlink creation succeeded\n");
+    // printf("DEBUG: test_fs_is_symlink - Symlink creation succeeded\n");
 #else
     symlink(filepath, filepath2);
 #endif
@@ -228,13 +228,13 @@ MU_TEST(test_fs_is_symlink) {
     mu_assert_int_eq(FS_FAILURE, res);
 
     // remove the symlink'd file and check again... it should be false!
-    printf("DEBUG: test_fs_is_symlink - Before cleanup, filepath2 exists: %d\n", fs_identify_path(filepath2));
+    // printf("DEBUG: test_fs_is_symlink - Before cleanup, filepath2 exists: %d\n", fs_identify_path(filepath2));
     int cleanup_result = unlink(filepath2);
-    printf("DEBUG: test_fs_is_symlink - Cleanup result: %d\n", cleanup_result);
+    // printf("DEBUG: test_fs_is_symlink - Cleanup result: %d\n", cleanup_result);
 
     res = fs_is_symlink(filepath2);
-    printf("DEBUG: test_fs_is_symlink - After cleanup, is_symlink result: %d\n", res);
-    printf("DEBUG: test_fs_is_symlink - After cleanup, filepath2 exists: %d\n", fs_identify_path(filepath2));
+    // printf("DEBUG: test_fs_is_symlink - After cleanup, is_symlink result: %d\n", res);
+    // printf("DEBUG: test_fs_is_symlink - After cleanup, filepath2 exists: %d\n", fs_identify_path(filepath2));
     mu_assert_int_eq(FS_FAILURE, res);
 
     free(filepath);
@@ -510,7 +510,7 @@ MU_TEST(test_rmdir_recursive) {
 }
 
 MU_TEST(test_list_dir) {
-    cleanup_test_directory();  // Clean up before test
+    // cleanup_test_directory();  // Clean up before test
 
     int items;
     char** recs = fs_list_dir(test_dir, &items);
@@ -566,10 +566,6 @@ MU_TEST(test_file_t_init) {
     char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     file_t f = f_init(filepath);
 
-    printf("\nFilepath: %s\n", filepath);
-    printf("Absolute Path: %s\n", f_absolute_path(f));
-    printf("Basedir: %s\n", f_basedir(f));
-
     /* ensure things are correct! */
     mu_assert_string_eq(filepath, f_absolute_path(f));  /* vad test, but this is already absolute */
     mu_assert_string_eq("test.txt", f_filename(f));
@@ -602,18 +598,18 @@ MU_TEST(test_file_t_init_symlink) {
     char* sym = __str_snprintf("%s%ctest-symlink2.txt", test_dir, FS_PATH_SEPARATOR);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
-    printf("\nDEBUG: test_file_t_init_symlink - Attempting to create symlink from '%s' to '%s'\n", filepath, sym);
+    // printf("\nDEBUG: test_file_t_init_symlink - Attempting to create symlink from '%s' to '%s'\n", filepath, sym);
     int symlink_result = symlink(filepath, sym);
-    printf("DEBUG: test_file_t_init_symlink - Symlink creation result: %d\n", symlink_result);
+    // printf("DEBUG: test_file_t_init_symlink - Symlink creation result: %d\n", symlink_result);
     if (symlink_result == 0) {
         // Symlink creation failed (likely due to insufficient privileges)
         // Skip this test gracefully
-        printf("DEBUG: test_file_t_init_symlink - Symlink creation failed, skipping test\n");
+        // printf("DEBUG: test_file_t_init_symlink - Symlink creation failed, skipping test\n");
         free(filepath);
         free(sym);
         return;
     }
-    printf("DEBUG: test_file_t_init_symlink - Symlink creation succeeded\n");
+    // printf("DEBUG: test_file_t_init_symlink - Symlink creation succeeded\n");
 #else
     symlink(filepath, sym);
 #endif
@@ -634,10 +630,10 @@ MU_TEST(test_file_t_init_symlink) {
     mu_assert_string_eq(NULL , f_buffer(f));
     mu_assert_null(f_lines(f));
 
-    printf("DEBUG: test_file_t_init_symlink - Before cleanup, sym exists: %d\n", fs_identify_path(sym));
+    // printf("DEBUG: test_file_t_init_symlink - Before cleanup, sym exists: %d\n", fs_identify_path(sym));
     int cleanup_result = unlink(sym);
-    printf("DEBUG: test_file_t_init_symlink - Cleanup result: %d\n", cleanup_result);
-    printf("DEBUG: test_file_t_init_symlink - After cleanup, sym exists: %d\n", fs_identify_path(sym));
+    // printf("DEBUG: test_file_t_init_symlink - Cleanup result: %d\n", cleanup_result);
+    // printf("DEBUG: test_file_t_init_symlink - After cleanup, sym exists: %d\n", fs_identify_path(sym));
 
     f_free(f);
     free(filepath);
@@ -713,7 +709,7 @@ void cleanup_test_directory(void) {
     for (int i = 0; test_files[i] != NULL; i++) {
         char* filepath = __str_snprintf("%s%c%s", test_dir, FS_PATH_SEPARATOR, test_files[i]);
         if (fs_identify_path(filepath) != FS_NO_EXISTS) {
-            printf("DEBUG: Cleaning up leftover file: %s\n", filepath);
+            // printf("DEBUG: Cleaning up leftover file: %s\n", filepath);
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
             // Try Windows-specific removal first for symlinks, then regular file removal
             int removed = 0;
@@ -726,7 +722,7 @@ void cleanup_test_directory(void) {
                 }
             }
             if (!removed) {
-                printf("DEBUG: Failed to remove file: %s\n", filepath);
+                // printf("DEBUG: Failed to remove file: %s\n", filepath);
             }
 #else
             // On Unix/Linux, use unlink for symlinks, fs_remove_file for regular files
@@ -744,7 +740,7 @@ void cleanup_test_directory(void) {
     for (int i = 0; test_dirs[i] != NULL; i++) {
         char* dirpath = __str_snprintf("%s%c%s", test_dir, FS_PATH_SEPARATOR, test_dirs[i]);
         if (fs_identify_path(dirpath) == FS_DIRECTORY) {
-            printf("DEBUG: Cleaning up leftover directory: %s\n", dirpath);
+            // printf("DEBUG: Cleaning up leftover directory: %s\n", dirpath);
             fs_rmdir_alt(dirpath, true);  // Remove recursively
         }
         free(dirpath);
@@ -755,17 +751,17 @@ void cleanup_test_directory(void) {
 *   dir_t - usage
 ***************************************************************************/
 MU_TEST(test_dir_t_init) {
-    cleanup_test_directory();  // Clean up before test
+    // cleanup_test_directory();  // Clean up before test
 
     dir_t d = d_init(test_dir_rel);
 
     // Debug: Print what files are actually found
-    int num_items = d_num_items(d);
-    printf("\nDEBUG: Found %d items in directory '%s':\n", num_items, test_dir);
+    // int num_items = d_num_items(d);
+    // printf("\nDEBUG: Found %d items in directory '%s':\n", num_items, test_dir);
     char** recs = d_list_dir(d);
-    for (int i = 0; i < num_items; i++) {
-        printf("  [%d]: '%s'\n", i, recs[i]);
-    }
+    // for (int i = 0; i < num_items; i++) {
+    //     printf("  [%d]: '%s'\n", i, recs[i]);
+    // }
 
     mu_assert_int_eq(3, d_num_items(d));
     mu_assert_string_eq(test_dir, d_fullpath(d));
@@ -784,7 +780,7 @@ MU_TEST(test_dir_init_fail) {
 }
 
 MU_TEST(test_dir_update_list) {
-    cleanup_test_directory();  // Clean up before test
+    // cleanup_test_directory();  // Clean up before test
 
     dir_t d = d_init(test_dir_rel);
     /* now that everything is updated, let us add a new file... */
@@ -814,17 +810,17 @@ MU_TEST(test_dir_update_list) {
 }
 
 MU_TEST(test_dir_fullpaths) {
-    cleanup_test_directory();  // Clean up before test
+    // cleanup_test_directory();  // Clean up before test
 
     dir_t d = d_init(test_dir_rel);
     char** items = d_items_full_path(d);
 
     // Debug: Print what files are actually found
-    int num_items = d_num_items(d);
-    printf("\nDEBUG test_dir_fullpaths: Found %d items in directory '%s':\n", num_items, test_dir);
-    for (int i = 0; i < num_items; i++) {
-        printf("  [%d]: '%s'\n", i, items[i]);
-    }
+    // int num_items = d_num_items(d);
+    // printf("\nDEBUG test_dir_fullpaths: Found %d items in directory '%s':\n", num_items, test_dir);
+    // for (int i = 0; i < num_items; i++) {
+    //     printf("  [%d]: '%s'\n", i, items[i]);
+    // }
 
     mu_assert_int_eq(3, d_num_items(d));
     mu_assert_string_eq(test_dir, d_fullpath(d));
