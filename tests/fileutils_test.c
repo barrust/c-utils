@@ -34,7 +34,29 @@ static int create_symlink_windows(const char* src, const char* dest) {
     }
     return 0; // failure
 }
+
+// Windows symlink removal - use appropriate Windows API
+static int remove_symlink_windows(const char* path) {
+    DWORD attrs = GetFileAttributesA(path);
+    if (attrs == INVALID_FILE_ATTRIBUTES)
+        return 0; // failure
+
+    if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+        // Check if it's a directory symlink
+        if (attrs & FILE_ATTRIBUTE_DIRECTORY) {
+            // Directory symlink - use RemoveDirectory
+            return RemoveDirectoryA(path) ? 1 : 0;
+        } else {
+            // File symlink - use DeleteFile
+            return DeleteFileA(path) ? 1 : 0;
+        }
+    }
+
+    return 0; // Not a symlink
+}
+
 #define symlink(src, dest) create_symlink_windows(src, dest)
+#define unlink(path) remove_symlink_windows(path)
 #endif
 
 void test_setup(void) {
@@ -158,7 +180,8 @@ MU_TEST(test_symlinks_path) {
     int res = fs_identify_path(filepath2);
     printf("DEBUG: Before cleanup - fs_identify_path result: %d\n", res);
 
-    int cleanup_result = fs_remove_file(filepath2);
+    // Use unlink which is now mapped to Windows-specific removal
+    int cleanup_result = unlink(filepath2);
     printf("DEBUG: Cleanup result: %d\n", cleanup_result);
 
     // Verify cleanup worked
@@ -202,7 +225,7 @@ MU_TEST(test_fs_is_symlink) {
 
     // remove the symlink'd file and check again... it should be false!
     printf("DEBUG: test_fs_is_symlink - Before cleanup, filepath2 exists: %d\n", fs_identify_path(filepath2));
-    int cleanup_result = fs_remove_file(filepath2);
+    int cleanup_result = unlink(filepath2);
     printf("DEBUG: test_fs_is_symlink - Cleanup result: %d\n", cleanup_result);
 
     res = fs_is_symlink(filepath2);
@@ -606,7 +629,7 @@ MU_TEST(test_file_t_init_symlink) {
     mu_assert_null(f_lines(f));
 
     printf("DEBUG: test_file_t_init_symlink - Before cleanup, sym exists: %d\n", fs_identify_path(sym));
-    int cleanup_result = fs_remove_file(sym);
+    int cleanup_result = unlink(sym);
     printf("DEBUG: test_file_t_init_symlink - Cleanup result: %d\n", cleanup_result);
     printf("DEBUG: test_file_t_init_symlink - After cleanup, sym exists: %d\n", fs_identify_path(sym));
 
@@ -680,12 +703,25 @@ void cleanup_test_directory() {
         NULL
     };
 
-    // Remove leftover files
+    // Remove leftover files (including symlinks)
     for (int i = 0; test_files[i] != NULL; i++) {
         char* filepath = __str_snprintf("%s%c%s", test_dir, FS_PATH_SEPARATOR, test_files[i]);
         if (fs_identify_path(filepath) != FS_NO_EXISTS) {
             printf("DEBUG: Cleaning up leftover file: %s\n", filepath);
-            fs_remove_file(filepath);
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+            // Try Windows-specific removal first for symlinks
+            if (remove_symlink_windows(filepath) == 0) {
+                // If not a symlink or Windows removal failed, use fs_remove_file
+                fs_remove_file(filepath);
+            }
+#else
+            // On Unix/Linux, use unlink for symlinks, fs_remove_file for regular files
+            if (fs_is_symlink(filepath) == FS_SUCCESS) {
+                unlink(filepath);
+            } else {
+                fs_remove_file(filepath);
+            }
+#endif
         }
         free(filepath);
     }
