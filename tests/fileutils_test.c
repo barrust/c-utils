@@ -17,8 +17,24 @@ static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
-// if src is a directory, val should be 0, if it is a file, val should be 1, 2 is unprivileged
-#define symlink(src, dest) CreateSymbolicLinkA(src, dest, 2) /*unprivledged*/
+// Windows symlink creation - try unprivileged first, then privileged
+// Define the constant if it's not available (older Windows versions)
+#ifndef SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+#define SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE 0x2
+#endif
+
+static int create_symlink_windows(const char* src, const char* dest) {
+    // Try unprivileged symlink first (Windows 10 Creator Update and later)
+    if (CreateSymbolicLinkA(dest, src, SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE)) {
+        return 1; // success
+    }
+    // Fallback to regular symlink (requires admin privileges)
+    if (CreateSymbolicLinkA(dest, src, 0)) {
+        return 1; // success
+    }
+    return 0; // failure
+}
+#define symlink(src, dest) create_symlink_windows(src, dest)
 #endif
 
 void test_setup(void) {
@@ -122,19 +138,43 @@ MU_TEST(test_symlinks_path) {
     char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     char* filepath2 = __str_snprintf("%s%ctest-sym.txt", test_dir, FS_PATH_SEPARATOR);
 
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    int symlink_result = symlink(filepath, filepath2);
+    if (symlink_result == 0) {
+        // Symlink creation failed (likely due to insufficient privileges)
+        // Skip this test gracefully
+        free(filepath);
+        free(filepath2);
+        return;
+    }
+#else
     symlink(filepath, filepath2);
+#endif
 
     int res = fs_identify_path(filepath2);
     fs_remove_file(filepath2);
 
     mu_assert_int_eq(FS_FILE, res);
+    free(filepath);
+    free(filepath2);
 }
 
 MU_TEST(test_fs_is_symlink) {
     char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     char* filepath2 = __str_snprintf("%s%ctest-sym3.txt", test_dir, FS_PATH_SEPARATOR);
 
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    int symlink_result = symlink(filepath, filepath2);
+    if (symlink_result == 0) {
+        // Symlink creation failed (likely due to insufficient privileges)
+        // Skip this test gracefully
+        free(filepath);
+        free(filepath2);
+        return;
+    }
+#else
     symlink(filepath, filepath2);
+#endif
 
     int res = fs_is_symlink(filepath);
     mu_assert_int_eq(FS_FAILURE, res);
@@ -149,6 +189,9 @@ MU_TEST(test_fs_is_symlink) {
     fs_remove_file(filepath2);
     res = fs_is_symlink(filepath2);
     mu_assert_int_eq(FS_FAILURE, res);
+
+    free(filepath);
+    free(filepath2);
 }
 
 /*******************************************************************************
@@ -474,6 +517,10 @@ MU_TEST(test_file_t_init) {
     char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     file_t f = f_init(filepath);
 
+    printf("\nFilepath: %s\n", filepath);
+    printf("Absolute Path: %s\n", f_absolute_path(f));
+    printf("Basedir: %s\n", f_basedir(f));
+
     /* ensure things are correct! */
     mu_assert_string_eq(filepath, f_absolute_path(f));  /* vad test, but this is already absolute */
     mu_assert_string_eq("test.txt", f_filename(f));
@@ -504,7 +551,19 @@ MU_TEST(test_file_t_init_non_file) {
 MU_TEST(test_file_t_init_symlink) {
     char* filepath = __str_snprintf("%s%ctest.txt", test_dir, FS_PATH_SEPARATOR);
     char* sym = __str_snprintf("%s%ctest-symlink2.txt", test_dir, FS_PATH_SEPARATOR);
+
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    int symlink_result = symlink(filepath, sym);
+    if (symlink_result == 0) {
+        // Symlink creation failed (likely due to insufficient privileges)
+        // Skip this test gracefully
+        free(filepath);
+        free(sym);
+        return;
+    }
+#else
     symlink(filepath, sym);
+#endif
 
     file_t f = f_init(sym);
 

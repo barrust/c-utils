@@ -18,15 +18,42 @@
     #define mkdir(path, mode) _mkdir(path)
     #define rmdir(path) _rmdir(path)
     #define getcwd(buf, size) _getcwd(buf, size)
-    /* Windows doesn't have these, so we'll define fallbacks */
+    /* Windows doesn't have lstat, so we'll use stat for most cases */
     #define lstat stat
-    #define S_ISLNK(mode) (0)  /* Windows doesn't have symlinks in the same way */
+
+    /* Define constants if not available on older Windows versions */
+    #ifndef IO_REPARSE_TAG_SYMLINK
+    #define IO_REPARSE_TAG_SYMLINK 0xA000000C
+    #endif
+
     /* realpath wrapper for Windows - _fullpath has different parameter order and behavior */
     static char* __realpath_wrapper(const char* path, char* resolved) {
         (void)resolved; /* unused parameter */
         return _fullpath(NULL, path, _MAX_PATH);
     }
     #define realpath(path, resolved) __realpath_wrapper(path, resolved)
+
+    /* Windows-specific symlink detection function */
+    static int __windows_is_symlink(const char* path) {
+        if (path == NULL)
+            return FS_FAILURE;
+
+        DWORD attrs = GetFileAttributesA(path);
+        if (attrs == INVALID_FILE_ATTRIBUTES)
+            return FS_FAILURE;
+
+        if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+            /* Additional check to distinguish symlinks from other reparse points */
+            WIN32_FIND_DATAA findData;
+            HANDLE hFind = FindFirstFileA(path, &findData);
+            if (hFind != INVALID_HANDLE_VALUE) {
+                FindClose(hFind);
+                if (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
+                    return FS_SUCCESS;
+            }
+        }
+        return FS_FAILURE;
+    }
 #else
     #include <unistd.h>         /* getcwd */
     #include <dirent.h>
@@ -99,6 +126,9 @@ int fs_is_symlink(const char* path) {
     if (path == NULL)
         return FS_FAILURE;
 
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    return __windows_is_symlink(path);
+#else
     errno = 0;
     struct stat stats;
     if (lstat(path, &stats) == -1) {
@@ -108,6 +138,7 @@ int fs_is_symlink(const char* path) {
     if (S_ISLNK(stats.st_mode) != 0)
         return FS_SUCCESS;
     return FS_FAILURE;
+#endif
 }
 
 char* fs_resolve_path(const char* path) {
