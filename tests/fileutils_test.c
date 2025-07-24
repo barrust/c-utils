@@ -139,20 +139,31 @@ MU_TEST(test_symlinks_path) {
     char* filepath2 = __str_snprintf("%s%ctest-sym.txt", test_dir, FS_PATH_SEPARATOR);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    printf("\nDEBUG: Attempting to create symlink from '%s' to '%s'\n", filepath, filepath2);
     int symlink_result = symlink(filepath, filepath2);
+    printf("DEBUG: Symlink creation result: %d\n", symlink_result);
     if (symlink_result == 0) {
         // Symlink creation failed (likely due to insufficient privileges)
         // Skip this test gracefully
+        printf("DEBUG: Symlink creation failed, skipping test\n");
         free(filepath);
         free(filepath2);
         return;
     }
+    printf("DEBUG: Symlink creation succeeded\n");
 #else
     symlink(filepath, filepath2);
 #endif
 
     int res = fs_identify_path(filepath2);
-    fs_remove_file(filepath2);
+    printf("DEBUG: Before cleanup - fs_identify_path result: %d\n", res);
+
+    int cleanup_result = fs_remove_file(filepath2);
+    printf("DEBUG: Cleanup result: %d\n", cleanup_result);
+
+    // Verify cleanup worked
+    int after_cleanup = fs_identify_path(filepath2);
+    printf("DEBUG: After cleanup - fs_identify_path result: %d\n", after_cleanup);
 
     mu_assert_int_eq(FS_FILE, res);
     free(filepath);
@@ -164,14 +175,18 @@ MU_TEST(test_fs_is_symlink) {
     char* filepath2 = __str_snprintf("%s%ctest-sym3.txt", test_dir, FS_PATH_SEPARATOR);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    printf("\nDEBUG: test_fs_is_symlink - Attempting to create symlink from '%s' to '%s'\n", filepath, filepath2);
     int symlink_result = symlink(filepath, filepath2);
+    printf("DEBUG: test_fs_is_symlink - Symlink creation result: %d\n", symlink_result);
     if (symlink_result == 0) {
         // Symlink creation failed (likely due to insufficient privileges)
         // Skip this test gracefully
+        printf("DEBUG: test_fs_is_symlink - Symlink creation failed, skipping test\n");
         free(filepath);
         free(filepath2);
         return;
     }
+    printf("DEBUG: test_fs_is_symlink - Symlink creation succeeded\n");
 #else
     symlink(filepath, filepath2);
 #endif
@@ -186,8 +201,13 @@ MU_TEST(test_fs_is_symlink) {
     mu_assert_int_eq(FS_FAILURE, res);
 
     // remove the symlink'd file and check again... it should be false!
-    fs_remove_file(filepath2);
+    printf("DEBUG: test_fs_is_symlink - Before cleanup, filepath2 exists: %d\n", fs_identify_path(filepath2));
+    int cleanup_result = fs_remove_file(filepath2);
+    printf("DEBUG: test_fs_is_symlink - Cleanup result: %d\n", cleanup_result);
+
     res = fs_is_symlink(filepath2);
+    printf("DEBUG: test_fs_is_symlink - After cleanup, is_symlink result: %d\n", res);
+    printf("DEBUG: test_fs_is_symlink - After cleanup, filepath2 exists: %d\n", fs_identify_path(filepath2));
     mu_assert_int_eq(FS_FAILURE, res);
 
     free(filepath);
@@ -553,14 +573,18 @@ MU_TEST(test_file_t_init_symlink) {
     char* sym = __str_snprintf("%s%ctest-symlink2.txt", test_dir, FS_PATH_SEPARATOR);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    printf("\nDEBUG: test_file_t_init_symlink - Attempting to create symlink from '%s' to '%s'\n", filepath, sym);
     int symlink_result = symlink(filepath, sym);
+    printf("DEBUG: test_file_t_init_symlink - Symlink creation result: %d\n", symlink_result);
     if (symlink_result == 0) {
         // Symlink creation failed (likely due to insufficient privileges)
         // Skip this test gracefully
+        printf("DEBUG: test_file_t_init_symlink - Symlink creation failed, skipping test\n");
         free(filepath);
         free(sym);
         return;
     }
+    printf("DEBUG: test_file_t_init_symlink - Symlink creation succeeded\n");
 #else
     symlink(filepath, sym);
 #endif
@@ -581,7 +605,11 @@ MU_TEST(test_file_t_init_symlink) {
     mu_assert_string_eq(NULL , f_buffer(f));
     mu_assert_null(f_lines(f));
 
-    fs_remove_file(sym);
+    printf("DEBUG: test_file_t_init_symlink - Before cleanup, sym exists: %d\n", fs_identify_path(sym));
+    int cleanup_result = fs_remove_file(sym);
+    printf("DEBUG: test_file_t_init_symlink - Cleanup result: %d\n", cleanup_result);
+    printf("DEBUG: test_file_t_init_symlink - After cleanup, sym exists: %d\n", fs_identify_path(sym));
+
     f_free(f);
     free(filepath);
     free(sym);
