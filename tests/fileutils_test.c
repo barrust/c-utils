@@ -637,9 +637,17 @@ MU_TEST(test_file_t_parse_lines) {
 ***************************************************************************/
 MU_TEST(test_dir_t_init) {
     dir_t d = d_init(test_dir_rel);
+
+    // Debug: Print what files are actually found
+    int num_items = d_num_items(d);
+    printf("\nDEBUG: Found %d items in directory '%s':\n", num_items, test_dir);
+    char** recs = d_list_dir(d);
+    for (int i = 0; i < num_items; i++) {
+        printf("  [%d]: '%s'\n", i, recs[i]);
+    }
+
     mu_assert_int_eq(3, d_num_items(d));
     mu_assert_string_eq(test_dir, d_fullpath(d));
-    char** recs = d_list_dir(d);
     mu_assert_string_eq(".gitkeep", recs[0]);
     mu_assert_string_eq("lvl2", recs[1]);
     mu_assert_string_eq("test.txt", recs[2]);
@@ -685,6 +693,13 @@ MU_TEST(test_dir_update_list) {
 MU_TEST(test_dir_fullpaths) {
     dir_t d = d_init(test_dir_rel);
     char** items = d_items_full_path(d);
+
+    // Debug: Print what files are actually found
+    int num_items = d_num_items(d);
+    printf("\nDEBUG test_dir_fullpaths: Found %d items in directory '%s':\n", num_items, test_dir);
+    for (int i = 0; i < num_items; i++) {
+        printf("  [%d]: '%s'\n", i, items[i]);
+    }
 
     mu_assert_int_eq(3, d_num_items(d));
     mu_assert_string_eq(test_dir, d_fullpath(d));
