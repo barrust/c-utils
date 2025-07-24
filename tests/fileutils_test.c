@@ -741,7 +741,7 @@ void cleanup_test_directory() {
 *   dir_t - usage
 ***************************************************************************/
 MU_TEST(test_dir_t_init) {
-    cleanup_test_directory();  // Clean up before test
+    // cleanup_test_directory();  // Clean up before test
 
     dir_t d = d_init(test_dir_rel);
 
@@ -798,7 +798,7 @@ MU_TEST(test_dir_update_list) {
 }
 
 MU_TEST(test_dir_fullpaths) {
-    cleanup_test_directory();  // Clean up before test
+    // cleanup_test_directory();  // Clean up before test
 
     dir_t d = d_init(test_dir_rel);
     char** items = d_items_full_path(d);
