@@ -29,7 +29,15 @@
     /* realpath wrapper for Windows - _fullpath has different parameter order and behavior */
     static char* __realpath_wrapper(const char* path, char* resolved) {
         (void)resolved; /* unused parameter */
-        return _fullpath(NULL, path, _MAX_PATH);
+        char* result = _fullpath(NULL, path, _MAX_PATH);
+        if (result != NULL) {
+            /* Remove trailing path separator to match POSIX behavior */
+            int len = strlen(result);
+            if (len > 1 && (result[len - 1] == '\\' || result[len - 1] == '/')) {
+                result[len - 1] = '\0';
+            }
+        }
+        return result;
     }
     #define realpath(path, resolved) __realpath_wrapper(path, resolved)
 
@@ -975,7 +983,7 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
         return;
     }
 
-    *filepath = __str_extract_substring(full_filepath, 0, slash_loc + 1);
+    *filepath = __str_extract_substring(full_filepath, 0, slash_loc);
     *filename = __str_extract_substring(full_filepath, slash_loc + 1, pathlen);
     return;
 }
