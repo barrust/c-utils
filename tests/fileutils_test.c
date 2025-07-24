@@ -15,6 +15,7 @@ static char* __str_snprintf(const char* fmt, ...);
 static char* __str_extract_substring(const char* s, size_t start, size_t length);
 static char* __str_duplicate(const char* s);
 static int   __make_test_file(char* s, size_t len, char c);
+void cleanup_test_directory(void);
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
 // Windows symlink creation - try unprivileged first, then privileged
@@ -74,6 +75,9 @@ void test_setup(void) {
     }
     test_dir = __str_snprintf("%s%c%s", curr_dir, FS_PATH_SEPARATOR, "tmp");
     free(curr_dir);
+    
+    // Clean up any leftover files from previous test runs
+    cleanup_test_directory();
 }
 
 void test_teardown(void) {
@@ -363,7 +367,7 @@ MU_TEST(test_move) {
     mu_assert_int_eq(FS_SUCCESS, fs_move(filepath, new_filepath));
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));  /* make sure no longer there */
     mu_assert_int_eq(FS_FILE, fs_identify_path(new_filepath));  /* make sure this one is! */
-    unlink(new_filepath);
+    fs_remove_file(new_filepath);
 
     free(filepath);
     free(new_filepath);
@@ -506,6 +510,8 @@ MU_TEST(test_rmdir_recursive) {
 }
 
 MU_TEST(test_list_dir) {
+    cleanup_test_directory();  // Clean up before test
+
     int items;
     char** recs = fs_list_dir(test_dir, &items);
     mu_assert_int_eq(3, items);
@@ -686,7 +692,7 @@ MU_TEST(test_file_t_parse_lines) {
 /***************************************************************************
 *   Helper function to clean up test directory before directory listing tests
 ***************************************************************************/
-void cleanup_test_directory() {
+void cleanup_test_directory(void) {
     // Clean up potential leftover files from previous tests
     char* test_files[] = {
         "test-sym.txt",
@@ -709,10 +715,18 @@ void cleanup_test_directory() {
         if (fs_identify_path(filepath) != FS_NO_EXISTS) {
             printf("DEBUG: Cleaning up leftover file: %s\n", filepath);
 #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
-            // Try Windows-specific removal first for symlinks
-            if (remove_symlink_windows(filepath) == 0) {
-                // If not a symlink or Windows removal failed, use fs_remove_file
-                fs_remove_file(filepath);
+            // Try Windows-specific removal first for symlinks, then regular file removal
+            int removed = 0;
+            if (remove_symlink_windows(filepath) == 1) {
+                removed = 1;  // Successfully removed as symlink
+            } else {
+                // Try regular file removal
+                if (fs_remove_file(filepath) == FS_SUCCESS) {
+                    removed = 1;
+                }
+            }
+            if (!removed) {
+                printf("DEBUG: Failed to remove file: %s\n", filepath);
             }
 #else
             // On Unix/Linux, use unlink for symlinks, fs_remove_file for regular files
@@ -741,7 +755,7 @@ void cleanup_test_directory() {
 *   dir_t - usage
 ***************************************************************************/
 MU_TEST(test_dir_t_init) {
-    // cleanup_test_directory();  // Clean up before test
+    cleanup_test_directory();  // Clean up before test
 
     dir_t d = d_init(test_dir_rel);
 
@@ -770,6 +784,8 @@ MU_TEST(test_dir_init_fail) {
 }
 
 MU_TEST(test_dir_update_list) {
+    cleanup_test_directory();  // Clean up before test
+
     dir_t d = d_init(test_dir_rel);
     /* now that everything is updated, let us add a new file... */
     char* newfile = __str_snprintf("%s%cnew_file.txt", d_fullpath(d), FS_PATH_SEPARATOR);
@@ -798,7 +814,7 @@ MU_TEST(test_dir_update_list) {
 }
 
 MU_TEST(test_dir_fullpaths) {
-    // cleanup_test_directory();  // Clean up before test
+    cleanup_test_directory();  // Clean up before test
 
     dir_t d = d_init(test_dir_rel);
     char** items = d_items_full_path(d);
