@@ -18,15 +18,50 @@
     #define mkdir(path, mode) _mkdir(path)
     #define rmdir(path) _rmdir(path)
     #define getcwd(buf, size) _getcwd(buf, size)
-    /* Windows doesn't have these, so we'll define fallbacks */
+    /* Windows doesn't have lstat, so we'll use stat for most cases */
     #define lstat stat
-    #define S_ISLNK(mode) (0)  /* Windows doesn't have symlinks in the same way */
+
+    /* Define constants if not available on older Windows versions */
+    #ifndef IO_REPARSE_TAG_SYMLINK
+    #define IO_REPARSE_TAG_SYMLINK 0xA000000C
+    #endif
+
     /* realpath wrapper for Windows - _fullpath has different parameter order and behavior */
     static char* __realpath_wrapper(const char* path, char* resolved) {
         (void)resolved; /* unused parameter */
-        return _fullpath(NULL, path, _MAX_PATH);
+        char* result = _fullpath(NULL, path, _MAX_PATH);
+        if (result != NULL) {
+            /* Remove trailing path separator to match POSIX behavior */
+            int len = strlen(result);
+            if (len > 1 && (result[len - 1] == '\\' || result[len - 1] == '/')) {
+                result[len - 1] = '\0';
+            }
+        }
+        return result;
     }
     #define realpath(path, resolved) __realpath_wrapper(path, resolved)
+
+    /* Windows-specific symlink detection function */
+    static int __windows_is_symlink(const char* path) {
+        if (path == NULL)
+            return FS_FAILURE;
+
+        DWORD attrs = GetFileAttributesA(path);
+        if (attrs == INVALID_FILE_ATTRIBUTES)
+            return FS_FAILURE;
+
+        if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+            /* Additional check to distinguish symlinks from other reparse points */
+            WIN32_FIND_DATAA findData;
+            HANDLE hFind = FindFirstFileA(path, &findData);
+            if (hFind != INVALID_HANDLE_VALUE) {
+                FindClose(hFind);
+                if (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
+                    return FS_SUCCESS;
+            }
+        }
+        return FS_FAILURE;
+    }
 #else
     #include <unistd.h>         /* getcwd */
     #include <dirent.h>
@@ -71,6 +106,7 @@ static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
 static void    __free_double_array(char** arr, size_t num_elms);
 static int     __cmp_str(const void* a, const void* b);
+static char*   __clean_path(const char* path);
 /* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
@@ -82,23 +118,34 @@ int fs_identify_path(const char* path) {
     if (path == NULL)
         return FS_NOT_VALID;
 
+    // Handle trailing path separators by creating a copy without them
+    char* clean_path = __clean_path(path);
+    if (clean_path == NULL)
+        return FS_NOT_VALID;
+
     errno = 0;
     struct stat stats;
-    if (stat(path, &stats) == -1) {
+    if (stat(clean_path, &stats) == -1) {
+        free(clean_path);
         if (errno == ENOENT)
             return FS_NO_EXISTS;
+        return FS_NOT_VALID;
     }
+
+    free(clean_path);
+
     if (S_ISDIR(stats.st_mode) != 0)
         return FS_DIRECTORY;
     if (S_ISREG(stats.st_mode) != 0)
         return FS_FILE;
     return FS_NOT_VALID;
-}
-
-int fs_is_symlink(const char* path) {
+}int fs_is_symlink(const char* path) {
     if (path == NULL)
         return FS_FAILURE;
 
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    return __windows_is_symlink(path);
+#else
     errno = 0;
     struct stat stats;
     if (lstat(path, &stats) == -1) {
@@ -108,6 +155,7 @@ int fs_is_symlink(const char* path) {
     if (S_ISLNK(stats.st_mode) != 0)
         return FS_SUCCESS;
     return FS_FAILURE;
+#endif
 }
 
 char* fs_resolve_path(const char* path) {
@@ -115,6 +163,11 @@ char* fs_resolve_path(const char* path) {
         return NULL;
     else if (path[0] == '.' && strlen(path) == 1)
         return fs_cwd();
+    #if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    // special case for Windows where the path is ./
+    else if (strlen(path) == 2 && path[1] == '/')
+        return fs_cwd();
+    #endif
 
     char* new_path = NULL;
     char* tmp = __str_duplicate(path);
@@ -939,11 +992,29 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
         return;
     }
 
-    *filepath = __str_extract_substring(full_filepath, 0, slash_loc + 1);
+    *filepath = __str_extract_substring(full_filepath, 0, slash_loc);
     *filename = __str_extract_substring(full_filepath, slash_loc + 1, pathlen);
     return;
 }
 
 static int __cmp_str(const void* a, const void* b) {
     return strcmp(*(const char**)a, *(const char**)b);
+}
+
+static char* __clean_path(const char* path) {
+    if (path == NULL)
+        return NULL;
+
+    char* clean_path = __str_duplicate(path);
+    if (clean_path == NULL)
+        return NULL;
+
+    int len = strlen(clean_path);
+    // Remove trailing separators, but keep at least one character (for root "/" case)
+    while (len > 1 && clean_path[len - 1] == FS_PATH_SEPARATOR) {
+        clean_path[len - 1] = '\0';
+        len--;
+    }
+
+    return clean_path;
 }
