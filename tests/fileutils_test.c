@@ -229,8 +229,8 @@ MU_TEST(test_get_permissions) {
     mu_assert_int_eq(FS_NOT_VALID, fs_get_permissions(NULL));
     mu_assert_int_eq(FS_NO_EXISTS, fs_get_permissions(filepath2));
     /* test a directory */
-    int dir_vals[] = {0775, 0755};
-    mu_assert_int_in(dir_vals, 2, fs_get_permissions(test_dir));
+    int dir_vals[] = {0775, 0755, 0777}; /* Added 0777 for Windows */
+    mu_assert_int_in(dir_vals, 3, fs_get_permissions(test_dir));
     free(filepath);
     free(filepath2);
 }
