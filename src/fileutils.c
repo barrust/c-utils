@@ -106,6 +106,7 @@ static size_t  __str_find_cnt_any(const char* s, const char* s2);
 static void    __parse_file_info(const char* full_filepath, char** filepath, char** filename);
 static void    __free_double_array(char** arr, size_t num_elms);
 static int     __cmp_str(const void* a, const void* b);
+static char*   __clean_path(const char* path);
 /* wrapper functions for windows and posix systems support */
 static int     __fs_mkdir(const char* path, mode_t mode);
 static int     __fs_rmdir(const char* path);
@@ -117,20 +118,28 @@ int fs_identify_path(const char* path) {
     if (path == NULL)
         return FS_NOT_VALID;
 
+    // Handle trailing path separators by creating a copy without them
+    char* clean_path = __clean_path(path);
+    if (clean_path == NULL)
+        return FS_NOT_VALID;
+
     errno = 0;
     struct stat stats;
-    if (stat(path, &stats) == -1) {
+    if (stat(clean_path, &stats) == -1) {
+        free(clean_path);
         if (errno == ENOENT)
             return FS_NO_EXISTS;
+        return FS_NOT_VALID;
     }
+
+    free(clean_path);
+
     if (S_ISDIR(stats.st_mode) != 0)
         return FS_DIRECTORY;
     if (S_ISREG(stats.st_mode) != 0)
         return FS_FILE;
     return FS_NOT_VALID;
-}
-
-int fs_is_symlink(const char* path) {
+}int fs_is_symlink(const char* path) {
     if (path == NULL)
         return FS_FAILURE;
 
@@ -990,4 +999,22 @@ static void __parse_file_info(const char* full_filepath, char** filepath, char**
 
 static int __cmp_str(const void* a, const void* b) {
     return strcmp(*(const char**)a, *(const char**)b);
+}
+
+static char* __clean_path(const char* path) {
+    if (path == NULL)
+        return NULL;
+
+    char* clean_path = __str_duplicate(path);
+    if (clean_path == NULL)
+        return NULL;
+
+    int len = strlen(clean_path);
+    // Remove trailing separators, but keep at least one character (for root "/" case)
+    while (len > 1 && clean_path[len - 1] == FS_PATH_SEPARATOR) {
+        clean_path[len - 1] = '\0';
+        len--;
+    }
+
+    return clean_path;
 }
