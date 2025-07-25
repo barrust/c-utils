@@ -550,7 +550,8 @@ MU_TEST(test_file_t_init) {
     mu_assert_string_eq("txt", f_extension(f));
     int vals[] = {0644, 0664};
     mu_assert_int_in(vals, 2, f_permissions(f)); /* 0664 is the value for linux, 0644 OSX */
-    mu_assert_int_eq(3259 , f_filesize(f));
+    int size_vals[] = {3259, 3268}; /* 3259 for Unix/Linux, 3268 for Windows (extra \r chars) */
+    mu_assert_int_in(size_vals, 2, f_filesize(f));
     mu_assert_int_eq(false , f_is_symlink(f));
     /* haven't loaded the file, so these should be the defaults! */
     mu_assert_int_eq(0 , f_number_lines(f));
@@ -596,7 +597,8 @@ MU_TEST(test_file_t_init_symlink) {
     mu_assert_string_eq("txt", f_extension(f));
     int vals[] = {0644, 0664};
     mu_assert_int_in(vals, 2, f_permissions(f)); /* 0664 is the value for linux, 0644 OSX */
-    mu_assert_int_eq(3259 , f_filesize(f));
+    int size_vals[] = {3259, 3268}; /* 3259 for Unix/Linux, 3268 for Windows (extra \r chars) */
+    mu_assert_int_in(size_vals, 2, f_filesize(f));
     mu_assert_int_eq(true , f_is_symlink(f));
     /* haven't loaded the file, so these should be the defaults! */
     mu_assert_int_eq(0 , f_number_lines(f));
@@ -614,7 +616,8 @@ MU_TEST(test_file_t_read_file) {
     free(filepath);
     const char* buf = f_read_file(f);
 
-    mu_assert_int_eq(3259, strlen(buf));
+    int buf_size_vals[] = {3259, 3268}; /* 3259 for Unix/Linux, 3268 for Windows (extra \r chars) */
+    mu_assert_int_in(buf_size_vals, 2, strlen(buf));
 
     char* tmp = __str_extract_substring(buf, 0, 17);
     mu_assert_string_eq("Lorem ipsum dolor", tmp);
