@@ -362,19 +362,19 @@ MU_TEST(test_mkdir_errors) {
 }
 
 MU_TEST(test_mkdir_non_recursive) {
-    char* filepath = __str_snprintf("%s%ctest%c", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
+    char* filepath = __str_snprintf("%s%ctest", test_dir, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
     mu_assert_int_eq(FS_SUCCESS, fs_mkdir(filepath, false)); /* start with non-recursive; one level */
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(filepath));
-    int vals[] = {0744, 0764};
-    mu_assert_int_in(vals, 2, fs_get_permissions(filepath));
+    int vals[] = {0744, 0764, 0777}; /* Added 0777 for Windows */
+    mu_assert_int_in(vals, 3, fs_get_permissions(filepath));
 
     rmdir(filepath);  /* replace with the fs_rmdir once it is written */
     free(filepath);
 }
 
 MU_TEST(test_mkdir_non_recursive_error) {
-    char* filepath = __str_snprintf("%s%ctest%csecond%c", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
+    char* filepath = __str_snprintf("%s%ctest%csecond", test_dir, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     mu_assert_int_eq(FS_NO_EXISTS, fs_identify_path(filepath));   /* Test missing dir */
     mu_assert_int_eq(FS_FAILURE, fs_mkdir(filepath, false)); /* start with non-recursive; multi-level */
     free(filepath);
@@ -599,8 +599,8 @@ MU_TEST(test_file_t_init_symlink) {
     mu_assert_string_eq("txt", f_extension(f));
     int vals[] = {0644, 0664, 0666}; /* Added 0666 for Windows */
     mu_assert_int_in(vals, 3, f_permissions(f)); /* 0664 is the value for linux, 0644 OSX, 0666 Windows */
-    int size_vals[] = {3259, 3268}; /* 3259 for Unix/Linux, 3268 for Windows (extra \r chars) */
-    mu_assert_int_in(size_vals, 2, f_filesize(f));
+    int size_vals[] = {3259, 3268, 0}; /* 3259 for Unix/Linux, 3268 for Windows (extra \r chars), 0 for Windows symlinks */
+    mu_assert_int_in(size_vals, 3, f_filesize(f));
     mu_assert_int_eq(true , f_is_symlink(f));
     /* haven't loaded the file, so these should be the defaults! */
     mu_assert_int_eq(0 , f_number_lines(f));

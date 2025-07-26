@@ -410,6 +410,40 @@ char** fs_list_dir(const char* path, int* items) {
 int fs_get_raw_mode(const char* path) {
     if (path == NULL)
         return FS_NOT_VALID;
+
+#if defined(__WIN32__) || defined(_WIN32) || defined(__WIN64__) || defined(_WIN64)
+    // On Windows, try to resolve symlinks first
+    HANDLE hFile = CreateFileA(path,
+                              GENERIC_READ,
+                              FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                              NULL,
+                              OPEN_EXISTING,
+                              FILE_FLAG_BACKUP_SEMANTICS, // Needed for directories
+                              NULL);
+
+    if (hFile != INVALID_HANDLE_VALUE) {
+        char resolved_path[MAX_PATH];
+        DWORD result = GetFinalPathNameByHandleA(hFile, resolved_path, MAX_PATH, FILE_NAME_NORMALIZED);
+        CloseHandle(hFile);
+
+        if (result > 0 && result < MAX_PATH) {
+            // Remove the \\?\ prefix that GetFinalPathNameByHandle adds
+            const char* final_path = resolved_path;
+            if (strncmp(resolved_path, "\\\\?\\", 4) == 0) {
+                final_path = resolved_path + 4;
+            }
+
+            // Use regular stat on the resolved path
+            struct stat stats;
+            if (stat(final_path, &stats) == 0) {
+                return stats.st_mode;
+            }
+        }
+    }
+
+    // Fallback to regular stat if symlink resolution fails
+#endif
+
     struct stat stats;
     if (stat(path, &stats) == -1) {
         if (errno == ENOENT)
