@@ -445,7 +445,7 @@ MU_TEST(test_rmdir_recursive) {
     fs_mkdir(path, false);
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(path));
 
-    char* full_depth = __str_snprintf("%s%ca%cb%cc%cd%ce%cf%cg", path, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
+    char* full_depth = __str_snprintf("%s%ca%cb%cc%cd%ce%cf%cg", path, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR, FS_PATH_SEPARATOR);
     fs_mkdir(full_depth, true);
     mu_assert_int_eq(FS_DIRECTORY, fs_identify_path(full_depth));
 
